@@ -24,7 +24,7 @@ table(data$gender)
 # 기술 통계량은 말 그대로, 빈도수와 Percent로 구성이 된다.
 # 패키지 활용을 활용한 기술 통계량을 보다 쉽게 구하도록 한다. 
 # prettyR 패키지에서 freq() 함수 사용
-install.packages("prettyR")
+# install.packages("prettyR")
 library(prettyR)
 
 freq(data)
