@@ -6,14 +6,15 @@
 library(caret) # 머신러닝을 위한 패키지
 library(tidyverse) # 데이터 핸들링 및 시각화를 위한 패키지
 library(doParallel) # 병렬처리를 위한 패키지
+library(ROCR)
+library(pROC)
 
 detectCores() # 현재 자기 컴퓨터의 코어 개수를 반환한다
 
 # 병렬처리에 쓸 코어를 등록한다. 
 # 보통 50% 쓰는 것을 추천한다. (이유: 모형이 개발되는 동안 다른 간단한 작업도 해야 함)
-cl <- makeCluster(2) 
+cl <- parallel::makeCluster(2, setup_timeout = 0.5)
 registerDoParallel(cl)
-
 data("Sonar", package = "mlbench")
 
 set.seed(2020)

@@ -104,7 +104,7 @@ library(doParallel) # 병렬처리를 위한 패키지
 
 detectCores() # 현재 자기 컴퓨터의 코어 개수를 반환한다
 
-cl <- makeCluster(4) 
+cl <- parallel::makeCluster(2, setup_timeout = 0.5)
 registerDoParallel(cl)
 
 # 데이터 분리
@@ -172,7 +172,7 @@ plot(model.03)
 
 #### (3) 파라미터 튜닝 방식 - ntree 개수 심기 ####
 # ntree 개수를 심지 않았다.
-# ntree 개수를 심으려면 for-loop를 
+# ntree 개수를 심으려면 for-loop를 적용한다. 
 set.seed(1234)
 tunegrid2 <- expand.grid(.mtry=c(4:9))
 control <- trainControl(search="grid", 

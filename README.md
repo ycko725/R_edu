@@ -58,10 +58,29 @@ $ git clone https://github.com/chloevan/R_edu.git
 
 - 이 때, 파일 경로에 유의하시기를 바랍니다. 
 
-## V. 이슈
+## VI. 소스코드 실행 Tip
+- 기존 3.6.x 버전 사용자 중, R 4.0.0 버전으로 업그레이드 하셨다면, 특히 `caret` 패키지 내 모형 `train`시 패키지 설치 안내 문구 메시지 팝업이 확인 될 것입니다.  
+  + 예)
+```r
+> plsFit <- train(Class ~ .,
++                 data = training,
++                 method = "pls", 
++                 trControl = control,
++                 metric = "ROC")
+1 package is needed for this model and is not installed. (pls). Would you like to try to install it now?
+1: yes
+2: no
+Selection: plsFit
+Enter an item from the menu, or 0 to exit
+Selection: 
+```
+
+그러면, `Selection:` 에서 `1`을 입력후 `Enter`를 클릭하셔서 설치하시기를 바랍니다. 
+
+## VII. 이슈
 - 소스 코드 실행 시, 에러가 발생이 되면 아래 메일로 문의 주세요.
 [이메일 문의](mailto:j2hoon85@gmail.com)
 
-## VI. 요청사항
+## VIII. 요청사항
 - 위 자료가 마음에 드셨다면, 우측 상단에 :star: `Star`를 꼭 눌러주세요! 
 

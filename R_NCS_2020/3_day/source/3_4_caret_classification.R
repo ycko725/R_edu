@@ -146,7 +146,8 @@ ggplot(rft)
 
 # 랜덤포레스트의 경우 연산이 많아 시간이 오래걸리므로
 # 모형을 저장하는 것이 중요함
-saveRDS(rft, "../model/rft_model.rds")
+# saveRDS(rft, "../model/rft_model.rds")
+save(rft, file = "R_NCS_2020/3_day/model/rft_model.RData")
 
 #### 단계 7.4. 모형 개발 - GBM(Stochastic Gradient Boosting Model) ####
 modelLookup("gbm")
@@ -179,7 +180,8 @@ ggplot(gbm)
 
 # 부스팅의 경우 연산이 많아 시간이 오래걸리므로
 # 모형을 저장하는 것이 중요함
-saveRDS(gbm, "../model/gbm_model.rds")
+# saveRDS(gbm, "../model/gbm_model.rds")
+save(gbm, file = "R_NCS_2020/3_day/model/gbm_model.RData")
 
 #### 단계 7.5. 모형 개발 - avNNet(인공신경망) ####
 modelLookup("avNNet")
@@ -216,16 +218,24 @@ ggplot(snn)
 
 # 인공신경망의 경우 연산이 많아 시간이 오래걸리므로
 # 모형을 저장하는 것이 중요함
-saveRDS(snn, "../model/snn_model.rds")
+# saveRDS(snn, "../model/snn_model.rds")
+save(snn, file = "R_NCS_2020/3_day/model/snn_model.RData")
 
 #### 단계 8. 모형 정확도 기준비교 ####
 
-# 저장된 모형 가져오기
-logis <- readRDS("../model/logis_model.rds")
-rpt <- readRDS("../model/rft_model.rds")
-rft <- readRDS("../model/rft_model.rds")
-gbm <- readRDS("../model/gbm_model.rds")
-snn <- readRDS("../model/snn_model.rds")
+# 저장된 모형 가져오기 (R 3.6.3 버전 까지만 허용)
+# logis <- readRDS("../model/logis_model.rds")
+# rpt <- readRDS("../model/rft_model.rds")
+# rft <- readRDS("../model/rft_model.rds")
+# gbm <- readRDS("../model/gbm_model.rds")
+# snn <- readRDS("../model/snn_model.rds")
+
+# R 4.0.0 이후 버전
+load("R_NCS_2020/3_day/model/logis_model.RData")
+load("R_NCS_2020/3_day/model/rpt_model.RData")
+load("R_NCS_2020/3_day/model/rft_model.RData")
+load("R_NCS_2020/3_day/model/gbm_model.RData")
+load("R_NCS_2020/3_day/model/snn_model.RData")
 
 ## compare models
 resamps <- resamples(

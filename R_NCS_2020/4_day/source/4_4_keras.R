@@ -62,6 +62,7 @@ iris.testLabels <- to_categorical(iris.testtarget)
 # 데이터에 적합한 딥러닝 모형을 적용해야 하는데 신경망 계층(layer)은 몇층으로 할지, 노드는 몇개로 할지, 활성화(activation) 함수는 무엇으로 할지, 하이퍼 모수 학습률(learning rate)은 어떻게 정할지, 다양한 조합이 모형의 성능에 영향을 미치게 된다. 그런 점에서 케라스는 모형자체에 개발자가 집중할 수 있도록 함으로써 큰 도움을 주고 있다.
 
 set.seed(777)
+
 # (1) 모형 초기화
 model <- keras_model_sequential()
 

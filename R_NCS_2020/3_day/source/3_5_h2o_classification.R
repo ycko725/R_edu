@@ -65,12 +65,16 @@ library(caret)
 library(h2o)
 
 #### (1) 데이터 불러오기 ####
+# install.packages("kernlab", dependencies = TRUE)
 data(spam, package = "kernlab")
 glimpse(spam)
 
 # 아래 소스코드를 입력하면 GUI에서 확인할 수 있습니다. 
+localH2O = h2o.init()
 spam_h2o <- as.h2o(spam, destination_frame = "spam_h2o")
 class(spam_h2o)
+
+# http://localhost:54321/flow/index.html Check
 
 #### (2) 결측치 및 중복값 처리 ####
 sapply(spam, function(x) sum(is.na(x)))
