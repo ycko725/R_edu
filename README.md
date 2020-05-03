@@ -63,5 +63,5 @@ $ git clone https://github.com/chloevan/R_edu.git
 [이메일 문의](mailto:j2hoon85@gmail.com)
 
 ## VI. 요청사항
-- 위 자료가 마음에 드셨다면, `:star:`Star`를 꼭 눌러주세요! 
+- 위 자료가 마음에 드셨다면, :star: `Star`를 꼭 눌러주세요! 
 
