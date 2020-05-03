@@ -60,7 +60,7 @@ $ git clone https://github.com/chloevan/R_edu.git
 
 ## V. 이슈
 소스 코드 실행 시, 에러가 발생이 되면 아래 메일로 문의 주세요.
-[mailto](mailto:j2hoon85@gmail.com)
+[이메일 문의](mailto:j2hoon85@gmail.com)
 
 
 
