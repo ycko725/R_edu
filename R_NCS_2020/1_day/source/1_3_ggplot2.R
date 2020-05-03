@@ -213,6 +213,7 @@ eur_pertussis %>%
 
 # ----- (2) 기본 Box Plots와 여러 대안들 -----
 # 박스플롯의 기본 데이터는 비교군을 선정할 때 많으면 많을수록 좋습니다. 
+# install.packages("carData")
 data(Salaries, package="carData")
 
 ggplot(Salaries, 
