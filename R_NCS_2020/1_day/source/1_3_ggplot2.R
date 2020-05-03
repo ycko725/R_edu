@@ -25,7 +25,8 @@
 # 그래프 단계별 층(Layer)을 만들자
 
 #### 3. 데이터 수집 ####
-who_disease <- readxl::read_xlsx("learningspoons/R/data/3rd_week/who_disease.xlsx")
+setwd("/Users/jihoonjung/Documents/R_edu/R_NCS_2020/1_day")
+who_disease <- readxl::read_xlsx("data/who_disease.xlsx")
 
 #### 4. 데이터 확인 ####
 library(dplyr)

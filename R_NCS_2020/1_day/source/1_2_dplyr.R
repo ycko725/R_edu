@@ -31,9 +31,8 @@ str(학생)
 #### 2. 파일 내보내기 ####
 # 1. CSV 파일로 내보내기
 getwd()
-setwd("~/Documents/educationBiz/learningspoons/R/data")
-
-write.csv(x = 학생, file = "학생.csv")
+setwd('R_NCS_2020/1_day/')
+write.csv(x = 학생, file = "data/학생.csv")
 
 # 2. 엑셀파일로 내보내기
 install.packages("writexl")
@@ -64,7 +63,7 @@ library(dplyr)
 
 #### Step 3. 데이터 처리와 관련된 주요 함수 소개 ####
 # 데이터 가져오기
-counties <- readxl::read_xlsx("1st_week/counties.xslx", sheet = 1) 
+counties <- readxl::read_xlsx("data/counties.xslx", sheet = 1) 
 
 # 실무 할 때, 우리는 데이터를 모른다는 전제하에 출발합니다. 
 # 생각보다 데이터셋이 매우 큽니다. 
