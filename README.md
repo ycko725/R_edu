@@ -6,7 +6,7 @@ author: 강사
 
 # NCS 2020 with R <img src="image/HRD.jpg" width="120" align="right" /><img src="image/RStudio.svg" width="120" align="right" />
 
-## 프로그램 설치
+## 필수 프로그램 설치
 - R을 처음 접하시는 분들은 R & RStudio을 각각 설치하여 주시기를 바랍니다. 
   + 윈도우 사용자 [Download R 4.0.0 for Windows](https://cran.r-project.org/bin/windows/base/)
   + Mac 사용자 [R for Mac OS X](https://cran.r-project.org/bin/macosx/)
@@ -15,6 +15,11 @@ author: 강사
 
 - 이제 RStudio을 설치합니다. 
   + [Download RStudio 설치 페이지](https://rstudio.com/products/rstudio/download/) 에 들어가시면 본인의 OS에 맞는 설치 파일을 제공하고 있습니다. (Windows, MacOS, Linux 모두 확인 가능합니다.)
+
+- 프로젝트 관리 프로그램 중 하나인 `Git`을 사용합니다. 
+  + 먼저 [Git](https://git-scm.com/book/ko/v2/%EC%8B%9C%EC%9E%91%ED%95%98%EA%B8%B0-Git-%EC%84%A4%EC%B9%98)을 각 OS에 맞게 설치하시기를 바랍니다. 
+
+- 본 과정에는 `Java` 기반의 머신러닝 패키지인 `h2o` 패키지 실습 예제가 있습니다. 따라서 본인의 OS에 맞는 Java를 설치하시기를 바랍니다. 
 
 ## I. 강의 개요
 - NCS 교재를 기반으로 강사가 참조한 다양한 소스를 통합하여 자료를 만들었습니다. 
@@ -60,7 +65,6 @@ Running under: macOS Catalina 10.15.3
 - docs: 차수별 PDF 자료
 
 ## V. 다운로드 방법
-- 먼저 [Git](https://git-scm.com/book/ko/v2/%EC%8B%9C%EC%9E%91%ED%95%98%EA%B8%B0-Git-%EC%84%A4%EC%B9%98)을 각 OS에 맞게 설치하신 후 터미널에서 아래와 같이 입력하고 실행합니다. 
 
 ```terminal
 $ git clone https://github.com/chloevan/R_edu.git
