@@ -11,7 +11,12 @@
 Sys.getenv("JAVA_HOME")
 # [1] ""
 
-Sys.setenv(JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-13.0.2.jdk/Contents/Home")
+# MacOS
+# Sys.setenv(JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-13.0.2.jdk/Contents/Home")
+
+# Windows
+# Copy: C:\Program Files\Java\jdk1.8.0_251
+Sys.setenv(JAVA_HOME="C:/Program Files/Java/jdk1.8.0_251")
 
 Sys.getenv("JAVA_HOME")
 # [1] "/Library/Java/JavaVirtualMachines/jdk-13.0.2.jdk/Contents/Home"
