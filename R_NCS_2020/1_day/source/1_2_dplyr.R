@@ -35,8 +35,8 @@ setwd('R_NCS_2020/1_day/')
 write.csv(x = 학생, file = "data/학생.csv")
 
 # 2. 엑셀파일로 내보내기
-install.packages("writexl")
-writexl::write_xlsx(x = 학생, path = "학생.xlsx")
+# install.packages("writexl")
+writexl::write_xlsx(x = 학생, path = "data/학생.xlsx")
 
 # 모두 지우기
 rm(list = ls())
