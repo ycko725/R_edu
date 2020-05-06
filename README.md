@@ -19,7 +19,9 @@ author: 강사
 - 프로젝트 관리 프로그램 중 하나인 `Git`을 사용합니다. 
   + 먼저 [Git](https://git-scm.com/book/ko/v2/%EC%8B%9C%EC%9E%91%ED%95%98%EA%B8%B0-Git-%EC%84%A4%EC%B9%98)을 각 OS에 맞게 설치하시기를 바랍니다. 
 
-- 본 과정에는 `Java` 기반의 머신러닝 패키지인 `h2o` 패키지 실습 예제가 있습니다. 따라서 본인의 OS에 맞는 Java를 설치하시기를 바랍니다. 
+- 본 과정에는 `Java` 기반의 머신러닝 패키지인 `h2o` 패키지 실습 예제가 있습니다. 따라서 본인의 OS에 맞는 Java를 설치하시기를 바랍니다.
+  + 윈도우 사용자 참고자료: [JAVA - 자바 JDK 설치 및 개발환경 구축 windows10, 환경변수 설정](https://vo.la/bidN)
+  + MacOS 사용자 참고자료: [Install JDK 12.0.1](https://hongku.tistory.com/367)
 
 ## I. 강의 개요
 - NCS 교재를 기반으로 강사가 참조한 다양한 소스를 통합하여 자료를 만들었습니다. 
