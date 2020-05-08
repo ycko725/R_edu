@@ -44,7 +44,7 @@ author: Chloevan
   + 설치 확인을 위해 다음과 같은 명령어를 순차적으로 입력합니다. 
 ```
 C:\Users\b> javac --version
-javac 14.0.1
+javac 1.8.*
 ```
 
   
