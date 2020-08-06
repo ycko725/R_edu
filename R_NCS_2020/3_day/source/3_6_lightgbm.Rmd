@@ -53,6 +53,13 @@ knitr::opts_chunk$set(echo = TRUE)
   + R 4.0.0 이후부터는 windows에서는 환경세팅이 조금 다르다. 
   따라서, 위에서 별도로 설치하는 것을 권장한다. 
 
+### (5) R & RScript 환경변수 설정
+- 시스템 환경변수에 R 환경변수를 지정한다. 
+  + [환경변수 설정방법](https://0utlier.tistory.com/16)
+```
+- 필자의 경로는 아래와 같았다. 
+```
+C:\Program Files\R\R-4.0.2\bin
 ```
 R version 4.0.2 (2020-06-22)
 Platform: x86_64-w64-mingw32/x64 (64-bit)
@@ -87,3 +94,5 @@ install.packages("jsonlite", type = "source")
 A "toolchain" refers to the collection of software used to build the library. The R package can be built with three different toolchains.`Warning for Windows users: it is recommended to use Visual Studio for its better multi-threading efficiency in Windows for many core systems.` For very simple systems (dual core computers or worse), MinGW64 is recommended for maximum performance. If you do not know what to choose, `it is recommended to use Visual Studio, the default compiler.` Do not try using MinGW in Windows on many core systems. It may result in 10x slower results than Visual Studio.
 
 - 현재 `RStudio`에서 작업하고 있다면, 일단 종료를 한다. 
+
+
