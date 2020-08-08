@@ -1,0 +1,77 @@
+---
+title: "Kaggle with R"
+date: 2020-08-08T21:00:00+09:00
+output: 
+  html_document: 
+    keep_md: true
+    toc: true
+tags:
+  - "Kaggle"
+  - "R"
+  - "pins"
+categories:
+  - "Kaggle"
+  - "R"
+menu: 
+  r:
+    name: Kaggle with R
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## 개요 
+- R 입문부터 머신러닝까지 가르치게 되었다. 
+- 실제 Kaggle 대회 참여 독려를 위해 R에서 `Kaggle` 데이터를 불러와 머신러닝을 진행하는 것을 기획하였다. 
+- `pins` 패키지를 활용하면 보다 쉽게 할 수 있다. 
+
+## (1) Kaggle API with R
+- 먼저 [Kaggle]에 회원 가입을 한다. 
+- 회원 가입 진행 후, Kaggle에서 kaggle.json 파일을 다운로드 받는다. 
+
+![](https://chloevan.github.io/img/kaggle/kaggle_with_colab/kaggle_01_api.png)
+
+- 그리고 아래와 같이 `kaggle.json`을 `RStudio`에 등록한다. 
+
+```{r}
+# install.packages("pins")
+library(pins)
+board_register_kaggle(token = "../../../../../Desktop/kaggle.json")
+```
+- [pins](http://pins.rstudio.com/)는 일종의 `cache`를 이용한 자원 관리 패키지이다. 
+  + 원어: Pin remote resources into a local cache to work offline, improve speed and avoid recomputing; discover and share resources in local folders, 'GitHub', 'Kaggle' or 'RStudio Connect'. Resources can be anything from 'CSV', 'JSON', or image files to arbitrary R objects.
+  
+- 이 패키지를 이용하면 보다 쉽게 `kaggle` 데이터를 불러올 수 있다. 
+
+### (2) 데이터 불러오기 
+- 이제 `titanic` 데이터를 불러오자
+  + 처음 `kaggle` 대회에 참여하는 사람들은 우선 `Join Competiton` 버튼을 클릭한다. 
+    * 참고: [Google Colab with Kaggle - Beginner](https://chloevan.github.io/settings/kaggle_with_colab_beginner/)
+- 소스코드로 확인해본다. 
+```{r}
+pin_find("titanic", board="kaggle")
+```
+
+- 캐글에서 검색된 `titanic`과 관련된 내용이 이렇게 있다. 
+  + 여기에서 `competition`과 관련된 것은 `c/name_of_competition`이기 때문에 `c/titanic`을 입력하도록 한다. 
+  + (`pins` 패키지를 활용해서 함수를 만들어 볼까 잠깐 생각)
+- 이번에는 `pin_get()` 함수를 활용하여 데이터를 불러온다. 
+```{r}
+pin_get("c/titanic")
+```
+- 출력된 경로에 이미 데이터가 다운받아진 것이다. 
+- 이제 데이터를 불러온다. 
+  + 이 때, `pin_get`을 값을 임의의 변수 `dataset`으로 할당한 후 하나씩 불러오도록 한다. 
+  
+```{r}
+dataset <- pin_get("c/titanic")
+train <- read.csv(dataset[3])
+test <- read.csv(dataset[2])
+
+dim(train); dim(test)
+```
+
+- 데이터가 정상적으로 불러와진 것을 확인할 수 있다. 
+- 간단한 시각화, 데이터 가공 후, 모형 생성 및 제출까지 진행하도록 해본다.  

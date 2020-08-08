@@ -1,13 +1,26 @@
 ---
-title: "XGboost in R"
-author: "정지훈"
-date: "8/8/2020"
-output: html_document
+title: "Kaggle with R"
+date: 2020-08-08T21:00:00+09:00
+output: 
+  html_document: 
+    keep_md: true
+    toc: true
+tags:
+  - "Kaggle"
+  - "R"
+  - "pins"
+categories:
+  - "Kaggle"
+  - "R"
+menu: 
+  r:
+    name: Kaggle with R
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+
 
 ## XGBoost 개요
 - 논문 제목 - [XGBoost: A Scalable Tree Boosting System](https://arxiv.org/abs/1603.02754)
@@ -15,7 +28,6 @@ knitr::opts_chunk$set(echo = TRUE)
 - 논문 저자: Tianqi Chen, Carlos Guestrin
 - 논문 소개
 > Tree boosting is a highly effective and widely used machine learning method. In this paper, we describe a scalable end-to-end tree boosting system called XGBoost, which is used widely by data scientists to achieve state-of-the-art results on many machine learning challenges. We propose a novel sparsity-aware algorithm for sparse data and weighted quantile sketch for approximate tree learning. More importantly, we provide insights on cache access patterns, data compression and sharding to build a scalable tree boosting system. By combining these insights, XGBoost scales beyond billions of examples using far fewer resources than existing systems.
-
 - 효과적인 머신러닝 방법
   + 확장가능한 머신러닝 모형
   + A novel sparsity-aware algorithm 
@@ -37,12 +49,3 @@ knitr::opts_chunk$set(echo = TRUE)
 each individual tree and leaves space for future trees to improve the model.
   + Column Subsampling: 랜덤포레스트에 있는 기법, 변수가 많을 때, 변수의 개수를 지정하면 랜덤하게 변수가 투입됨
     * 병렬처리에 적합함
-  
-### (3)
-
-
-## 예졔 코드
-### (1) Kaggle API 다운로드
-
-- 
-
