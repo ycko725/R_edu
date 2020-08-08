@@ -1,0 +1,48 @@
+---
+title: "XGboost in R"
+author: "정지훈"
+date: "8/8/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## XGBoost 개요
+- 논문 제목 - [XGBoost: A Scalable Tree Boosting System](https://arxiv.org/abs/1603.02754)
+- 논문 게재일: Wed, 9 Mar 2016 01:11:51 UTC (592 KB)
+- 논문 저자: Tianqi Chen, Carlos Guestrin
+- 논문 소개
+> Tree boosting is a highly effective and widely used machine learning method. In this paper, we describe a scalable end-to-end tree boosting system called XGBoost, which is used widely by data scientists to achieve state-of-the-art results on many machine learning challenges. We propose a novel sparsity-aware algorithm for sparse data and weighted quantile sketch for approximate tree learning. More importantly, we provide insights on cache access patterns, data compression and sharding to build a scalable tree boosting system. By combining these insights, XGBoost scales beyond billions of examples using far fewer resources than existing systems.
+
+- 효과적인 머신러닝 방법
+  + 확장가능한 머신러닝 모형
+  + A novel sparsity-aware algorithm 
+  + Cache access patterns, Data compression and Sharding
+    * 위 조합을 통해 기존 시스템보다 훨씬 더 적은 리소스를 투입해도 좋은 성과를 낼 수 있도록 구현함. 
+
+
+## 논문 주요 내용 요약
+- `XGboost`는 `GBM`에서 나온 출발한 알고리즘
+- 논문에 있는 주요 내용을 요약한다. 
+
+### (1) 과적합 규제
+- 표준 GBM의 경우 과적합 규제 기능이 없으나 XGBoost는 자체에 과적합 규제 기능으로 과적합에 좀 더 강한 내구성 가짐. 
+  + The additional regularization term helps to smooth the final learnt weights to avoid over-fitting. Intuitively, the regularized objective will tend to select a model employing simple and predictive functions.
+
+### (2) shrinkage and Column Subsampling
+- 두 기법 모두 과적합 방지용으로 사용됨
+  + shrinkage: reduces the influence of
+each individual tree and leaves space for future trees to improve the model.
+  + Column Subsampling: 랜덤포레스트에 있는 기법, 변수가 많을 때, 변수의 개수를 지정하면 랜덤하게 변수가 투입됨
+    * 병렬처리에 적합함
+  
+### (3)
+
+
+## 예졔 코드
+### (1) Kaggle API 다운로드
+
+- 
+
