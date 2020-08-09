@@ -238,9 +238,9 @@ library(ggplot2)
 library(dplyr)
 
 # 성별 막대그래프
-sex.p1 <- train %>% 
+p1 <- train %>% 
   group_by(Sex) %>% 
-  summarise(N = n(), .groups = 'drop')
+  summarise(N = n(), .groups = 'drop') %>% 
   ggplot(aes(Sex, N)) +
   geom_col() +
   geom_text(aes(label = N), size = 5, vjust = 1.2, color = "#FFFFFF") + 
@@ -248,7 +248,7 @@ sex.p1 <- train %>%
   labs(x = "Sex", y = "Count")
 
 # 성별에 따른 Survived 막대그래프
-sex.p2 <- train%>%
+p2 <- train%>%
   dplyr::filter(!is.na(Survived)) %>%
   ggplot(aes(factor(Sex), fill = factor(Survived))) +
   geom_bar(position = "fill") + 
@@ -257,7 +257,7 @@ sex.p2 <- train%>%
   ggtitle("Survival Rate by Sex") + 
   labs(x = "Sex", y = "Rate")
 
-grid.arrange(sex.p1,sex.p2,ncol=2)
+grid.arrange(p1, p2, ncol=2)
 ```
 - 교차분석을 통해 확인된 사항을 시각적으로 한번 더 증명하면 된다. 
 - Note: `Summarize` 함수가 `dplyr version 1.0.0`과 함께 업데이트 되었다. 
