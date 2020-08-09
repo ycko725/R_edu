@@ -49,3 +49,215 @@ knitr::opts_chunk$set(echo = TRUE)
 each individual tree and leaves space for future trees to improve the model.
   + Column Subsampling: 랜덤포레스트에 있는 기법, 변수가 많을 때, 변수의 개수를 지정하면 랜덤하게 변수가 투입됨
     * 병렬처리에 적합함
+
+## 실습 코드
+
+### (1) Kaggle API with R
+- 먼저 [Kaggle]에 회원 가입을 한다. 
+- 회원 가입 진행 후, Kaggle에서 kaggle.json 파일을 다운로드 받는다. 
+
+![](https://chloevan.github.io/img/kaggle/kaggle_with_colab/kaggle_01_api.png)
+
+- 그리고 아래와 같이 `kaggle.json`을 `RStudio`에 등록한다. 
+
+```{r}
+# install.packages("pins")
+library(pins)
+board_register_kaggle(token = "../../../../../Desktop/kaggle.json")
+```
+- [pins](http://pins.rstudio.com/)는 일종의 `cache`를 이용한 자원 관리 패키지이다. 
+  + 원어: Pin remote resources into a local cache to work offline, improve speed and avoid recomputing; discover and share resources in local folders, 'GitHub', 'Kaggle' or 'RStudio Connect'. Resources can be anything from 'CSV', 'JSON', or image files to arbitrary R objects.
+  
+- 이 패키지를 이용하면 보다 쉽게 `kaggle` 데이터를 불러올 수 있다. 
+
+### (2) 데이터 불러오기 
+- 이제 `titanic` 데이터를 불러오자
+  + 처음 `kaggle` 대회에 참여하는 사람들은 우선 `Join Competiton` 버튼을 클릭한다. 
+    * 참고: [Google Colab with Kaggle - Beginner](https://chloevan.github.io/settings/kaggle_with_colab_beginner/)
+- 소스코드로 확인해본다. 
+```{r}
+pin_find("titanic", board="kaggle")
+```
+
+- 캐글에서 검색된 `titanic`과 관련된 내용이 이렇게 있다. 
+  + 여기에서 `competition`과 관련된 것은 `c/name_of_competition`이기 때문에 `c/titanic`을 입력하도록 한다. 
+  + (`pins` 패키지를 활용해서 함수를 만들어 볼까 잠깐 생각)
+- 이번에는 `pin_get()` 함수를 활용하여 데이터를 불러온다. 
+```{r}
+pin_get("c/titanic")
+```
+- 출력된 경로에 이미 데이터가 다운받아진 것이다. 
+- 이제 데이터를 불러온다. 
+  + 이 때, `pin_get`을 값을 임의의 변수 `dataset`으로 할당한 후 하나씩 불러오도록 한다. 
+  
+```{r}
+dataset <- pin_get("c/titanic")
+train <- read.csv(dataset[3])
+test <- read.csv(dataset[2])
+
+dim(train); dim(test)
+```
+
+- 데이터가 정상적으로 불러와진 것을 확인할 수 있다. 
+- 간단한 시각화, 데이터 가공 후, 모형 생성 및 제출까지 진행하도록 해본다.  
+
+#### 변수 설명
+- survival : 생존유무, target 값. (0 = 사망, 1 = 생존)
+- pclass : 티켓 클래스. (1 = 1st, 2 = 2nd, 3 = 3rd)
+- sex : 성별
+- Age : 나이(세)
+- sibsp : 함께 탑승한 형제자매, 배우자 수 총합
+- parch : 함께 탑승한 부모, 자녀 수 총합
+- ticket : 티켓 넘버
+- fare : 탑승 요금
+- cabin : 객실 넘버
+- embarked : 탑승 항구
+
+### (3) 데이터 전처리 (중복값 & 결측치)
+- 데이터를 불러온 뒤에는 항상 중복값 및 결측치를 확인한다. 
+- 먼저 중복값을 확인하자. 
+  + sample code
+```{r}
+temp <- data.frame(a = c(1, 1, 2, 3), 
+                   b = c("a", "a", "b", "c"))
+
+sum(duplicated(temp))
+```
+- 이와 같은 방식으로 계산할 수 있다. 
+- 중복값을 제거할 때는 `dplyr` 패키지 내에 있는 `distinct()` 사용한다. 
+
+```{r}
+dplyr::distinct(temp)
+```
+
+- 이제 본 데이터에 적용한다. 
+
+```{r}
+train <- dplyr::distinct(train); dim(train)
+test <- dplyr::distinct(test); dim(test)
+```
+- train 데이터의 결측치의 개수를 확인해본다. 
+```{r}
+colSums(is.na(train))
+```
+- test 데이터의 결측치의 개수를 확인해본다. 
+```{r}
+colSums(is.na(test))
+```
+- 마찬가지로 `Age`와 `Fare`의 개수가 존재하는 것을 확인할 수 있다. 
+
+### (4) test 데이터 처리법
+- 데이터 전처리 시, 테스트 데이터를 어떻게 처리해야 하는지 많은 분들이 궁금해본다. 
+- 결론부터 말하면, `test` 데이터는 없다고 생각해야 한다. 실제로는 없는 데이터이지만, 실무에 바로 적용을 하지 못하니, 한번 테스트 한다는 뜻이다. 즉, 어떻게 값이 입력될지 모른다고 판단을 해야 한다. 
+  + 따라서, 비록 결측치가 존재하더라도 별도로 처리를 하지 않는다. 
+  + `Age`의 경우 `train` & `test` 데이터에 모두 결측치가 있다고 판단했기 때문에, 결측치는 모두 `0` 또는 `missing values`라고 값을 대체 한다. 
+  + `Fare`는 탑승요금인데, 우선 평균값으로 대치를 한다. 
+- Note: 결측치 처리는 하나의 예시이기 때문에 모든 경우에 적용할 수 있는 것은 아니다. 위 처리 또한 필자의 주관적인 판단이므로, 그저 참고만 해주기를 바란다. 
+- 우선 `Age`부터 처리하자. 
+
+```{r}
+class(train$Age)
+```
+```{r}
+library(ggplot2)
+ggplot(train, aes(x = Age)) + 
+  geom_histogram()
+```
+- 숫자를 재 범주화 할 필요가 있다. 
+
+### (5) 도메인 지식의 필요성
+- `Age`를 현대적 관점 및 국내 관점에서 바라봐서는 안된다. 
+  + 1910년도에는 10대부터 일을 시작했다는 것을 잊지 말자. 
+  + 또한 그들은 위험이 닥쳐도 어느정도 스스로 해결할 수 있는 나이였다는 것을 기억하자. 
+- 필자가 나눈 연령대는 다음과 같다. 
+  + missing values: non-values
+  + 0-13: children
+  + 14-18: teenagers
+  + 19-64: adults
+  + over 65: +65
+- 이제 코딩을 진행한다. 
+  + `cut()` 함수를 활용한다. 
+```{r}
+age_cut <- function(x) {
+  
+  data <- x["Age"]
+  # 지역변수 할당
+  age_labels <- c("children", "teenagers", "adults", "+65")
+  
+  if(sum(is.na(x)) > 0) {
+    # 결측치가 있는 경우 추가
+    print("결측치가 존재합니다.")   
+    int2cat <- cut(as.integer(data$Age), 
+                 breaks=c(0, 13, 18, 64, 
+                          max(data$Age, na.rm = TRUE)), 
+                 labels=age_labels)
+    int2cat <- addNA(int2cat)
+    cat("The levels are:", levels(int2cat))
+  } else {
+    print("결측치가 존재 하지 않습니다.")
+    int2cat <- cut(as.integer(data$Age), 
+                 breaks=c(0, 13, 18, 64, 
+                          max(data$Age, na.rm = TRUE)), 
+                 labels=age_labels)
+    cat("The levels are:", levels(int2cat))
+  }
+
+  return(int2cat)
+}
+
+# 이제 변환을 시도한다. 
+train$Age <- age_cut(train)
+test$Age <- age_cut(test)
+```
+
+- 동일 작업을 해야했기 때문에 함수를 만들었다. 
+  + `breaks`를 보정하면 조금 더 깔끔한 함수가 나올 수 있을 것 같다.
+  + 그러나, 이쯤에서 정리하도록 한다. 
+- 이제 마지막으로 `summary()` 함수를 통해 최종적으로 데이터를 확인한다. 
+
+```{r}
+summary(train)
+```
+- 이 때의 `NA`는 그저 `NA`는 아니다. 
+
+### (6) 시각화
+- 시각화의 기본적인 원리는 `타겟변수`와의 관계이다. 
+- 머신러닝의 주요 내용이 결국 최적의 `feature` 찾기와 연관이 크기 때문이다. 
+- 시각화 및 기초 통계량 검증을 통해 의미 있는 데이터를 파악하도록 한다. 
+  + 그 외, 다양한 예제는 독자들에게 맡기겠다. 
+- 간단하게 예시만 확인해본다. 
+```{r}
+prop.table(table(train$Sex,train$Survived),1)
+```
+- 교차분석을 통해서 확인할 수 있는 것은 여성들이 살 확률이 더 높았다는 것이다. 
+  + `Lady First` 
+
+```{r}
+library(gridExtra)
+library(ggplot2)
+library(dplyr)
+
+# 성별 막대그래프
+sex.p1 <- train %>% 
+  group_by(Sex) %>% 
+  summarise(N = n(), .groups = 'drop')
+  ggplot(aes(Sex, N)) +
+  geom_col() +
+  geom_text(aes(label = N), size = 5, vjust = 1.2, color = "#FFFFFF") + 
+  ggtitle("Bar plot of Sex") +
+  labs(x = "Sex", y = "Count")
+
+# 성별에 따른 Survived 막대그래프
+sex.p2 <- train%>%
+  dplyr::filter(!is.na(Survived)) %>%
+  ggplot(aes(factor(Sex), fill = factor(Survived))) +
+  geom_bar(position = "fill") + 
+  scale_y_continuous(labels = scales::percent) +
+  scale_fill_brewer(palette = "Set1") + 
+  ggtitle("Survival Rate by Sex") + 
+  labs(x = "Sex", y = "Rate")
+
+grid.arrange(sex.p1,sex.p2,ncol=2)
+```
+- 교차분석을 통해 확인된 사항을 시각적으로 한번 더 증명하면 된다. 
+- Note: `Summarize` 함수가 `dplyr version 1.0.0`과 함께 업데이트 되었다. 
