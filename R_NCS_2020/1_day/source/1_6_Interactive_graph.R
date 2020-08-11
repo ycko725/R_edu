@@ -33,13 +33,14 @@ p <- ggplot(mpg, aes(x=displ,
 ggplotly(p)
 
 # 모델링 그래프도 plotly에서 표현될 수 있습니다. 
+install.packages("mosaicData")
 data(CPS85, package = "mosaicData")
 
 cps85_glm <- glm(married ~ sex + age + race + sector, 
                  family="binomial", 
                  data=CPS85)
 
-p <- visreg(cps85_glm, "age",
+p <- visreg::visreg(cps85_glm, "age",
        by = "sex",
        gg = TRUE, 
        scale="response") +
