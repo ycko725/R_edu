@@ -1,10 +1,14 @@
 #### III. 다항 로지스틱 회귀분석 해석 및 보고서 작성 ####
 #### 단계 1. 패키지 설치 ####
+library(dfidx)
 library(mlogit) # 다항 로지스틱 회귀
+library(dplyr)
 
 #### 단계 2. 데이터 불러오기 ####
-setwd("~/Documents/R_edu")
-chatData <- read.csv('R_NCS_2020/3_day/data/chat-up_lines.csv', header = TRUE)
+# setwd("~/Documents/R_edu")
+chatData <- read.csv('chat-up_lines.csv', header = TRUE) %>% 
+  mutate_if(is.character, as.factor)
+
 head(chatData)
 
 # 여기에서 종속변수는 Success 이다. 
@@ -20,15 +24,23 @@ str(chatData)
 # Gender에서 male이 기저 범주가 되도록 한다. 
 # 연구의 목적은 대화문에 대한 여성의 반응이 남성의 반응과는 다르다는 점에 기초함. 
 # 이러한 변경을 통해서, 주 효과들에 대한 매개변수 추정값들에 영향을 미치기는 하나, 우리의 관심사인 상호작용 항들에는 영향이 미미하다. 
-chatData$Gender <- relevel(chatData$Gender, ref = "Male")
+chatData$Gender <- relevel(chatData$Gender, ref = 2)
+
 
 # 데이터 변경
 # 새 데이터 프레임 <- mlogit.data(기존데이터프레임, choice = "결과변수", shape = "wide" 또는 "long")
 mlChat <- mlogit.data(chatData, choice = "Success", shape = "wide")
+
 head(mlChat)
+str(mlChat)
+
+
 
 # 위 표에 대한 설명은 교재 참조
-chatModel <- mlogit(Success ~ 1 | Good_Mate + Funny + Gender + Sex + Gender:Sex + Funny:Gender, data = mlChat, reflevel = 3)
+chatModel <- mlogit(Success ~ 1 | Good_Mate + Funny + Gender + Sex + Gender:Sex + Funny:Gender, 
+                    data = mlChat, 
+                    reflevel = "No response/Walk Off", 
+                    index = c("chid", "alt"))
 
 # 위 formula에 대한 설명이 필요하다. 
 # 결과변수 ~ 예측변수(들) 
@@ -48,13 +60,13 @@ summary(chatModel)
 # 로그 가능도는 교재에서 본 것처럼, 자료에서 설명되지 않은 변동이 어느 정도인지 말해주는 측도이다. 
 # 로그 가능도의 차이 또는 변화는 새 변수가 모형을 어느 정도나 설명하는지를 나타낸다. 
 # 기저 모형만 분석해보자.
-chatBase <- mlogit(Success ~ 1, data = mlChat, reflevel = 3)
+chatBase <- mlogit(Success ~ 0 | Sex, data = mlChat, reflevel = "No response/Walk Off")
 summary(chatBase)
 
-# 기저 모형의 로그 가능도는 -1008
+# 기저 모형의 로그 가능도는 -1004.1
 # 최종모형의 로그 가능도는 -868.74
-# 위 두개의 차이는 139.26이고, 카이제곱 검정은 2를 곱한다. 
-# chisq = 278.52
+# 위 두개의 차이는 135.36이고, 카이제곱 검정은 2를 곱한다. 
+# chisq = 270.72
 # 다른 뜻으로 말하면 최종 모형이 원래 모형보다 변이성을 더 유의하게 더 많이 설명하고 있다. 
 
 data.frame(exp(chatModel$coefficients))
