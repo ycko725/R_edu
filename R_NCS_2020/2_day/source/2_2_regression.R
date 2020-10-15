@@ -12,7 +12,6 @@
 #### 단순 회귀모형 #### 
 
 #### 단계 1. 데이터 가져오기 ####
-setwd("~/Documents/R_edu")
 album <- read.csv("R_NCS_2020/2_day/data/album.csv", stringsAsFactors = FALSE)
 head(album)
 # 독립변수는 adverts = 광고비용

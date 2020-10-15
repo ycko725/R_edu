@@ -1,6 +1,4 @@
 #### 1. 척도별 기술 통계량 구하기 ####
-setwd("~/Documents/R_edu")
-
 data <- read.csv("R_NCS_2020/2_day/data/descriptive.csv", stringsAsFactors = FALSE)
 
 head(data) # 데이터의 상위 6개
