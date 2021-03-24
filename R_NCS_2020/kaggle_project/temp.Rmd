@@ -1,0 +1,29 @@
+---
+title: "Untitled"
+author: "본인 이름"
+date: '2021 3 24 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r, message=FALSE, warning=FALSE}
+library(knitr) # R 마크다운과 관련된 패키지, URL: https://medium.com/excitinglab/withr-r%EA%B3%BC-knitr-r%EB%A7%88%ED%81%AC%EB%8B%A4%EC%9A%B4-bcc123de1334
+library(ggplot2) # 시각화 패키지 
+library(plyr) 
+library(dplyr) # 데이터 가공 패키지
+library(corrplot)
+library(caret)
+library(gridExtra) # 시각화 이미지 분할
+library(scales)
+library(Rmisc)
+library(ggrepel)
+library(randomForest)
+library(psych)
+#  library(xgboost) # 머신러닝 패키지 
+```
+- r chunk에서 message = FALSE를 하게 되면 패키지 불러올 때, 관련 메시지가 안 보임

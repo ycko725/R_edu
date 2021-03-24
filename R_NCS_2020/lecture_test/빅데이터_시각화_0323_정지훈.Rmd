@@ -1,0 +1,80 @@
+---
+title: "자율주행자동차 ADAS 실무 - 빅데이터 분석 수행평가 1차"
+author: "본인 이름"
+date: '2021 3 23 '
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 문제 1. 패키지 설치 방법
+- ggplot2와 dplyr 패키지 설치 방법을 기재하세요. 
+```r
+install.packages("dplyr")
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+## 문제 2. 질적 변수와 양적 변수의 차이에 대해 설명 하세요 
+
+
+## 문제 3. 엑셀 데이터를 불러오세요.
+
+
+```{r}
+# install.packages("here")
+here::here("logo.png")
+```
+
+
+
+```{r}
+counties <- readxl::read_xlsx("data/counties.xslx", sheet = 1)
+glimpse(counties)
+```
+
+## 문제 4. private_work, unemployment를 활용하여 산점도를 작성하세요. 
+- 조건: region을 기준으로 그룹화를 진행합니다. 
+```{r}
+ggplot(data = counties,        # 데이터  
+       aes(x = private_work,   # x축
+           y = unemployment,   # y축
+           colour = region)) + # 색상=region 4개
+  geom_point() # 산점도
+```
+
+
+## 문제 5. dplyr 함수를 활용하여, 아래 데이터를 요약하세요. 
+- counties 데이터를 활용합니다. 
+- 변수 추출은 region, state, men, women
+- 각 region, state 별 men, women 전체 인구수를 구합니다. 
+- 최종 데이터셋 저장 이름은 final_df로 명명합니다. 
+
+```{r}
+counties %>%
+  select(region, state, county, men, women) %>% 
+  group_by(region, state) %>% 
+  summarize(total_men = sum(men), 
+            total_women = sum(women)) %>%
+  filter(region == "North Central") %>% 
+  arrange(desc(total_men)) -> final_df
+  
+glimpse(final_df)
+```
+
+## 문제 6. final_df를 기준으로 막대 그래프를 그립니다. 
+- x축:  state
+- 1개의 region만 선택 / 선택은 자유
+- 색상 꾸미기 등은 자유입니다. 
+- 그래프 정렬도 안해도 됩니다. 
+
+```{r}
+ggplot(final_df, aes(x = state, y = total_men)) + 
+  geom_col()
+```
+
