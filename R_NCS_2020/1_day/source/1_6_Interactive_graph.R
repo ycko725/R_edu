@@ -83,7 +83,10 @@ top5 <- txhousing %>%
 
 tx5 <- semi_join(txhousing, top5, by = "city")
 
-p <- ggplot(tx5, aes(x = date, y = median, colour = city)) + 
+p <- ggplot(tx5, 
+            aes(x = date, 
+                y = median, 
+                colour = city)) + 
   geom_line() + 
   theme_minimal()
 
@@ -113,9 +116,13 @@ p <- ggplot(data, aes(x = dose, y = mean, group = supp, colour = supp)) +
 ggplotly(p)
 
 # plotly 방식
-plot_ly(data = data[which(data$supp == 'OJ'),], x = ~dose, y = ~mean, type = 'scatter', mode = 'lines+markers',
-             name = 'OJ',
-             error_y = ~list(array = sd,
+plot_ly(data = data[which(data$supp == 'OJ'),], 
+        x = ~dose, 
+        y = ~mean, 
+        type = 'scatter', 
+        mode = 'lines+markers',
+        name = 'OJ',
+        error_y = ~list(array = sd,
                              color = '#000000')) %>%
   add_trace(data = data[which(data$supp == 'VC'),], name = 'VC')
 

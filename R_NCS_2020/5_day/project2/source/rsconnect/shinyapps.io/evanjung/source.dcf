@@ -1,0 +1,12 @@
+name: source
+title: source
+username:
+account: evanjung
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 345814
+bundleId: 1382821
+url: https://evanjung.shinyapps.io/source/
+when: 1526801479.94779
+asMultiple: FALSE
+asStatic: FALSE

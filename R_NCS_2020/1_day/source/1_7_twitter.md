@@ -24,5 +24,17 @@ menu:
 ## 트위터 API 인증
 - https://apps.twitter.com에 접속한다. 
   + 회원가입을 진행한다. 
-  
+
+- `create an app` 버튼을 클릭한다. 
 ![](img/twitter01.png)
+
+- 필자는 `Hobbysit`-`Exploring the API`를 선택했다. 
+![](img/twitter02.png)
+  + 그 후에 개인 정보 등을 입력해야 한다. 
+  + 휴대폰, 이메일 인증 등
+
+- 인증 메일이 오기전까지는 조금 시일이 걸린다. 
+  + 
+
+## 
+
