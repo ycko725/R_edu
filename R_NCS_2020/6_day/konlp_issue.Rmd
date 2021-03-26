@@ -1,0 +1,105 @@
+---
+title: "KoNLP 설치"
+author: "DSChloe"
+date: '2021 3 26 '
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 한줄 요약
+- KoNLP는 여기에서 무조건 해결한다. 
+
+## KoNLP 이슈
+- R에서 텍스트 마이닝을 진행할 때에는 반드시 한번쯤은 패키지 설치로 인해 어려움을 겪는다. - R 입문자 분들이 초반에 호기롭게 시작하였다가 대부분 포기하려고 하는 지점이기도 하다. 
+- 사실, 조금 더 간편한 방법이 나오기를 기대한다. 
+
+## 1단계 Java 설치 및 환경 변수 설정
+- `주의: 윈도우 10 64비트` 
+- 여러 좋은 자료들이 많아서 같이 참고하기를 바란다. 
+  + Java 설치 관련: [`[JAVA]` Windows에 자바 설치하기!](https://somjang.tistory.com/entry/JAVA-Windows%EC%97%90-%EC%9E%90%EB%B0%94-%EC%84%A4%EC%B9%98%ED%95%98%EA%B8%B0)
+
+
+- 필자는 Java 8 version을 선택했다. 
+  + 설치가 완료가 되면 아래 두개의 폴더가 있는지를 확인한다. 
+![](images/java01.png)
+- 이번에는 검색창에서 환경 변수를 설정한다. 
+  + 환경변수 관련 : [`[JAVA]` Windows 10에서 JAVA 환경변수 설정하기!](https://somjang.tistory.com/entry/JAVA-Windows-10%EC%97%90%EC%84%9C-%ED%99%98%EA%B2%BD%EB%B3%80%EC%88%98-%EC%84%A4%EC%A0%95%ED%95%98%EA%B8%B0)
+
+```{r}
+system("java -version")
+```
+
+- 위 명령어를 실행했을 때 에러없이 잘 나오면, 자바는 정상적으로 설치가 된 것입니다. 
+
+## 2단계 Rtools 설치
+- R version 4.0 이상을 사용하게 되면, 필수적으로 Rtools40을 설치해야 한다. 
+  + Download: https://cran.r-project.org/bin/windows/Rtools/index.html
+  + 64비트 or 32비트 중 본인 PC에 맞는 버전을 선택한다. 
+  
+- Rtoos 패키지를 설치한 이후에는 마찬가지로 환경변수를 설정해야 한다. 
+  + 해당 페이지에 환경변수 설정하는 방법을 게시하였으니 참조 한다. 
+  + 시스템 환경변수에도 직접 넣을 수 있기는 하지만, 권장하지는 않는다. R에서만 작동하도록 넣어준다. 
+  
+```
+PATH="${RTOOLS40_HOME}\usr\bin;${PATH}"
+```
+
+- 위 PATH를 복사한 후 아래처럼 명령어를 실행한다. 
+
+```{r}
+writeLines('PATH="${RTOOLS40_HOME}\\usr\\bin;${PATH}"', con = "~/.Renviron")
+```
+
+- 만약 복사가 잘못 되었다면, 다음과 같은 명령어를 실행하여 `.Renviron` 파일을 연다. 
+
+```{r}
+# install.packages("usethis")
+usethis::edit_r_environ()
+```
+
+- 위 명령어를 실행하면 `.Renviron` 파일이 열릴 것이다. 
+![](images/r_environ.png)
+
+- 이제 `RStudio`를 `Re-Start`를 진행한다. 
+- 마지막으로, 다음 명령어를 통해서 `make.exe`가 출력되는지 확인한다. 
+```{r}
+Sys.which("make")
+```
+
+## 3단계 KoNLP 설치
+- 이번에는 KoNLP를 설치해보자.
+- KoNLP의 정식 버전은 CRAN에서 내려간 상태이다. 
+- 따라서, 아래와 같이 수동으로 설치를 진행한다. 
+  + 아래 패키지 설치 순서는 지켜줘야 한다. 
+
+```{r}
+# install.packages("rJava")
+# install.packages("remotes")
+remotes::install_github('haven-jeon/KoNLP', upgrade = "never", INSTALL_opts=c("--no-multiarch"))
+```
+
+## 4단계 테스트
+- 설치가 완료가 되었다면, 이제 테스트를 해본다. 
+  + 텍스트는 [위키피디아](https://ko.wikipedia.org/wiki/R_(%ED%94%84%EB%A1%9C%EA%B7%B8%EB%9E%98%EB%B0%8D_%EC%96%B8%EC%96%B4))에서 가져왔다. 
+  
+```{r}
+library(KoNLP)
+
+text <- "R은 통계 계산과 그래픽을 위한 프로그래밍 언어이자 소프트웨어 환경이자 프리웨어이다.[2] 뉴질랜드 오클랜드 대학의 로버트 젠틀맨(Robert Gentleman)과 로스 이하카(Ross Ihaka)에 의해 시작되어 현재는 R 코어 팀이 개발하고 있다. R는 GPL 하에 배포되는 S 프로그래밍 언어의 구현으로 GNU S라고도 한다. R는 통계 소프트웨어 개발과 자료 분석에 널리 사용되고 있으며, 패키지 개발이 용이해 통계 소프트웨어 개발에 많이 쓰이고 있다."
+
+extractNoun(text)
+```
+
+- 결과가 나왔다면 정상적으로 출력이 된 것이다. 
+
+> 제대로 설치가 되었기를 바랍니다. 
+
+
+
+
+
