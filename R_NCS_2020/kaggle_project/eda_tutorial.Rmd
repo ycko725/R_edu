@@ -12,15 +12,10 @@ output:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-#Executive Summary
+# Executive Summary
 
-I started this competition by just focusing on getting a good understanding of the dataset. The EDA is detailed and many visualizations are included. This version also includes modeling. 
 
-* Lasso regressions performs best with a cross validation RMSE-score of 0.1121. Given the fact that there is a lot of multicolinearity among the variables, this was expected. Lasso does not select a substantial number of the available variables in its model, as it is supposed to do.
-* The XGBoost model also performs very well with a cross validation RMSE of 0.1162. 
-* As those two algorithms are very different, averaging predictions is likely to improve the predictions. As the Lasso cross validated RMSE is better than XGBoost's CV score, I decided to weight the Lasso results double.
-
-#Introduction
+# Introduction
 
 Kaggle describes this competition as [follows](https://www.kaggle.com/c/house-prices-advanced-regression-techniques):
 
@@ -38,40 +33,46 @@ With 79 explanatory variables describing (almost) every aspect of residential ho
 Loading R packages used besides base R.
 
 ```{r, message=FALSE, warning=FALSE}
-library(knitr)
+## 데이터 가공 및 시각화
 library(ggplot2)
 library(plyr)
 library(dplyr)
-library(corrplot)
-library(caret)
 library(gridExtra)
+library(ggrepel)
+
+## 데이터 통계 패키지 
+library(psych)
 library(scales)
 library(Rmisc)
-library(ggrepel)
-library(randomForest)
-library(psych)
-library(xgboost)
+library(corrplot) # 상관분석 시각화 
+
+## 기타
+library(knitr)
 ```
 
-Below, I am reading the csv's as dataframes into R.
+## 데이터 수집
 
 ```{r}
 train <- read.csv("train.csv", stringsAsFactors = F)
 test <- read.csv("test.csv", stringsAsFactors = F)
 ```
 
-##Data size and structure
-
-The train dataset consist of character and integer variables. Most of the character variables are actually (ordinal) factors, but I chose to read them into R as character strings as most of them require cleaning and/or feature engineering first. In total, there are 81 columns/variables, of which the last one is the response variable (SalePrice). Below, I am displaying only a glimpse of the variables. All of them are discussed in more detail throughout the document.
+## Data size and structure
+- 질적변수 + 양적변수
+  + 질적변수의 경우 대부분이 서열변수 
+- 종속변수 (SalePrice)
 
 ```{r}
 dim(train)
 str(train[,c(1:10, 81)]) #display first 10 variables and the response variable
 ```
 
+
 ```{r}
-#Getting rid of the IDs but keeping the test IDs in a vector. These are needed to compose the submission file
+# Getting rid of the IDs but keeping the test IDs in a vector. These are needed to compose the submission file
 test_labels <- test$Id
+
+# 특정 변수 삭제 
 test$Id <- NULL
 train$Id <- NULL
 ```
@@ -89,6 +90,9 @@ Without the Id's, the dataframe consists of 79 predictors and our response varia
 ##The response variable; SalePrice
 
 As you can see, the sale prices are right skewed. This was expected as few people can afford very expensive houses. I will keep this in mind, and take measures before modeling.
+```{r}
+all
+```
 
 ```{r, message=FALSE}
 ggplot(data=all[!is.na(all$SalePrice),], aes(x=SalePrice)) +
@@ -137,7 +141,7 @@ It also becomes clear the multicollinearity is an issue. For example: the correl
 -YearRemodAdd: Remodel date (same as construction date if no remodeling or additions)
 
 
-###Overall Quality
+### Overall Quality
 
 Overall Quality has the highest correlation with SalePrice among the numeric variables (0.79). It rates the overall material and finish of the house on a scale from 1 (very poor) to 10 (very excellent).
 
@@ -181,7 +185,7 @@ cat('There are', length(NAcol), 'columns with missing values')
 
 Of course, the 1459 NAs in SalePrice match the size of the test set perfectly. This means that I have to fix NAs in 34 predictor variables.
 
-##Imputing missing data {.tabset}
+## Imputing missing data {.tabset}
 
 In this section, I am going to fix the 34 predictors that contains missing values. I will go through them working my way down from most NAs until I have fixed them all. If I stumble upon a variable that actually forms a group with other variables, I will also deal with them as a group. For instance, there are multiple variables that relate to Pool, Garage, and Basement.
 
@@ -302,8 +306,18 @@ Within Fence, there are 2348 NAs. The values seem to be ordinal. Values:
 ```{r}
 all$Fence[is.na(all$Fence)] <- 'None'
 table(all$Fence)
-all[!is.na(all$SalePrice),] %>% group_by(Fence) %>% summarise(median = median(SalePrice), counts=n())
+all[!is.na(all$SalePrice),] %>% group_by(Fence) %>% 
+  dplyr::summarise(median = median(SalePrice), counts = n())
 ```
+```{r}
+if (require("nycflights13")) {
+carriers <- group_by(flights, carrier)
+summarise(carriers, n())
+mutate(carriers, n = n())
+filter(carriers, n() < 100)
+}
+```
+
 
 My conclusion is that the values do not seem ordinal (no fence is best). Therefore, I will convert Fence into a factor.
 

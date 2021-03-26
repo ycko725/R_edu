@@ -1,3 +1,9 @@
+## SET UP
+library(rsconnect)
+rsconnect::setAccountInfo(name='dschloe', 
+                          token='8A2A71417812085CA81A3427CCD6893F', 
+                          secret='Q0HswPuYOUt2l7J+sCZDsGr4C88op8pGMnPeSzQZ')
+
 #### ~ Source Code ####
 library(shiny)
 library(shinythemes)
@@ -9,6 +15,7 @@ library(DT)
 library(tools)
 
 load(url("http://s3.amazonaws.com/assets.datacamp.com/production/course_4850/datasets/movies.Rdata"))
+
 movies_codebook <- read_csv("http://s3.amazonaws.com/assets.datacamp.com/production/course_4850/datasets/movies_codebook.csv")
 
 # Define UI for application that plots features of movies

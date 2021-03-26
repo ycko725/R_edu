@@ -1,0 +1,1599 @@
+---
+title: "Do it! 쉽게 배우는 R 텍스트 마이닝 - 04 감정 분석: 어떤 마음으로 글을 썼을까?"
+author: "김영우"
+output:
+  xaringan::moon_reader:
+    seal: false
+    css: ["default", "css/custom.css"]
+    lib_dir: libs
+    chakra: libs/remark-latest.min.js
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: true
+      ratio: '16:10'
+      navigation:
+        scroll: true
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE, 
+        width = 80,
+        # width = 70,
+        
+        max.print = 80,
+        tibble.print_max = 40,
+        
+        tibble.width = 80,
+        # tibble.width = 70,
+        
+        # pillar.min_chars = Inf, # tibble 문자 출력 제한
+        servr.interval = 0.01) # Viewer 수정 반영 속도
+
+
+knitr::opts_chunk$set(cache = T, warning = F, message = F, 
+                      dpi = 300, fig.height = 4)
+                      # out.width = "100%"
+
+xaringanExtra::use_tile_view()
+
+library(knitr)
+library(icon)
+library(here)
+```
+
+
+```{r echo=FALSE}
+rm(list = ls())
+
+library(showtext)
+font_add_google(name = "Nanum Gothic", family = "nanumgothic")
+showtext_auto()
+showtext_opts(dpi = 300) # opts_chunk$set(dpi=300)
+
+# code highlighting
+hook_source <- knitr::knit_hooks$get('source')
+knitr::knit_hooks$set(source = function(x, options) {
+  x <- stringr::str_replace(x, "^[[:blank:]]?([^*].+?)[[:blank:]]*#<<[[:blank:]]*$", "*\\1")
+  hook_source(x, options)
+})
+
+
+```
+
+class: title0
+
+Do it! 쉽게 배우는 R 텍스트 마이닝
+
+---
+
+class: no-page-num
+
+<br>
+
+.pull-left[
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+```{r, echo=FALSE, out.width="70%", out.height="70%"}
+include_graphics("https://raw.githubusercontent.com/youngwoos/Doit_textmining/main/cover.png")
+```
+]
+
+.pull-right[
+
+<br>
+<br>
+<br>
+
+`r fontawesome("github")` [github.com/youngwoos/Doit_textmining](https://github.com/youngwoos/Doit_textmining)
+
+`r fontawesome("facebook-square")` [facebook.com/groups/datacommunity](https://facebook.com/groups/datacommunity)
+
+- [네이버책](https://book.naver.com/bookdb/book_detail.nhn?bid=17891971)
+  - [yes24](http://bit.ly/3oUuJOB)
+  - [알라딘](http://bit.ly/3oXOSDn)
+  - [교보문고](https://bit.ly/2LtNOcB)
+]
+
+---
+
+class: title0
+
+04 감정 분석: <br> 어떤 마음으로 글을 썼을까?
+
+---
+
+class: title0-2
+
+We'll make
+
+<br-back-20>
+
+```{r, echo=FALSE, out.width="70%", out.height="70%"}
+include_graphics("Image/04/04_2_2.png")
+```
+
+---
+
+class: title0-2
+
+and
+
+<br-back-40>
+
+```{r, echo=F, out.width="70%", out.height="70%"}
+include_graphics("Image/04/04_4_1.png")
+```
+
+---
+
+<br>
+
+.large2[.font-jua[목차]]
+
+.large[.font-jua[04-1 감정 사전 활용하기]]([link](#04-1))
+
+.large[.font-jua[04-2 댓글 감정 분석하기]]([link](#04-2))
+
+.large[.font-jua[04-3 감정 범주별 주요 단어 살펴보기]]([link](#04-3))
+
+.large[.font-jua[04-4 감정 사전 수정하기]]([link](#04-4))
+
+
+---
+
+
+name: 04-1
+class: title1
+
+04-1 감정 사전 활용하기
+
+---
+
+##### 감정 분석(sentiment analysis)
+- 텍스트에 어떤 감정이 담겨있는지 분석하는 방법
+  - 글쓴이가 어떤 감정을 담아 글을 썼는가?
+  - 사람들이 어떤 주제를 긍정적/부정적으로 느끼는가?
+
+```{r, out.width="80%", eval=F}
+include_graphics("Image/etc/04_1_dic.png")
+```
+
+---
+
+##### 감정 사전
+- '감정 단어'와 '감정의 강도를 표현한 숫자'로 구성된 사전
+- 사전을 이용해 문장의 단어에 감정 점수를 부여한 다음 합산
+
+--
+
+#### 감정 사전 살펴보기
+
+- KNU 한국어 감성사전
+  - 군산대학교 소프트웨어융합공학과에서 개발
+  - `word`: 감정 단어
+  - `polarity`: 감정의 강도
+
+`r fontawesome("lightbulb")` KNU 한국어 감성사전 출처: github.com/park1200656/KnuSentiLex
+
+
+```{r, eval=FALSE}
+# 감정 사전 불러오기
+library(dplyr)
+library(readr)
+dic <- read_csv("knu_sentiment_lexicon.csv")
+```
+
+```{r, echo=FALSE}
+# 감정 사전 불러오기
+library(dplyr)
+library(readr)
+dic <- read_csv("../Data/knu_sentiment_lexicon.csv")
+```
+
+---
+
+.pull-left[
+```{r}
+# 긍정 단어
+dic %>%
+  filter(polarity == 2) %>%
+  arrange(word)
+```
+]
+
+.pull-right[
+
+```{r}
+# 부정 단어
+dic %>%
+  filter(polarity == -2) %>%
+  arrange(word)
+```
+]
+
+
+---
+
+##### 감정 단어의 종류 살펴보기
+
+<br10>
+
+- `word`
+  - 한 단어로 된 단일어,  둘 이상 단어 결합된 복합어
+  - 이모티콘: `^^`, `ㅠㅠ`
+
+
+- `polarity`
+  -  5가지 정수(+2, +1, 0, -1, -2)
+  - `+`: 긍정 단어, `-`: 부정 단어, `0`: 중성 단어
+
+--
+
+.pull-left[
+```{r}
+dic %>%
+  filter(word %in% c("좋은", "나쁜"))
+```
+]
+
+.pull-right[
+```{r}
+dic %>%
+  filter(word %in% c("기쁜", "슬픈"))
+```
+]
+
+---
+
+```{r}
+# 이모티콘
+library(stringr)
+dic %>%
+  filter(!str_detect(word, "[가-힣]")) %>%
+  arrange(word)
+
+```
+
+---
+- 총 14,854개 단어
+
+```{r}
+dic %>%
+  mutate(sentiment = ifelse(polarity >=  1, "pos",
+                     ifelse(polarity <= -1, "neg", "neu"))) %>%
+  count(sentiment)
+```
+
+---
+
+
+#### 문장의 감정 점수 구하기
+
+##### 1. 단어 기준으로 토큰화하기
+```{r}
+df <- tibble(sentence = c("디자인 예쁘고 마감도 좋아서 만족스럽다.",
+                          "디자인은 괜찮다. 그런데 마감이 나쁘고 가격도 비싸다."))
+df
+```
+
+---
+- 텍스트를 단어 기준으로 토큰화: 감정 사전과 동일하게
+- `unnest_tokens(drop = F)`
+  - 원문 제거하지 않기
+  - 단어가 어느 문장에서 추출됐는지 알수 있도록
+
+```{r df, eval=F}
+library(tidytext)
+df <- df %>%
+  unnest_tokens(input = sentence,
+                output = word,
+                token = "words",
+                drop = F)
+
+df
+```
+
+---
+
+```{r, ref.label = "df" , echo=FALSE}
+```
+
+
+---
+
+
+#### 단어에 감정 점수 부여하기
+
+- `dplyr::left_join()`: `word` 기준 감정 사전 결합
+- 감정 사전에 없는 단어 `polarity` `NA` → `0` 부여
+
+```{r join, eval=F}
+
+df <- df %>%
+  left_join(dic, by = "word") %>%
+  mutate(polarity = ifelse(is.na(polarity), 0, polarity))
+
+df
+```
+
+
+---
+
+```{r ref.label="join", echo=F}
+
+```
+
+---
+
+##### 3. 문장별로 감정 점수 합산하기
+
+```{r}
+score_df <- df %>%
+  group_by(sentence) %>%
+  summarise(score  = sum(polarity))
+
+score_df
+```
+
+---
+
+name: 04-2
+class: title1
+
+04-2 댓글 감정 분석하기
+
+---
+
+##### 영화 '기생충' 아카데미상 수상 관련 기사 댓글
+
+#### 기본적인 전처리
+
+- 고유 번호 변수 만들기: 댓글 내용 같아도 구별할 수 있도록
+- html 특수 문자 제거하기: 웹에서 만들어진 텍스트는 html 특수 문자 포함되어 내용 알아보기 불편
+  - `textclean::replace_html()` : html 태그를 공백으로 바꾸기
+  - `stringr::str_squish()`: 중복 공백 제거
+- 특수 문자와 두 글자 미만 단어 포함하기:
+  - 감정 사전의 특수 문자, 모음, 자음으로 된 두 글자 미만의 이모티콘 활용
+
+
+---
+
+```{r eval=F}
+# 데이터 불러오기
+raw_news_comment <- read_csv("news_comment_parasite.csv")
+
+# 기본적인 전처리
+install.packages("textclean")
+library(textclean)
+
+news_comment <- raw_news_comment %>%
+  mutate(id = row_number(),
+         reply = str_squish(replace_html(reply)))
+
+# 데이터 구조 확인
+glimpse(news_comment)
+```
+
+
+```{r echo=F, R.options=list(tibble.width = 50)}
+# 데이터 불러오기
+raw_news_comment <- read_csv("../Data/news_comment_parasite.csv")
+
+# 기본적인 전처리
+# install.packages("textclean")
+library(textclean)
+
+news_comment <- raw_news_comment %>%
+  mutate(id = row_number(),
+         reply = str_squish(replace_html(reply)))
+
+# 데이터 구조 확인
+glimpse(news_comment)
+```
+
+
+---
+
+#### 단어 기준으로 토큰화하고 감정 점수 부여하기
+
+```{r, token-comment, eval=FALSE}
+# 토큰화
+word_comment <- news_comment %>%
+  unnest_tokens(input = reply,
+                output = word,
+                token = "words",
+                drop = F)
+
+word_comment %>%
+  select(word, reply)
+```
+
+---
+
+```{r ref.label="token-comment", R.options=list(tibble.width=50), echo=F}
+```
+---
+
+```{r}
+# 감정 점수 부여
+word_comment <- word_comment %>%
+  left_join(dic, by = "word") %>%
+  mutate(polarity = ifelse(is.na(polarity), 0, polarity))
+
+word_comment %>%
+  select(word, polarity)
+```
+
+---
+
+#### 자주 사용된 감정 단어 살펴보기
+
+
+##### 1. 감정 분류하기
+
+```{r}
+word_comment <- word_comment %>%
+  mutate(sentiment = ifelse(polarity ==  2, "pos",
+                     ifelse(polarity == -2, "neg", "neu")))
+
+word_comment %>%
+  count(sentiment)
+```
+
+---
+
+#### 2. 막대 그래프 만들기
+
+```{r top10_sentiment, eval=F}
+top10_sentiment <- word_comment %>%
+  filter(sentiment != "neu") %>%
+  count(sentiment, word) %>%
+  group_by(sentiment) %>%
+  slice_max(n, n = 10)
+
+top10_sentiment
+```
+
+---
+
+```{r ref.label="top10_sentiment", echo=F}
+```
+
+---
+
+```{r p-top10_sentiment, fig.show='hide'}
+# 막대 그래프 만들기
+library(ggplot2)
+ggplot(top10_sentiment, aes(x = reorder(word, n),
+                            y = n,
+                            fill = sentiment)) +
+  geom_col() +
+  coord_flip() +
+  geom_text(aes(label = n), hjust = -0.3) +
+  facet_wrap(~ sentiment, scales = "free") +
+  scale_y_continuous(expand = expansion(mult = c(0.05, 0.15))) +
+  labs(x = NULL) +
+  theme(text = element_text(family = "nanumgothic"))
+```
+
+`r fontawesome("lightbulb")` `scale_y_continuous()`: 막대-그래프 간격 넓히기. 막대 끝의 빈도 값이 그래프 경계 밖으로 벗어나지 <br> &nbsp;&nbsp;&nbsp;&nbsp;않도록 설정.
+
+---
+
+```{r "p-top10_sentiment", echo=F}
+```
+
+
+---
+
+#### 댓글별 감정 점수 구하고 댓글 살펴보기
+
+
+
+##### 1. 댓글별 감정 점수 구하기
+
+- `id`, `reply`별로 분리한 다음 `polarity` 합산
+- `id`로 먼저 나누는 이유:
+    - 내용이 같은 댓글이 여럿 있더라도 서로 다른 댓글로 취급
+    - `id`별로 먼저 나누지 않으면 내용 같은 댓글 점수 모두 하나로 합산
+
+```{r score_comment, eval=F}
+score_comment <- word_comment %>%
+  group_by(id, reply) %>%
+  summarise(score = sum(polarity)) %>%
+  ungroup()
+
+score_comment %>%
+  select(score, reply)
+```
+
+---
+
+```{r score_comment, echo=F, R.options=list(tibble.width = 50)}
+```
+
+---
+
+##### 2. 감정 점수 높은 댓글 살펴보기
+
+```{r R.options=list(tibble.width = 50)}
+# 긍정 댓글
+score_comment %>%
+  select(score, reply) %>%
+  arrange(-score)
+```
+
+---
+
+##### 2. 감정 점수 높은 댓글 살펴보기
+
+```{r R.options=list(tibble.width = 50)}
+# 부정 댓글
+score_comment %>%
+  select(score, reply) %>%
+  arrange(score)
+```
+
+---
+
+#### 감정 경향 살펴보기
+
+
+
+##### 1. 감정 점수 빈도 구하기
+
+
+.pull-left[
+```{r eval=F}
+score_comment %>%
+  count(score)
+```
+]
+
+.pull-right[
+```{r echo=F}
+score_comment %>%
+  count(score)
+```
+]
+
+---
+
+##### 2. 감정 분류하고 막대 그래프 만들기
+
+```{r}
+# 감정 분류하기
+score_comment <- score_comment %>%
+  mutate(sentiment = ifelse(score >=  1, "pos",
+                     ifelse(score <= -1, "neg", "neu")))
+```
+
+```{r}
+# 감정 빈도와 비율 구하기
+frequency_score <- score_comment %>%
+  count(sentiment) %>%
+  mutate(ratio = n/sum(n)*100)
+
+frequency_score
+```
+
+---
+```{r, p-frequency_score, fig.show='hide'}
+# 막대 그래프 만들기
+ggplot(frequency_score, aes(x = sentiment, y = n, fill = sentiment)) +
+  geom_col() +
+  geom_text(aes(label = n), vjust = -0.3) +
+  scale_x_discrete(limits = c("pos", "neu", "neg"))
+```
+
+`r fontawesome("lightbulb")` `scale_x_discrete()`: x축 순서 정하기
+
+```{r, ref.label="p-frequency_score", echo=F, out.width="70%"}
+# 막대 그래프 만들기
+ggplot(frequency_score, aes(x = sentiment, y = n, fill = sentiment)) +
+  geom_col() +
+  geom_text(aes(label = n), vjust = -0.3) +
+  scale_x_discrete(limits = c("pos", "neu", "neg"))
+```
+
+
+---
+
+##### 3. 비율 누적 막대 그래프 만들기
+
+<br10>
+
+- 샘플 데이터로 비율 누적 막대 그래프 만들기
+  - 데이터에 x축, y축, 누적 막대를 표현할 변수 필요
+
+```{r, out.width="50%"}
+df <- tibble(contry = c("Korea", "Korea", "Japen", "Japen"),  # 축
+             sex = c("M", "F", "M", "F"),                     # 누적 막대
+             ratio = c(60, 40, 30, 70))                       # 값
+df
+```
+
+
+---
+
+```{r, out.width="70%"}
+ggplot(df, aes(x = contry, y = ratio, fill = sex)) + geom_col()
+```
+
+---
+
+- `geom_text()`: 막대에 비율 표기
+- `position_stack(vjust = 0.5)`: 비율을 막대의 가운데에 표시
+
+```{r, out.width="70%"}
+ggplot(df, aes(x = contry, y = ratio, fill = sex)) +
+  geom_col() +
+  geom_text(aes(label = paste0(ratio, "%")),          # % 표시
+            position = position_stack(vjust = 0.5))   # 가운데 표시
+```
+
+---
+
+**댓글의 감정 비율로 누적 막대 그래프 만들기**
+- x축을 구성할 더미 변수(dummy variable) 추가
+
+```{r}
+# 더미 변수 생성
+frequency_score$dummy <- 0
+frequency_score
+```
+
+---
+
+```{r p-frequency_score-ratio, out.width="40%", fig.width=4, fig.height=4}
+ggplot(frequency_score, aes(x = dummy, y = ratio, fill = sentiment)) +
+  geom_col() +
+  geom_text(aes(label = paste0(round(ratio, 1), "%")),
+              position = position_stack(vjust = 0.5)) +
+  theme(axis.title.x = element_blank(),  # x축 이름 삭제
+        axis.text.x  = element_blank(),  # x축 값 삭제
+        axis.ticks.x = element_blank())  # x축 눈금 삭제
+```
+
+---
+```{r ref.label="p-frequency_score-ratio", echo=F, out.width="60%", fig.width=4, fig.height=4}
+```
+
+---
+
+name: 04-3
+class: title1
+
+04-3 감정 범주별 주요 단어 살펴보기
+
+---
+
+
+#### 감정 범주별 단어 빈도 구하기
+
+##### 1. 토큰화하고 두 글자 이상 한글 단어만 남기기
+
+```{r}
+comment <- score_comment %>%
+  unnest_tokens(input = reply,          # 단어 기준 토큰화
+                output = word,
+                token = "words",
+                drop = F) %>%
+  filter(str_detect(word, "[가-힣]") &  # 한글 추출
+         str_count(word) >= 2)          # 두 글자 이상 추출
+```
+
+---
+
+##### 2. 감정 범주별 빈도 구하기
+
+```{r}
+# 감정 및 단어별 빈도 구하기
+frequency_word <- comment %>%
+  filter(str_count(word) >= 2) %>%
+  count(sentiment, word, sort = T)
+
+frequency_word
+```
+
+---
+
+.pull-left[
+```{r}
+# 긍정 댓글 고빈도 단어
+frequency_word %>%
+  filter(sentiment == "pos")
+```
+]
+
+.pull-right[
+```{r}
+# 부정 댓글 고빈도 단어
+frequency_word %>%
+  filter(sentiment == "neg")
+```
+
+]
+
+
+---
+
+#### 상대적으로 자주 사용된 단어 비교하기
+
+##### 1. 로그 오즈비 구하기
+
+.pull-left[
+
+```{r comment_wide, eval=F}
+# wide form으로 변환
+library(tidyr)
+comment_wide <- frequency_word %>%
+  filter(sentiment != "neu") %>%
+  pivot_wider(names_from = sentiment,
+              values_from = n,
+              values_fill = list(n = 0))
+
+comment_wide
+```
+]
+
+.pull-right[
+
+```{r ref.label="comment_wide", echo=F}
+```
+
+]
+
+
+---
+
+```{r}
+# 로그 오즈비 구하기
+comment_wide <- comment_wide %>%
+  mutate(log_odds_ratio = log(((pos + 1) / (sum(pos + 1))) /
+                              ((neg + 1) / (sum(neg + 1)))))
+
+comment_wide
+```
+
+
+---
+
+##### 2. 로그 오즈비가 가장 큰 단어 10개씩 추출하기
+
+```{r odds-top10, eval=F}
+top10 <- comment_wide %>%
+  group_by(sentiment = ifelse(log_odds_ratio > 0, "pos", "neg")) %>%
+  slice_max(abs(log_odds_ratio), n = 10, with_ties = F)
+
+top10
+```
+
+`r fontawesome("lightbulb")` 로그 오즈비 동점 단어 제외
+
+---
+
+```{r odds-top10, echo=F}
+```
+
+---
+
+##### 3. 막대 그래프 만들기
+
+```{r fig.width=6, fig.height=4, out.width="50%"}
+# 막대 그래프 만들기
+ggplot(top10, aes(x = reorder(word, log_odds_ratio),
+                      y = log_odds_ratio,
+                      fill = sentiment)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = NULL) +
+  theme(text = element_text(family = "nanumgothic"))
+```
+
+
+
+---
+
+```{r fig.width=6, fig.height=4, out.width="70%", echo=F}
+# 막대 그래프 만들기
+ggplot(top10, aes(x = reorder(word, log_odds_ratio),
+                      y = log_odds_ratio,
+                      fill = sentiment)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = NULL) +
+  theme(text = element_text(family = "nanumgothic"))
+```
+
+---
+
+name: 04-4
+class: title1
+
+04-4 감정 사전 수정하기
+
+---
+
+#### 감정 단어가 사용된 원문 살펴보기
+
+- `"소름"`, `"미친"`: 긍정적인 감정을 극적으로 표현한 단어
+
+```{r, R.options=list(tibble.width = 50)}
+# "소름"이 사용된 댓글
+score_comment %>%
+  filter(str_detect(reply, "소름")) %>%
+  select(reply)
+```
+
+---
+
+#### 감정 단어가 사용된 원문 살펴보기
+
+- `"소름"`, `"미친"`: 긍정적인 감정을 극적으로 표현한 단어
+
+```{r, R.options=list(tibble.width = 50, tibble.print_max=10)}
+# "미친"이 사용된 댓글
+score_comment %>%
+  filter(str_detect(reply, "미친")) %>%
+  select(reply)
+```
+
+---
+
+- `"소름"`, `"미친"`이 감정 사전에 부정적인 단어로 분류되어 있어서 생긴 문제
+- 텍스트의 맥락이 감정 사전의 맥락과 다르면 반대되는 감정 점수 부여
+- 감정 사전 수정 필요
+
+```{r}
+dic %>% filter(word %in% c("소름", "소름이", "미친"))
+```
+
+
+---
+
+#### 감정 사전 수정하기
+
+- `"소름이"`, `"소름"`, `"미친"`의 `polarity`를 양수 2로 수정
+
+```{r}
+new_dic <- dic %>%
+  mutate(polarity = ifelse(word %in% c("소름", "소름이", "미친"), 2, polarity))
+
+new_dic %>% filter(word %in% c("소름", "소름이", "미친"))
+```
+
+---
+
+
+#### 수정한 사전으로 감정 점수 부여하기
+
+```{r}
+new_word_comment <- word_comment %>%
+  select(-polarity) %>%
+  left_join(new_dic, by = "word") %>%
+  mutate(polarity = ifelse(is.na(polarity), 0, polarity))
+```
+
+---
+
+#### 댓글별 감정 점수 구하기
+
+<br-back-10>
+
+```{r, R.options=list(tibble.width = 50)}
+new_score_comment <- new_word_comment %>%
+  group_by(id, reply) %>%
+  summarise(score = sum(polarity)) %>%
+  ungroup()
+
+new_score_comment %>%
+  select(score, reply) %>%
+  arrange(-score)
+```
+
+`r fontawesome("lightbulb")` `ungroup()`: 이후 분석 작업은 그룹별로 처리하지 않도록 그룹 해제
+
+---
+
+
+
+
+#### 전반적인 감정 경향 살펴보기
+
+
+##### 1. 감정 분류하기
+
+```{r}
+# 1점 기준으로 긍정 중립 부정 분류
+new_score_comment <- new_score_comment %>%
+  mutate(sentiment = ifelse(score >=  1, "pos",
+                     ifelse(score <= -1, "neg", "neu")))
+```
+
+---
+
+##### 2. 감정 범주별 빈도와 비율 구하기
+
+.pull-left[
+```{r}
+# 원본 감정 사전 활용
+score_comment %>% #<<
+  count(sentiment) %>%
+  mutate(ratio = n/sum(n)*100)
+```
+]
+
+.pull-right[
+
+```{r}
+# 수정한 감정 사전 활용
+new_score_comment %>% #<<
+  count(sentiment) %>%
+  mutate(ratio = n/sum(n)*100)
+```
+]
+
+---
+
+##### 3. 분석 결과 비교하기
+
+```{r}
+word <- "소름|소름이|미친"
+```
+
+
+.pull-left[
+```{r}
+# 원본 감정 사전 활용
+score_comment %>% #<<
+  filter(str_detect(reply, word)) %>%
+  count(sentiment)
+```
+]
+
+.pull-right[
+
+
+```{r}
+# 수정한 감정 사전 활용
+new_score_comment %>% #<<
+  filter(str_detect(reply, word)) %>%
+  count(sentiment)
+```
+]
+
+`r icon_style(fontawesome("exclamation-triangle"), fill = "#FF7333")` `str_detect()`에 여러 문자를 입력할 때는 `|`로 문자를 구분
+
+---
+
+#### 감정 범주별 주요 단어 살펴보기
+
+##### 1. 두 글자 이상 한글 단어만 남기고 단어 빈도 구하기
+
+```{r}
+# 토큰화 및 전처리
+new_comment <- new_score_comment %>%
+  unnest_tokens(input = reply,
+                output = word,
+                token = "words",
+                drop = F) %>%
+  filter(str_detect(word, "[가-힣]") &
+           str_count(word) >= 2)
+
+# 감정 및 단어별 빈도 구하기
+new_frequency_word <- new_comment %>%
+  count(sentiment, word, sort = T)
+```
+
+
+---
+
+##### 2. 로그 오즈비 구하기
+
+```{r}
+# Wide form으로 변환
+new_comment_wide <- new_frequency_word %>%
+  filter(sentiment != "neu") %>%
+  pivot_wider(names_from = sentiment,
+              values_from = n,
+              values_fill = list(n = 0))
+
+# 로그 오즈비 구하기
+new_comment_wide <- new_comment_wide %>%
+  mutate(log_odds_ratio = log(((pos + 1) / (sum(pos + 1))) /
+                              ((neg + 1) / (sum(neg + 1)))))
+```
+
+---
+
+##### 3. 로그 오즈비가 큰 단어로 막대 그래프 만들기
+
+
+```{r fig.width=6, fig.height=4, out.width="38%"}
+new_top10 <- new_comment_wide %>%
+  group_by(sentiment = ifelse(log_odds_ratio > 0, "pos", "neg")) %>%
+  slice_max(abs(log_odds_ratio), n = 10, with_ties = F)
+
+ggplot(new_top10, aes(x = reorder(word, log_odds_ratio),
+                      y = log_odds_ratio,
+                      fill = sentiment)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = NULL) +
+  theme(text = element_text(family = "nanumgothic"))
+```
+
+---
+
+```{r fig.width=6, fig.height=4, out.width="80%", echo=FALSE}
+new_top10 <- new_comment_wide %>%
+  group_by(sentiment = ifelse(log_odds_ratio > 0, "pos", "neg")) %>%
+  slice_max(abs(log_odds_ratio), n = 10, with_ties = F)
+
+ggplot(new_top10, aes(x = reorder(word, log_odds_ratio),
+                      y = log_odds_ratio,
+                      fill = sentiment)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = NULL) +
+  theme(text = element_text(family = "nanumgothic"))
+```
+
+---
+
+##### 4. 주요 단어가 사용된 댓글 살펴보기
+
+##### 긍정 댓글 원문
+
+```{r, R.options=list(tibble.width = 50)}
+new_score_comment %>%
+  filter(sentiment == "pos" & str_detect(reply, "축하")) %>%
+  select(reply)
+```
+
+---
+
+##### 4. 주요 단어가 사용된 댓글 살펴보기
+
+##### 긍정 댓글 원문
+
+
+```{r, R.options=list(tibble.width = 50)}
+new_score_comment %>%
+  filter(sentiment == "pos" & str_detect(reply, "소름")) %>%
+  select(reply)
+```
+
+---
+
+##### 4. 주요 단어가 사용된 댓글 살펴보기
+
+##### 부정 댓글 원문
+
+```{r, R.options=list(tibble.width = 50, tibble.print_max = 15)}
+new_score_comment %>%
+  filter(sentiment == "neg" & str_detect(reply, "좌빨")) %>%
+  select(reply)
+```
+
+---
+
+##### 4. 주요 단어가 사용된 댓글 살펴보기
+
+##### 부정 댓글 원문
+
+```{r, R.options=list(tibble.width = 50)}
+new_score_comment %>%
+  filter(sentiment == "neg" & str_detect(reply, "못한")) %>%
+  select(reply)
+```
+
+---
+
+##### 5. 분석 결과 비교하기
+
+.pull-left[
+```{r eval=F}
+# 수정한 감정 사전 활용
+new_top10 %>% #<<
+  select(-pos, -neg) %>%
+  arrange(-log_odds_ratio)
+```
+]
+
+.pull-right[
+
+```{r eval=F}
+# 원본 감정 사전 활용
+top10 %>% #<<
+  select(-pos, -neg) %>%
+  arrange(-log_odds_ratio)
+```
+]
+
+---
+
+.pull-left[
+```{r echo=F, highlight.output = c(7)}
+# 수정한 감정 사전 활용
+new_top10 %>%
+  select(-pos, -neg) %>%
+  arrange(-log_odds_ratio)
+```
+]
+
+.pull-right[
+
+```{r echo=F, highlight.output = c(22, 24)}
+# 원본 감정 사전 활용
+top10 %>%
+  select(-pos, -neg) %>%
+  arrange(-log_odds_ratio)
+```
+]
+
+---
+
+- `"미친"`이 목록에서 사라짐: 로그 오즈비가 10위 안에 들지 못할 정도로 낮기 때문
+  - 긍정 단어 10위 `"최고의"` 로그 오즈비 2.90
+
+```{r}
+new_comment_wide %>%
+  filter(word == "미친")
+```
+
+
+---
+
+
+class: title1
+
+정리하기
+
+---
+
+### 정리하기
+
+##### 1. 자주 사용된 감정 단어 살펴보기
+
+```{r eval=FALSE}
+# 단어에 감정 점수 부여
+word_comment <- word_comment %>%
+  left_join(dic, by = "word") %>%
+  mutate(polarity = ifelse(is.na(polarity), 0, polarity))
+
+# 감정 분류
+word_comment <- word_comment %>%
+  mutate(sentiment = ifelse(polarity ==  2, "pos",
+                     ifelse(polarity == -2, "neg", "neu")))
+
+# 자주 사용된 감정 단어 추출
+top10_sentiment <- word_comment %>%
+  filter(sentiment != "neu") %>%
+  count(sentiment, word) %>%
+  group_by(sentiment) %>%
+  slice_max(n, n = 10)
+```
+
+---
+
+### 정리하기
+
+##### 2. 텍스트의 감정 점수 구하기
+
+```{r eval=FALSE}
+# 텍스트별로 단어의 감정 점수 합산
+score_comment <- word_comment %>%
+  group_by(id, reply) %>%
+  summarise(score = sum(polarity)) %>%
+  ungroup()
+```
+
+
+---
+
+### 정리하기
+
+##### 3. 감정 범주별 주요 단어 살펴보기
+
+
+```{r eval=FALSE}
+# 감정 범주 변수 생성
+score_comment <- score_comment %>%
+  mutate(sentiment = ifelse(score >=  1, "pos",
+                     ifelse(score <= -1, "neg", "neu")))
+
+# 토큰화 및 전처리
+comment <- score_comment %>%
+  unnest_tokens(input = reply,
+                output = word,
+                token = "words",
+                drop = F) %>%
+  filter(str_detect(word, "[가-힣]") &
+         str_count(word) >= 2)
+
+# 감정 범주별 단어 빈도 구하기
+frequency_word <- comment %>%
+  count(sentiment, word, sort = T)
+```
+
+---
+
+### 정리하기
+
+##### 3. 감정 범주별 주요 단어 살펴보기
+
+```{r eval=FALSE}
+# 로그 오즈비 구하기
+comment_wide <- frequency_word %>%
+  filter(sentiment != "neu") %>%
+  pivot_wider(names_from = sentiment,
+              values_from = n,
+              values_fill = list(n = 0))
+
+comment_wide <- comment_wide %>%
+  mutate(log_odds_ratio = log(((pos + 1) / (sum(pos + 1))) /
+                              ((neg + 1) / (sum(neg + 1)))))
+
+# 긍정, 부정 텍스트에 상대적으로 자주 사용된 단어 추출
+top10 <- comment_wide %>%
+  group_by(sentiment = ifelse(log_odds_ratio > 0, "pos", "neg")) %>%
+  slice_max(abs(log_odds_ratio), n = 10)
+```
+
+---
+
+### 분석 도전
+
+**`"news_comment_BTS.csv"`에는 2020년 9월 21일 방탄소년단이 '빌보드 핫 100 차트' 1위에 오른 소식을 <br>다룬 기사에 달린 댓글이 들어있습니다. `"news_comment_BTS.csv"`를 이용해 문제를 해결해 보세요.**
+
+Q1. `"news_comment_BTS.csv"`를 불러온 다음 행 번호를 나타낸 변수를 추가하고 분석에 적합하게 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;전처리하세요.
+
+
+Q2. 댓글을 띄어쓰기 기준으로 토큰화하고 감정 사전을 이용해 댓글의 감정 점수를 구하세요.
+
+Q3. 감정 범주별 댓글 빈도를 나타낸 막대 그래프를 만드세요.
+
+Q4. 댓글을 띄어쓰기 기준으로 토큰화한 다음 감정 범주별 단어 빈도를 구하세요.
+
+Q5. 로그 오즈비를 이용해 긍정 댓글과 부정 댓글에 상대적으로 자주 사용된 단어를 10개씩 추출하세요.
+
+Q6. 긍정 댓글과 부정 댓글에 상대적으로 자주 사용된 단어를 나타낸 막대 그래프를 만드세요.
+
+Q7. 'Q3'에서 만든 데이터를 이용해 '긍정 댓글에 가장 자주 사용된 단어'를 언급한 댓글을 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 감정 점수가 높은 순으로 출력하세요.
+
+Q8. 'Q3'에서 만든 데이터를 이용해 '부정 댓글에 가장 자주 사용된 단어'를 언급한 댓글을 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;감정 점수가 낮은 순으로 출력하세요.
+
+---
+
+
+Q1. `"news_comment_BTS.csv"`를 불러온 다음 행 번호를 나타낸 변수를 추가하고 분석에 적합하게 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;전처리하세요.
+
+
+```{r eval=F}
+# 기사 댓글 불러오기
+library(readr)
+library(dplyr)
+raw_news_comment <- read_csv("news_comment_BTS.csv")
+glimpse(raw_news_comment)
+```
+
+```{r echo=F, R.options=list(tibble.width = 60)}
+library(readr)
+library(dplyr)
+raw_news_comment <- read_csv("../Data/news_comment_BTS.csv")
+glimpse(raw_news_comment)
+```
+
+---
+
+Q1. `"news_comment_BTS.csv"`를 불러온 다음 행 번호를 나타낸 변수를 추가하고 분석에 적합하게 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;전처리하세요.
+
+```{r bts_news_comment, R.options=list(tibble.width = 50), eval=F}
+# 전처리
+library(stringr)
+library(textclean)
+news_comment <- raw_news_comment %>%
+  mutate(id = row_number(),
+         reply = str_squish(replace_html(reply)))
+
+news_comment %>%
+  select(id, reply)
+```
+
+---
+
+```{r ref.label="bts_news_comment", echo=F, R.options=list(tibble.width = 50)}
+
+```
+
+
+
+---
+
+Q2. 댓글을 띄어쓰기 기준으로 토큰화하고 감정 사전을 이용해 댓글의 감정 점수를 구하세요.
+
+
+```{r token_word_comment, eval=F}
+# 토큰화
+library(tidytext)
+library(KoNLP)
+word_comment <- news_comment %>%
+  unnest_tokens(input = reply,
+                output = word,
+                token = "words",  # 띄어쓰기 기준
+                drop = F)         # 원문 유지
+
+word_comment %>%
+  select(word)
+```
+
+---
+
+
+```{r ref.label="token_word_comment", echo=F}
+
+```
+
+
+---
+
+Q2. 댓글을 띄어쓰기 기준으로 토큰화하고 감정 사전을 이용해 댓글의 감정 점수를 구하세요.
+
+```{r eval=F}
+# 감정 사전 불러오기
+dic <- read_csv("knu_sentiment_lexicon.csv")
+
+# 단어에 감정 점수 부여
+word_comment <- word_comment %>%
+  left_join(dic, by = "word") %>%
+  mutate(polarity = ifelse(is.na(polarity), 0, polarity))
+
+word_comment %>%
+  select(word, polarity) %>%
+  arrange(-polarity)
+```
+
+---
+
+```{r score_word_comment, echo=FALSE}
+# 감정 사전 불러오기
+dic <- read_csv("../Data/knu_sentiment_lexicon.csv")
+
+# 단어에 감정 점수 부여
+word_comment <- word_comment %>%
+  left_join(dic, by = "word") %>%
+  mutate(polarity = ifelse(is.na(polarity), 0, polarity))
+
+word_comment %>%
+  select(word, polarity) %>%
+  arrange(-polarity)
+```
+
+
+---
+
+Q2. 댓글을 띄어쓰기 기준으로 토큰화하고 감정 사전을 이용해 댓글의 감정 점수를 구하세요.
+
+```{r, q2_score_comment,R.options=list(tibble.width = 50), eval=FALSE}
+# 댓글별로 단어의 감정 점수 합산
+score_comment <- word_comment %>%
+  group_by(id, reply) %>%
+  summarise(score = sum(polarity)) %>%
+  ungroup()
+
+score_comment %>%
+  select(score, reply) %>%
+  arrange(-score)
+```
+
+
+---
+
+```{r, ref.label="q2_score_comment", R.options=list(tibble.width = 50), echo=FALSE}
+```
+
+
+---
+
+Q3. 감정 범주별 댓글 빈도를 나타낸 막대 그래프를 만드세요.
+
+```{r, R.options=list(tibble.width = 50)}
+# 감정 범주 변수 생성
+score_comment <- score_comment %>%
+  mutate(sentiment = ifelse(score >=  1, "pos",
+                     ifelse(score <= -1, "neg", "neu")))
+
+score_comment %>%
+  select(sentiment, reply)
+```
+
+---
+
+Q3. 감정 범주별 댓글 빈도를 나타낸 막대 그래프를 만드세요.
+
+```{r}
+# 감정 범주 빈도 구하기
+frequency_score <- score_comment %>%
+  count(sentiment)
+
+frequency_score
+```
+
+---
+
+Q3. 감정 범주별 댓글 빈도를 나타낸 막대 그래프를 만드세요.
+
+```{r fig.width=6, fig.height=4, out.width="50%"}
+# 막대 그래프 만들기
+library(ggplot2)
+ggplot(frequency_score, aes(x = sentiment, y = n, fill = sentiment)) +
+  geom_col() +
+  geom_text(aes(label = n), vjust = -0.3)
+```
+
+---
+
+```{r fig.width=6, fig.height=4, out.width="80%", echo=F}
+# 막대 그래프 만들기
+library(ggplot2)
+ggplot(frequency_score, aes(x = sentiment, y = n, fill = sentiment)) +
+  geom_col() +
+  geom_text(aes(label = n), vjust = -0.3)
+```
+
+
+
+---
+
+Q4. 댓글을 띄어쓰기 기준으로 토큰화한 다음 감정 범주별 단어 빈도를 구하세요.
+
+.pull-left[
+
+```{r q4_frequency_word, eval=F}
+# 토큰화
+comment <- score_comment %>%
+  unnest_tokens(input = reply,
+                output = word,
+                token = "words",
+                drop = F)
+
+# 감정 범주별 단어 빈도 구하기
+frequency_word <- comment %>%
+  count(sentiment, word, sort = T)
+
+frequency_word
+```
+]
+
+.pull-right[
+
+```{r ref.label="q4_frequency_word", echo=F}
+```
+
+]
+
+---
+
+Q5. 로그 오즈비를 이용해 긍정 댓글과 부정 댓글에 상대적으로 자주 사용된 단어를 10개씩 추출하세요.
+
+.pull-left[
+
+```{r q5_comment_wide, eval=F}
+# long form을 wide form으로 변환
+library(tidyr)
+comment_wide <- frequency_word %>%
+  filter(sentiment != "neu") %>%
+  pivot_wider(names_from = sentiment,
+              values_from = n,
+              values_fill = list(n = 0))
+
+comment_wide
+```
+
+]
+
+.pull-right[
+```{r ref.label="q5_comment_wide", echo=F}
+
+```
+
+
+]
+
+
+
+---
+
+Q5. 로그 오즈비를 이용해 긍정 댓글과 부정 댓글에 상대적으로 자주 사용된 단어를 10개씩 추출하세요.
+
+```{r}
+# 로그 오즈비 구하기
+comment_wide <- comment_wide %>%
+  mutate(log_odds_ratio = log(((pos + 1) / (sum(pos + 1))) /
+                              ((neg + 1) / (sum(neg + 1)))))
+
+comment_wide
+```
+
+
+---
+
+Q5. 로그 오즈비를 이용해 긍정 댓글과 부정 댓글에 상대적으로 자주 사용된 단어를 10개씩 추출하세요.
+
+```{r R.options=list(tibble.print_max=10)}
+# 긍정, 부정 댓글에 상대적으로 자주 사용된 단어 추출
+top10 <- comment_wide %>%
+  group_by(sentiment = ifelse(log_odds_ratio > 0, "pos", "neg")) %>%
+  slice_max(abs(log_odds_ratio), n = 10)
+
+top10
+```
+
+---
+
+Q6. 긍정 댓글과 부정 댓글에 상대적으로 자주 사용된 단어를 나타낸 막대 그래프를 만드세요.
+```{r fig.width=6, fig.height=4.5, out.width="50%", eval=F}
+ggplot(top10, aes(x = reorder(word, log_odds_ratio),
+                      y = log_odds_ratio,
+                      fill = sentiment)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = NULL)
+```
+
+```{r fig.width=6, fig.height=4.5, out.width="50%", echo=F}
+ggplot(top10, aes(x = reorder(word, log_odds_ratio),
+                      y = log_odds_ratio,
+                      fill = sentiment)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = NULL) +
+  theme(text = element_text("nanumgothic"))
+```
+
+---
+
+```{r fig.width=6, fig.height=4.5, out.width="80%", echo=F}
+ggplot(top10, aes(x = reorder(word, log_odds_ratio),
+                      y = log_odds_ratio,
+                      fill = sentiment)) +
+  geom_col() +
+  coord_flip() +
+  labs(x = NULL) +
+  theme(text = element_text("nanumgothic"))
+```
+
+---
+
+Q7. 'Q3'에서 만든 데이터를 이용해 '긍정 댓글에 가장 자주 사용된 단어'를 언급한 댓글을 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 감정 점수가 높은 순으로 출력하세요.
+
+```{r, R.options=list(tibble.width = 50)}
+score_comment %>%
+  filter(str_detect(reply, "자랑스럽다")) %>%
+  arrange(-score) %>%
+  select(reply)
+```
+
+
+---
+
+Q8. 'Q3'에서 만든 데이터를 이용해 '부정 댓글에 가장 자주 사용된 단어'를 언급한 댓글을 <br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;감정 점수가 낮은 순으로 출력하세요.
+
+```{r, R.options=list(tibble.width = 50)}
+score_comment %>%
+  filter(str_detect(reply, "국내")) %>%
+  arrange(score) %>%
+  select(reply)
+```
+
+
+---
+
+
+class: title0
+
+끝

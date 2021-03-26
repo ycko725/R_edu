@@ -1,0 +1,2480 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Do it! 쉽게 배우는 R 텍스트 마이닝 - 07 텍스트 마이닝 프로젝트: 타다 금지법 기사 댓글 분석</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="김영우" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/tile-view/tile-view.css" rel="stylesheet" />
+    <script src="libs/tile-view/tile-view.js"></script>
+    <link rel="stylesheet" href="css/custom_06.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+
+
+
+
+
+class: title0
+
+Do it! 쉽게 배우는 R 텍스트 마이닝
+
+---
+
+class: no-page-num
+
+&lt;br&gt;
+
+.pull-left[
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;
+&lt;img src="https://raw.githubusercontent.com/youngwoos/Doit_textmining/main/cover.png" width="70%" height="70%" /&gt;
+]
+
+.pull-right[
+
+&lt;br&gt;
+&lt;br&gt;
+&lt;br&gt;
+
+&lt;svg viewBox="0 0 496 512" xmlns="http://www.w3.org/2000/svg" style="height:1em;fill:currentColor;position:relative;display:inline-block;top:.1em;"&gt;  [ comment ]  &lt;path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"&gt;&lt;/path&gt;&lt;/svg&gt; [github.com/youngwoos/Doit_textmining](https://github.com/youngwoos/Doit_textmining)
+
+&lt;svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="height:1em;fill:currentColor;position:relative;display:inline-block;top:.1em;"&gt;  [ comment ]  &lt;path d="M400 32H48A48 48 0 0 0 0 80v352a48 48 0 0 0 48 48h137.25V327.69h-63V256h63v-54.64c0-62.15 37-96.48 93.67-96.48 27.14 0 55.52 4.84 55.52 4.84v61h-31.27c-30.81 0-40.42 19.12-40.42 38.73V256h68.78l-11 71.69h-57.78V480H400a48 48 0 0 0 48-48V80a48 48 0 0 0-48-48z"&gt;&lt;/path&gt;&lt;/svg&gt; [facebook.com/groups/datacommunity](https://facebook.com/groups/datacommunity)
+
+- [네이버책](https://book.naver.com/bookdb/book_detail.nhn?bid=17891971)
+  - [yes24](http://bit.ly/3oUuJOB)
+  - [알라딘](http://bit.ly/3oXOSDn)
+  - [교보문고](https://bit.ly/2LtNOcB)
+]
+
+---
+
+class: title0
+
+07 텍스트 마이닝 프로젝트:  
+타다 금지법 기사 댓글 분석
+
+---
+
+class: title0-2
+
+We'll make
+
+&lt;br-back-30&gt;
+
+&lt;img src="Image/07/07_2_1.png" width="50%" /&gt;
+
+---
+
+class: title0-2
+
+We'll make
+
+&lt;br-back-30&gt;
+
+&lt;img src="Image/07/07_4_3.png" width="62%" /&gt;
+
+---
+
+class: title0-2
+
+and
+
+&lt;br-back-40&gt;
+
+&lt;img src="Image/07/07_5_4.png" width="50%" /&gt;
+
+---
+
+&lt;br&gt;
+
+.large2[.font-jua[목차]]
+
+.large[.font-jua[07-1 주요 단어 살펴보기]]([link](#07-1))
+
+.large[.font-jua[07-2 공감, 비공감 댓글 비교하기 ]]([link](#07-2))
+
+.large[.font-jua[07-3 관심 댓글 비교하기]]([link](#07-3))
+
+.large[.font-jua[07-4 단어 간 관계 살펴보기]]([link](#07-4))
+
+.large[.font-jua[07-5 토픽 모델링]]([link](#07-5))
+
+---
+
+name: 07-1
+class: title1
+
+07-1 주요 단어 살펴보기
+
+---
+
+#### 타다 금지법(여객자동차 운수사업법 개정안)
+- 2019년 12월 5일 국회 국토교통위원회 교통법안심사소위 통과
+- 주요 규정: 관광 목적으로 11~15인승 승합차를 빌리는 경우에만 운전자를 알선할 수 있다
+- 타다는 더 이상 서비스를 유지할 수 없는 상황
+
+--
+
+#### 분석 절차
+- 1.단어 빈도를 구합니다.
+- 2.막대 그래프를 만들어 주요 단어를 살펴봅니다.
+
+
+---
+
+
+#### 기본적인 전처리
+
+- 타다 금지법 관련 네이버 뉴스 기사 댓글 불러오기: `news_comment_tada.csv`
+
+
+```r
+# 데이터 불러오기
+library(readr)
+library(dplyr)
+
+raw_tada &lt;- read_csv("news_comment_tada.csv") %&gt;%
+  mutate(id = row_number())
+
+glimpse(raw_tada)
+```
+
+
+```
+## Rows: 5,270
+## Columns: 8
+## $ reg_time       &lt;dttm&gt; 2019-12-05 20:29:54, 2019-12-05...
+## $ reply          &lt;chr&gt; "\u795d[RHG::분단\u97d3백년]결론:진정성!!...
+## $ press          &lt;chr&gt; "연합뉴스", "연합뉴스", "연합뉴스", "연합뉴스", ...
+## $ title          &lt;chr&gt; "'타다 금지법', 국토위 법안소위 통과", "'타다 금지...
+## $ url            &lt;chr&gt; "https://news.naver.com/main/rea...
+## $ sympathyCount  &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,...
+## $ antipathyCount &lt;dbl&gt; 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,...
+## $ id             &lt;int&gt; 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 1...
+```
+
+---
+
+#### 기본적인 전처리
+
+- 띄어쓰기 1개 이상 사용된 댓글만 추출: 띄어쓰기 전혀 없는 텍스트는 `KoNLP` 패키지 사용 불가
+- 원문 확인할 때 활용하기 위해 `reply`에서 html 태그 제거해 `reply_raw`에 할당
+- 형태소분석기를 이용하는 데 적합하도록 `reply`에서 한글만 남기고 중복 공백 제거
+
+
+```r
+library(stringr)
+library(textclean)
+
+tada &lt;- raw_tada %&gt;%
+  filter(str_count(reply, " ") &gt;= 1) %&gt;%                   # 띄어쓰기 1개 이상 추출
+  mutate(reply_raw = str_squish(replace_html(reply)),      # 원문 보유
+         reply = str_replace_all(reply, "[^가-힣]", " "),  # 한글만 남기기
+         reply = str_squish(reply))                        # 중복 공백 제거
+```
+
+---
+
+#### 주요 단어 분석하기
+
+##### 1. 주요 단어 추출하기
+
+- 명사를 추출해 빈도를 구한 다음 상위 30개 단어 출력
+
+
+```r
+library(tidytext)
+library(KoNLP)
+
+word_noun &lt;- tada %&gt;%
+  unnest_tokens(input = reply,
+                output = word,
+                token = extractNoun,
+                drop = F)
+
+# 단어 빈도 구하기
+frequency &lt;- word_noun %&gt;%
+  count(word, sort = T) %&gt;%    # 단어 빈도 구해 내림차순 정렬
+  filter(str_count(word) &gt; 1)  # 두 글자 이상만 남기기
+```
+
+---
+
+&lt;br-10&gt;
+
+.scroll-box-26[
+
+```r
+# 상위 단어 추출
+frequency %&gt;%
+  head(30)
+```
+
+```
+## # A tibble: 30 x 2
+##    word         n
+##    &lt;chr&gt;    &lt;int&gt;
+##  1 택시      3057
+##  2 기사       761
+##  3 국민       564
+##  4 혁신       451
+##  5 서비스     416
+##  6 들이       402
+##  7 불법       397
+##  8 생각       325
+##  9 산업       291
+## 10 나라       278
+## 11 영업       269
+## 12 사업       261
+## 13 사람       241
+## 14 우버       237
+## 15 진짜       234
+## 16 정부       221
+## 17 국회의원   210
+## 18 이용       203
+## 19 면허       202
+## 20 하면       193
+## 21 하게       185
+## 22 승차거부   182
+## 23 해서       181
+## 24 규제       180
+## 25 문제       177
+## 26 운전       175
+## 27 정치       169
+## 28 국회       168
+## 29 시대       167
+## 30 우리나라   151
+```
+]
+
+---
+
+##### 2. 불용어 제거하기
+
+- 불용어 제거 후 빈도 높은 상위 20개 단어 추출
+
+
+```r
+# 불용어 목록 생성
+stopword_noun &lt;- c("들이", "하면", "하게", "해서")
+
+# 주요 단어 목록 만들기
+top20_noun &lt;- frequency %&gt;%
+  filter(!word %in% stopword_noun) %&gt;%
+  head(20)
+
+top20_noun
+```
+
+---
+
+
+```
+## # A tibble: 20 x 2
+##    word         n
+##    &lt;chr&gt;    &lt;int&gt;
+##  1 택시      3057
+##  2 기사       761
+##  3 국민       564
+##  4 혁신       451
+##  5 서비스     416
+##  6 불법       397
+##  7 생각       325
+##  8 산업       291
+##  9 나라       278
+## 10 영업       269
+## 11 사업       261
+## 12 사람       241
+## 13 우버       237
+## 14 진짜       234
+## 15 정부       221
+## 16 국회의원   210
+## 17 이용       203
+## 18 면허       202
+## 19 승차거부   182
+## 20 규제       180
+```
+
+---
+
+##### 3. 막대 그래프 만들기
+
+
+```r
+library(scales)
+library(ggplot2)
+
+ggplot(top20_noun, aes(x = reorder(word, n), y = n)) +
+  geom_col() +
+  coord_flip() +
+  geom_text(aes(label = comma(n, accuracy = 1)), hjust = -0.3) +
+  scale_y_continuous(limits = c(0, 3200)) +
+
+  labs(title = "타다 금지법 기사 댓글 주요 단어",
+       subtitle = "언급 빈도 Top 20",
+       x = NULL) +
+
+  theme_minimal() +
+  theme(text = element_text(family = "nanumgothic", size = 12),
+        plot.title = element_text(size = 14, face = "bold"),      # 제목 폰트
+        plot.subtitle = element_text(size = 13))                  # 부제목 폰트
+```
+
+&lt;svg viewBox="0 0 352 512" xmlns="http://www.w3.org/2000/svg" style="height:1em;fill:currentColor;position:relative;display:inline-block;top:.1em;"&gt;  [ comment ]  &lt;path d="M176 80c-52.94 0-96 43.06-96 96 0 8.84 7.16 16 16 16s16-7.16 16-16c0-35.3 28.72-64 64-64 8.84 0 16-7.16 16-16s-7.16-16-16-16zM96.06 459.17c0 3.15.93 6.22 2.68 8.84l24.51 36.84c2.97 4.46 7.97 7.14 13.32 7.14h78.85c5.36 0 10.36-2.68 13.32-7.14l24.51-36.84c1.74-2.62 2.67-5.7 2.68-8.84l.05-43.18H96.02l.04 43.18zM176 0C73.72 0 0 82.97 0 176c0 44.37 16.45 84.85 43.56 115.78 16.64 18.99 42.74 58.8 52.42 92.16v.06h48v-.12c-.01-4.77-.72-9.51-2.15-14.07-5.59-17.81-22.82-64.77-62.17-109.67-20.54-23.43-31.52-53.15-31.61-84.14-.2-73.64 59.67-128 127.95-128 70.58 0 128 57.42 128 128 0 30.97-11.24 60.85-31.65 84.14-39.11 44.61-56.42 91.47-62.1 109.46a47.507 47.507 0 0 0-2.22 14.3v.1h48v-.05c9.68-33.37 35.78-73.18 52.42-92.16C335.55 260.85 352 220.37 352 176 352 78.8 273.2 0 176 0z"&gt;&lt;/path&gt;&lt;/svg&gt; `comma(n, accuracy = 1)`: 세 자릿수마다 쉼표 삽입, 소수점 첫째 자리에서 반올림. &lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;`scales` 패키지 로드 필요
+
+---
+
+&lt;img src="07-project1_files/figure-html/unnamed-chunk-12-1.png" width="70%" /&gt;
+
+---
+
+.pull-left[
+
+- 주요 단어
+  - `"택시"`, `"기사"`: 타다와 택시의 관계
+  - `"혁신"`, `"서비스"`, `"규제"`:  법안의 성격
+  - `"정부"`, `"국회의원"`: 법안 발의 주체
+
+]
+.pull-right[
+
+![](07-project1_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+]
+
+
+---
+
+name: 07-2
+class: title1
+
+07-2 공감, 비공감 댓글 비교하기
+
+---
+
+
+##### 분석 절차
+- 1.공감 여부별 단어 빈도를 구한 다음, 데이터를 wide form으로 변형해 로그 오즈비를 구합니다.
+- 2.공감과 비공감 카테고리에서 상대적으로 중요한 단어를 추출해 막대 그래프를 만듭니다.
+- 3.주요 단어를 언급한 댓글 원문을 살펴봅니다.
+
+---
+
+
+
+
+#### 로그 오즈비 구하기
+
+##### 1. 공감 여부 변수 만들기
+
+- '공감 수'와 '비공감 수' 차이 나타낸 `diff` 추가
+- 공감 여부 나타낸 `sympathy` 추가
+
+
+```r
+word_sympathy &lt;- word_noun %&gt;%
+  rename(like = sympathyCount,
+         dislike = antipathyCount) %&gt;%
+
+  mutate(diff = like - dislike,
+         sympathy = ifelse(diff &gt;=  1, "like",
+                    ifelse(diff &lt;= -1, "dislike", "neutral")))
+```
+
+---
+
+
+##### `sympathy`별 댓글 수
+
+- 댓글별로 한 행씩만 남긴 후 `sympathy`별 빈도 구하기
+- `word_sympathy`는 한 행이 댓글별 명사이므로 여러 댓글이 중복되어 있음
+
+
+```r
+# 공감 여부별 댓글 수
+word_sympathy %&gt;%
+  distinct(id, .keep_all = T) %&gt;%
+  count(sympathy, sort = T)
+```
+
+```
+## # A tibble: 3 x 2
+##   sympathy     n
+##   &lt;chr&gt;    &lt;int&gt;
+## 1 neutral   2299
+## 2 like      2055
+## 3 dislike    757
+```
+
+---
+
+
+##### 2. 로그 오즈비 구하기
+
+- 공감 여부 및 단어별 빈도 구하기: 공감, 비공감 댓글 비교가 목적이므로 중립 댓글은 제거
+- wide form으로 변형해 로그 오즈비 구하기
+  - 분모에 `"dislike"`, 분자에 `"like"`의 빈도를 놓고 구하므로
+    - 값이 클수록 공감 댓글에서 상대적으로 중요한 단어
+    - 값이 작을수록 비공감 댓글에서 상대적으로 중요한 단어
+
+
+```r
+# 단어 빈도 구하기
+frequency_sympathy &lt;- word_sympathy %&gt;%
+  count(sympathy, word) %&gt;%              # 공감 여부 및 단어별 빈도
+  filter(str_count(word) &gt; 1 &amp;           # 두 글자 이상 추출
+         sympathy != "centrism")         # centrism 제거
+
+# Wide form으로 변환하기
+library(tidyr)
+frequency_wide &lt;- frequency_sympathy %&gt;%
+  pivot_wider(names_from = sympathy,
+              values_from = n,
+              values_fill = list(n = 0))
+```
+
+---
+
+##### 2. 로그 오즈비 구하기
+
+- 공감 여부 및 단어별 빈도 구하기: 공감, 비공감 댓글 비교가 목적이므로 중립 댓글은 제거
+- wide form으로 변형해 로그 오즈비 구하기
+  - 분모에 `"dislike"`, 분자에 `"like"`의 빈도를 놓고 구하므로
+    - 값이 클수록 공감 댓글에서 상대적으로 중요한 단어
+    - 값이 작을수록 비공감 댓글에서 상대적으로 중요한 단어
+
+```r
+# 로그 오즈비 구하기
+frequency_wide &lt;- frequency_wide %&gt;%
+  mutate(log_odds_ratio = log(((like    + 1) / (sum(like    + 1))) /
+                              ((dislike + 1) / (sum(dislike + 1)))))
+```
+
+---
+
+
+```r
+frequency_wide %&gt;%
+  arrange(-log_odds_ratio)
+```
+
+```
+## # A tibble: 11,115 x 5
+##    word     dislike  like neutral log_odds_ratio
+##    &lt;chr&gt;      &lt;int&gt; &lt;int&gt;   &lt;int&gt;          &lt;dbl&gt;
+##  1 조합           0    25      12           2.79
+##  2 승용차         0    11      11           2.01
+##  3 타고           0    11       7           2.01
+##  4 무능           0    10       5           1.93
+##  5 마차           0     9      13           1.83
+##  6 베트남         0     9       7           1.83
+##  7 수수료         0     9       2           1.83
+##  8 스타트업       0     9      18           1.83
+##  9 전기           0     9       2           1.83
+## 10 개혁           1    18      20           1.78
+## # ... with 11,105 more rows
+```
+
+
+---
+
+
+#### 주요 단어 비교하기
+
+##### 1. 주요 단어 추출하기
+
+- 댓글에서 20회 이상 사용된 단어 대상
+- 로그 오즈비가 0보다 크면 `"like"`, 그 외에는 `"dislike"`로 분류
+- 로그 오즈비가 가장 높거나 낮은 단어를 10개씩 추출
+
+```r
+top10_odds &lt;- frequency_wide %&gt;%
+  filter(like &gt;= 20 | dislike &gt;= 20) %&gt;%
+  group_by(sympathy = ifelse(log_odds_ratio &gt; 0, "like", "dislike")) %&gt;%
+  slice_max(abs(log_odds_ratio), n = 10, with_ties = F)
+
+top10_odds %&gt;%
+  arrange(log_odds_ratio)
+```
+
+---
+
+
+```
+## # A tibble: 20 x 6
+## # Groups:   sympathy [2]
+##    word     dislike  like neutral log_odds_ratio sympathy
+##    &lt;chr&gt;      &lt;int&gt; &lt;int&gt;   &lt;int&gt;          &lt;dbl&gt; &lt;chr&gt;   
+##  1 렌트카        26    21      35        -0.676  dislike 
+##  2 한국          31    26      49        -0.641  dislike 
+##  3 댓글          20    17      18        -0.625  dislike 
+##  4 개인          19    23      29        -0.289  dislike 
+##  5 이재웅        25    33      37        -0.203  dislike 
+##  6 반대          19    26      39        -0.171  dislike 
+##  7 렌터카        15    21      19        -0.153  dislike 
+##  8 불법         111   156     130        -0.133  dislike 
+##  9 공유          29    42      30        -0.111  dislike 
+## 10 자기          17    26      28        -0.0655 dislike 
+## 11 시대          15    89      63         1.26   like    
+## 12 콜택시         5    34      11         1.29   like    
+## 13 승차거부      14    94      74         1.37   like    
+## 14 이나라         2    20      22         1.47   like    
+## 15 거부           2    21      10         1.52   like    
+## 16 노조           2    21      17         1.52   like    
+## 17 선택           4    39      22         1.61   like    
+## 18 동남아         2    25      18         1.69   like    
+## 19 소비자         4    44      28         1.73   like    
+## 20 조합           0    25      12         2.79   like
+```
+
+---
+
+##### 2. 막대 그래프 만들기
+
+
+```r
+# 막대 색깔 목록 생성
+col_sentiment &lt;- c("#619CFF", "#F8766D")
+
+# 막대 순서 지정
+top10_odds$sympathy &lt;- factor(top10_odds$sympathy,
+                              levels = c("like", "dislike"))
+```
+
+---
+
+##### 2. 막대 그래프 만들기
+
+
+```r
+ggplot(top10_odds, aes(x = reorder(word, log_odds_ratio),
+                       y = log_odds_ratio,
+                       fill = sympathy)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_manual(values = col_sentiment,          # 막대 색깔
+                    labels = c("공감", "비공감")) +  # 범례 순서
+
+  labs(title = "타다 금지법 기사 댓글 주요 단어",
+       subtitle = "공감 vs 비공감 로그 오즈비 Top 10",
+       x = NULL, fill = NULL) +
+
+  theme_minimal() +
+  theme(text = element_text(family = "nanumgothic"),
+        plot.title = element_text(size = 14, face = "bold"),
+        plot.subtitle = element_text(size = 12))
+```
+
+---
+
+&lt;img src="07-project1_files/figure-html/unnamed-chunk-21-1.png" width="70%" /&gt;
+
+---
+
+#### 댓글 내용 살펴보기
+
+##### 1. 주요 단어를 언급한 댓글 추출하기
+
+
+```r
+tada %&gt;%
+  filter(str_detect(reply_raw, "조합")) %&gt;%
+  head(3) %&gt;%
+  pull(reply)
+```
+
+```
+## [1] "우리나라가 안되는 이유 기득권 특히 전국 노동조합 금속노조 환경단체 택시조합 수많은 조합업체 택시는 기득권만 내세우지 말고 국민들이 왜 싫어하는지 알기나 하길"                                                                     
+## [2] "수십만 재개발재건축 조합원이 피해보는 분양가상한제는 공익을 위해 사익은 희생될수 있다가 니네 논리잔아 개쓰렉 정권아"                                                                                                              
+## [3] "그럼 국민들의 피해는 모르겠니 어째 택시조합에서 나오는 표가 무시 못할거 같아 이번 선거에서 진정한 국민의 힘이 무엇인지 보여주고 너네들에게 헬조선에서 허우적대고 있는 국민의 피눈물에 대한 책임을 꼭 물을줄 알아라 에라이 카악 퇫"
+```
+
+---
+
+
+##### 2. 스타일 함수로 관심 단어만 눈에 띄게 출력하기
+
+##### 2.1 텍스트에 스타일 입히기 - `combine_styles()`
+
+
+
+
+```r
+# 스타일 함수 만들기
+library(crayon)
+font &lt;- combine_styles(make_style("ivory"),
+                       make_style("deeppink", bg = TRUE),
+                       make_style("bold"))
+
+font("폰트를 적용해 출력") %&gt;% cat()
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;폰트를 적용해 출력&lt;/span&gt;&lt;span&gt;
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+##### `"조합"`을 언급한 댓글 추출해 스타일 적용하기
+- `str_detect()`를 이용해 `"조합"`을 언급한 댓글 추출
+- `paste0()`와 `font()`를 이용해 `"조합"`에 스타일 적용
+- `pull()`을 이용해 `reply`의 텍스트만 추출한 다음 `cat()`을 이용해 출력
+  - `sep = "\n\n"` 각 댓글을 줄을 바꾸어 새 행에 출력
+
+
+```r
+# 관심 단어 설정
+keyword &lt;- "조합"
+
+# 댓글 추출해 스타일 적용
+tada %&gt;%
+  filter(str_detect(reply_raw, keyword)) %&gt;%
+  head(3) %&gt;%
+  mutate(reply = paste0(str_replace_all(reply,
+                                        keyword,
+                                        font(keyword)))) %&gt;%  # 스타일 적용
+  pull(reply) %&gt;%                                              # reply 추출
+  cat(sep = "\n\n")                                           # 줄바꿈 출력
+```
+
+---
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## 우리나라가 안되는 이유 기득권 특히 전국 노동조합 금속노조 환경단체 택시조합 수많은 조합업체 택시는 기득권만 내세우지 말고 국민들이 왜 싫어하는지 알기나 하길&lt;br&gt;##&lt;br&gt;## 수십만 재개발재건축 조합원이 피해보는 분양가상한제는 공익을 위해 사익은 희생될수 있다가 니네 논리잔아 개쓰렉 정권아&lt;br&gt;##&lt;br&gt;## 그럼 국민들의 피해는 모르겠니 어째 택시조합에서 나오는 표가 무시 못할거 같아 이번 선거에서 진정한 국민의 힘이 무엇인지 보여주고 너네들에게 헬조선에서 허우적대고 있는 국민의 피눈물에 대한 책임을 꼭 물을줄 알아라 에라이 카악 퇫&lt;br&gt;##&lt;br&gt;##
+&lt;/code&gt;&lt;/pre&gt;
+
+
+---
+
+##### 2.2 관심 단어가 사용된 텍스트를 추출해 스타일을 입히는 함수 만들기
+
+
+```r
+find_word &lt;- function(df, x, keyword, n = 6) {
+
+  # 스타일 함수 설정
+  font &lt;- combine_styles(make_style("ivory"),
+                         make_style("deeppink", bg = TRUE),
+                         make_style("bold"))
+
+  # 키워드 추출해 스타일 적용
+  df %&gt;%
+    filter(str_detect({{x}}, keyword)) %&gt;%                  # 키워드 추출
+    head(n) %&gt;%                                             # n행 추출
+    mutate(x = paste0("[", row_number(), "] ", {{x}}),      # 행번호 삽입
+           x = paste0(str_replace_all(x,
+                                      keyword,
+                                      font(keyword)))) %&gt;%  # 스타일 적용
+    pull(x) %&gt;%                                             # 텍스트 추출
+    cat(sep = "\n\n")                                       # 줄바꿈 출력
+}
+```
+
+
+
+---
+
+- `find_word()`
+ - `x`: 텍스트
+ - `keyword`: 스타일을 적용할 단어
+ - `n`: 추출할 행 수. 아무 값도 입력하지 않으면 6행 출력
+
+
+```r
+tada %&gt;% find_word(x = reply_raw, keyword = "조합", n = 2)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 우리나라가 안되는 이유 기득권 특히 전국 노동&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;조합&lt;/span&gt;&lt;span&gt; 금속노조 환경단체 택시&lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;조합&lt;/span&gt;&lt;span&gt; 수많은 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;조합&lt;/span&gt;&lt;span&gt;업체 택시는 기득권만 내세우지 말고 국민들이 왜 싫어하는지 알기나 하길&lt;br&gt;##&lt;br&gt;## [2] 수십만 재개발재건축 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;조합&lt;/span&gt;&lt;span&gt;원이 피해보는 분양가상한제는? 공익을 위해 사익은 희생될수 있다가 니네 논리잔아! 개쓰렉 정권아!
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+- `find_word()`: 파라미터명 입력하지 않고 활용
+
+
+```r
+tada %&gt;% find_word(reply_raw, "조합", 2)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 우리나라가 안되는 이유 기득권 특히 전국 노동&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;조합&lt;/span&gt;&lt;span&gt; 금속노조 환경단체 택시&lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;조합&lt;/span&gt;&lt;span&gt; 수많은 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;조합&lt;/span&gt;&lt;span&gt;업체 택시는 기득권만 내세우지 말고 국민들이 왜 싫어하는지 알기나 하길&lt;br&gt;##&lt;br&gt;## [2] 수십만 재개발재건축 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;조합&lt;/span&gt;&lt;span&gt;원이 피해보는 분양가상한제는? 공익을 위해 사익은 희생될수 있다가 니네 논리잔아! 개쓰렉 정권아!
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;br10&gt;
+
+&lt;svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="height:1em;position:relative;display:inline-block;top:.1em;fill:#FF7333;"&gt;  [ comment ]  &lt;path d="M569.517 440.013C587.975 472.007 564.806 512 527.94 512H48.054c-36.937 0-59.999-40.055-41.577-71.987L246.423 23.985c18.467-32.009 64.72-31.951 83.154 0l239.94 416.028zM288 354c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"&gt;&lt;/path&gt;&lt;/svg&gt; `dplyr`, `stringr`, `crayon` 패키지 로드 필요.`find_word()`의 출력 결과에는 `dplyr` 함수 추가 적용 불가.
+
+---
+
+
+
+
+##### 3.1 `tada`와 `word_sympathy` 결합하고 중복 댓글 제거하기
+
+- `word_sympathy`: `sympathy`(공감 여부), `diff`(공감, 비공감 수 차이) 들어 있음
+  - 각  행이  댓글별  명사이므로  여러  댓글이  중복되어  있음
+  - 댓글별로 한 행씩만 남기고 주요 변수를 추출한 다음 `tada`에 결합
+
+
+```r
+tada &lt;- tada %&gt;%
+  left_join(word_sympathy %&gt;%
+              distinct(id, .keep_all = T) %&gt;%  # 중복 댓글 제거
+              select(id, sympathy, diff),      # 주요 변수 추출
+            by = "id")
+```
+
+---
+
+##### 3.2 공감, 비공감 데이터 만들기
+
+
+```r
+# 공감 댓글 추출
+reply_like &lt;- tada %&gt;%
+  filter(sympathy  == "like") %&gt;%      # like 추출
+  arrange(-diff)                       # 공감 높은순 정렬
+
+# 비공감 댓글 추출
+reply_dislike &lt;- tada %&gt;%
+  filter(sympathy  == "dislike") %&gt;%   # dislike 추출
+  arrange(diff)                        # 비공감 높은순 정렬
+```
+
+---
+
+##### 4. 공감 댓글 내용 살펴보기
+
+
+```r
+# 조합
+reply_like %&gt;% find_word(x = reply_raw, keyword = "조합", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 국민들의 선택은 어떨까? 나 같으면 타다 타겠다! 택시 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;조합&lt;/span&gt;&lt;span&gt;이 서민의 대중교통인 버스를 늘리는 것도 데모해서 못하게 하는 지역도 있더라!&lt;br&gt;##&lt;br&gt;## [2] 타다는 어짜피 적용할 산업이다. '타다 금지법'이라고? 기가 찬다. 시대에 흐름을 거스르는 저런 법안은 도데체 누가 상정한거야? 다 택시 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;조합&lt;/span&gt;&lt;span&gt;에 뒷돈받는 국개가 있겠지.유치원 3법에 개거품물고 달려드는 국개들만봐도.. 뻔하지!! 선택은 소비자가 해야지 법안으로 막는건 아니라 본다. 솔직히 자율주행 자리 잡으면.택시기사. 운수업이란 직업은 장기적으로 봐선 사라지는 직업 아니던가? 그때 가서는 어쩔건데...&lt;br&gt;##&lt;br&gt;## [3] 국개의원_새_들 택시&lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;조합&lt;/span&gt;&lt;span&gt;한테 돈 얼마쳐받았냐
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+
+---
+
+
+
+```r
+# 소비자
+reply_like %&gt;% find_word(x = reply_raw, keyword = "소비자", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 공산국가가 되어가는구나 대중교통 이외에 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;소비자&lt;/span&gt;&lt;span&gt;의 선택권은 오직 택시 만 이용하라고 못 박아 놓다니 독과점도 이런 독과점이 없네 OOO 이러니 택시 기사들이 갑질하듯 서비스 정신 하나 없이 지들 맘대로 골라태우고 막 교통법규 우습게 알고 운전들 쳐 하지 경쟁을 통해 서비스 개선 할 생각은 없고 내 밥그릇에 숟가락 얻지 말라고 난리치고 그걸 또 받아주네 국회 나으리님들께서 ㅋ 이러니 택시가 서비스 발전과 운전습관 드러운게 나아지지 않지 에이 퉷 더러운 뒷거래 ... 택시관련 유권자가 아쉽더냐? 아니면 택시노조가 무섭더냐?&lt;br&gt;##&lt;br&gt;## [2] &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;소비자&lt;/span&gt;&lt;span&gt;들이 편하면 탈거고 불편하면 도태될텐데 왜 정부가 앞장서서 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;소비자&lt;/span&gt;&lt;span&gt;에 선택 권한을 뺐는건가 기대했던 이번정부도 실망이 크다&lt;br&gt;##&lt;br&gt;## [3] 국토부와 포퓰리즘 국회가 후진적인 대한민국을 만들고 있어 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;소비자&lt;/span&gt;&lt;span&gt;는 없고 기득권만 보호하고 새로운 산업 기술에는 등한시
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+
+```r
+# 동남아
+reply_like %&gt;% find_word(x = reply_raw, keyword = "동남아", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 그냥 대한민국은 규제로 인해 망할수 밖에 없다 영국처럼 유럽에서 가장 늦게 자동차 도입한 국가 꼴 될듯 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;동남아&lt;/span&gt;&lt;span&gt; 가봐라 개나소나 크랩 이용해다닌다 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;동남아&lt;/span&gt;&lt;span&gt;보다 못한게 자칭 it강국 한국현실이다&lt;br&gt;##&lt;br&gt;## [2] &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;동남아&lt;/span&gt;&lt;span&gt;도 우버가 판치는데 표때문에 실시하는 법안이라니 국회의원탓할것도 없는게 우리나라 수준이 저 정도인거야&lt;br&gt;##&lt;br&gt;## [3] 미국에서 우버, &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;동남아&lt;/span&gt;&lt;span&gt;에서 그랩 타고 다녔는데 정말 개편했슴! 요금 일반 택시보다 싼거는 둘째치고 어플 실행해서 신청하면 몇분도 안되서 내 코앞으로 옴, 위치 설명 안해도 알아서 연계되서 설명안해도 기사가 알아서 감, 결제 카드 등록 하면 내릴때 그냥 내리면 됨[지갑 불필요] , 기사 평점제가 있어서 굉장히 친절하고 짭소리 안함 ㅋㅋ 평점 등록 동시에 기사한테 팁주는 버튼이 있는데 클릭하면 내카드에서 선택한 금액만큼 팁이 결제됨, 이러다보니 좀 장거리 가거나 고생한 기사 있으면 내가 절로 팁 주고 평점도 높게 해줌.
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+- 주요 단어 사용 댓글 요약
+  - `"조합"`: 택시 조합이 독점적인 권한을 유지하고 있다.
+  - `"소비자"`: 소비자의 권리를 무시하고 기업 입장만 고려해 법안이 만들어졌다.
+  - `"동남아"`: 동남아시아 국가는 승차 공유 서비스가 활성화된 반면 한국은 그렇지 않다.
+
+
+---
+
+
+
+##### 5. 비공감 댓글 내용 살펴보기
+
+
+
+```r
+# 렌트카
+reply_dislike %&gt;% find_word(x = reply_raw, keyword = "렌트카", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 타다가 택시 역활을 하면 안된다.타다가 합법화되면 전국에 유사 타다가 넘쳐 난다.택시는 좋아하진않지만 사업면허를 무사고로 해서 취득한사람도 있고.돈을주고 산 사람도 있다.근데 타다는 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;렌트카&lt;/span&gt;&lt;span&gt;를 가지고 경쟁도 안하고 .택시 사업을 한다는건 옳지않다.법 개정후에 타다를 하든지 말든지 하고‥지금은 불법이 맞다.&lt;br&gt;##&lt;br&gt;## [2] 현정부는 타다에 뇌물쳐먹었냐? &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;렌트카&lt;/span&gt;&lt;span&gt;로 불법콜택시하는 타다가 4차산업? 장난해!검찰은 김상조부터 죠지고가자!&lt;br&gt;##&lt;br&gt;## [3] 근데 하나만 묻자 이게 왜 미래산업이냐 그냥 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;렌트카&lt;/span&gt;&lt;span&gt; 영업하는거잖아 무슨 되도 안한 미래산업이야기를 하고 있어 스마트폰으로 배차하면 다 미래산업이냐 ~~
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+
+```r
+# "한국당" 언급 댓글 제거 후 "한국" 언급한 댓글 추출
+reply_dislike %&gt;%
+  filter(!str_detect(reply, "한국당")) %&gt;%
+  find_word(x = reply, keyword = "한국", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 택시놈들 이기주의가 혁신성장을 가로막는다 솔직히 미국에 살지만 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;한국&lt;/span&gt;&lt;span&gt;보면 노답이다&lt;br&gt;##&lt;br&gt;## [2] 공유를 사전에서 찾으면 한 물건을 두사람 이상이 나눠갖는다는 뜻으로 결국 제조업이 타격을 입게됩니다 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;한국&lt;/span&gt;&lt;span&gt; 자동차가 만대 타다 공유차량이 시작되서 차 한대로 명 명 공유하면 결국 완성차업체인 현대차 기아차 생산직은 물론 전장부품 업체부터 금속 산업까지 근로자들의 생계가 사라집니다 이재웅씨 남의 나라 따라할것이 아니라 울산 광주 지역 상인들과 주민들의 생계는 안보이시나요 어디다 국민들의 이익을 거론 하십니까 전 국민들이 일어나 저들의 공유차량을 반대해야만 합니다&lt;br&gt;##&lt;br&gt;## [3] 시대 역행하는 헬조선 코리아 나중에 다른나라는 자동운전 도입할때도 택시운전수 기득권 챙기느라 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;한국&lt;/span&gt;&lt;span&gt;만 뒤떨어지겠네
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+
+
+```r
+# 댓글
+reply_dislike %&gt;% find_word(x = reply, keyword = "댓글", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 근데 여기 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;댓글&lt;/span&gt;&lt;span&gt; 웃긴게 택시고 타다고 이런걸 떠나서 입장바꿔서 누가 지들 밥그릇뺏으면 육갑 염병들을 떨거면서 깨시민인척 뒤지게 하시는분들 많네&lt;br&gt;##&lt;br&gt;## [2] 살 제주도 개인택시 기사입니다 걍 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;댓글&lt;/span&gt;&lt;span&gt;만보고 글적어요 불친절하다고 하는데 불친절택시타면 바로 신고하세요 신고하면 바로처리하는데 뒤에서 말 하지 마시구요 택시타서 침뱉고 썅욕하고 술먹고 인사불성되면 택시에 오줌싸고 똥싸고 손님들이 그래요 우리는 먹고살기위해 찍소리 안합니다 서비스업이니까요 저는 저녁시간만 되면 밥 안 먹어요 손님 명 테운다 치면 명은 술취해서 욕하거든요 그욕으로 배채워요 그래도 그술취한사람 저의같은 택시기사가 집앞까지 모셔다 드리잖아요 암튼 나의밥그릇 뺏으면 자기밥그릇도 빼끼기 마련입니다&lt;br&gt;##&lt;br&gt;## [3] 개인택시 기사분들의 생존권 엄연히 법테두리 안에 운수업계 종사자들을 생존권이 달린 법이 통과되어 환영합니다 방구석 워리어들이 무슨 눈앞에 뭐만 보인다고 사회 전체를 봐야 하는데 표팔이다 어쩐다 폄하하는 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;댓글&lt;/span&gt;&lt;span&gt;들 보면 그런사람들에게 권한을 주면 세상이 좋아지고 사회가 좋아질거 같은지 아무것도 못하고 눈앞에 초콜렛만 떨어지면 좋은 정책인줄 아는 이들입니다 늦었지만 지금이라도 통과되어 다행입니다
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+- 주요 단어 사용 댓글 요약
+  - `"렌트카"`: 타다는 렌트카와 비슷한 사업이므로 특혜를 주면 안 된다.
+  - `"한국"`: 한국의 택시 업계를 보호해야 한다. 법안이 한국의 서비스업 발전을 막는다.
+  - `"댓글"`: 타다를 옹호하고 택시를 비판하는 편향된 댓글이 너무 많다.
+
+---
+
+#### 6. 분석 결과 종합하기
+
+- 공감 많이 받은 댓글
+  - 택시 조합에 비판적이거나 소비자의 권리를 강조
+  - 동남아 국가보다 한국의 승차 공유 서비스가 뒤처져 있다
+
+
+- 공감 받지 못한 댓글
+  - 타다가 렌터카 서비스이므로 특혜를 주면 안 된다
+  - 타다를 옹호하는 분위기를 비판하거나 한국의 택시 업계를 보호해야 한다
+
+---
+
+name: 07-3
+class: title1
+
+07-3 관심 댓글 비교하기
+
+---
+
+##### 분석 절차
+- 1.댓글을 카테고리별로 분류해 TF-IDF를 구합니다.
+- 2.카테고리별 주요 단어를 추출해 막대 그래프를 만듭니다.
+- 3.주요 단어가 사용된 댓글을 추출해 내용을 살펴봅니다.
+
+---
+
+
+#### TF-IDF 구하기
+
+
+##### 1. 카테고리별 문서 목록 만들기
+
+
+```r
+# 단어 목록 생성
+category1 &lt;- "택시 업계|택시업계|조합"
+category2 &lt;- "정부"
+category3 &lt;- "국회의원|한국당|자유한국당|자한당|자한|민주당|더불어민주당"
+```
+
+---
+
+
+```r
+# 추출 및 결합
+bind_category &lt;- bind_rows(
+  word_sympathy %&gt;%
+    filter(str_detect(reply, category1)) %&gt;%
+    mutate(category = "택시업계"),
+
+  word_sympathy %&gt;%
+    filter(str_detect(reply, category2)) %&gt;%
+    mutate(category = "정부"),
+
+  word_sympathy %&gt;%
+    filter(str_detect(reply, category3)) %&gt;%
+    mutate(category = "국회의원"))
+```
+
+&lt;svg viewBox="0 0 352 512" xmlns="http://www.w3.org/2000/svg" style="height:1em;fill:currentColor;position:relative;display:inline-block;top:.1em;"&gt;  [ comment ]  &lt;path d="M176 80c-52.94 0-96 43.06-96 96 0 8.84 7.16 16 16 16s16-7.16 16-16c0-35.3 28.72-64 64-64 8.84 0 16-7.16 16-16s-7.16-16-16-16zM96.06 459.17c0 3.15.93 6.22 2.68 8.84l24.51 36.84c2.97 4.46 7.97 7.14 13.32 7.14h78.85c5.36 0 10.36-2.68 13.32-7.14l24.51-36.84c1.74-2.62 2.67-5.7 2.68-8.84l.05-43.18H96.02l.04 43.18zM176 0C73.72 0 0 82.97 0 176c0 44.37 16.45 84.85 43.56 115.78 16.64 18.99 42.74 58.8 52.42 92.16v.06h48v-.12c-.01-4.77-.72-9.51-2.15-14.07-5.59-17.81-22.82-64.77-62.17-109.67-20.54-23.43-31.52-53.15-31.61-84.14-.2-73.64 59.67-128 127.95-128 70.58 0 128 57.42 128 128 0 30.97-11.24 60.85-31.65 84.14-39.11 44.61-56.42 91.47-62.1 109.46a47.507 47.507 0 0 0-2.22 14.3v.1h48v-.05c9.68-33.37 35.78-73.18 52.42-92.16C335.55 260.85 352 220.37 352 176 352 78.8 273.2 0 176 0z"&gt;&lt;/path&gt;&lt;/svg&gt; 여러 단어를 함께 언급한 댓글도 있기 때문에 댓글 내용은 같지만 카테고리는 다른 행이 있음&lt;br&gt;&amp;nbsp;&amp;nbsp;&amp;nbsp;(ex: `"택시업계"`와 `"정부"`를 함께 언급한 댓글)
+
+&lt;svg viewBox="0 0 352 512" xmlns="http://www.w3.org/2000/svg" style="height:1em;fill:currentColor;position:relative;display:inline-block;top:.1em;"&gt;  [ comment ]  &lt;path d="M176 80c-52.94 0-96 43.06-96 96 0 8.84 7.16 16 16 16s16-7.16 16-16c0-35.3 28.72-64 64-64 8.84 0 16-7.16 16-16s-7.16-16-16-16zM96.06 459.17c0 3.15.93 6.22 2.68 8.84l24.51 36.84c2.97 4.46 7.97 7.14 13.32 7.14h78.85c5.36 0 10.36-2.68 13.32-7.14l24.51-36.84c1.74-2.62 2.67-5.7 2.68-8.84l.05-43.18H96.02l.04 43.18zM176 0C73.72 0 0 82.97 0 176c0 44.37 16.45 84.85 43.56 115.78 16.64 18.99 42.74 58.8 52.42 92.16v.06h48v-.12c-.01-4.77-.72-9.51-2.15-14.07-5.59-17.81-22.82-64.77-62.17-109.67-20.54-23.43-31.52-53.15-31.61-84.14-.2-73.64 59.67-128 127.95-128 70.58 0 128 57.42 128 128 0 30.97-11.24 60.85-31.65 84.14-39.11 44.61-56.42 91.47-62.1 109.46a47.507 47.507 0 0 0-2.22 14.3v.1h48v-.05c9.68-33.37 35.78-73.18 52.42-92.16C335.55 260.85 352 220.37 352 176 352 78.8 273.2 0 176 0z"&gt;&lt;/path&gt;&lt;/svg&gt; `str_detect()`에 적용할 목록은 단어를 `|`로 구분
+
+---
+
+#### 2. 카테고리별 댓글 빈도 살펴보기
+
+
+```r
+# 카테고리별 빈도
+bind_category %&gt;%
+  group_by(id) %&gt;%
+  distinct(category, .keep_all = T) %&gt;%
+  ungroup() %&gt;%
+  count(category)
+```
+
+```
+## # A tibble: 3 x 2
+##   category     n
+## * &lt;chr&gt;    &lt;int&gt;
+## 1 국회의원   320
+## 2 정부       229
+## 3 택시업계   146
+```
+
+---
+
+
+##### 3. TF-IDF 구하기
+
+##### 3.1 불용어 목록 만들기
+
+- 카테고리를 직접 나타낸 단어 불용어 처리
+- 빈도는 가장 높지만 댓글을 이해하는 데는 도움 안 됨
+
+
+```r
+# 불용어 목록 생성
+stopword_category &lt;- c("택시 업계", "택시업계", "업계", "조합",
+                       "정부", "국회의원", "한국당", "자유한국당",
+                       "자한당", "자한", "민주당", "더불어민주당")
+```
+
+---
+
+##### 3.2 중복 단어 제거하고 카테고리별 단어 빈도 구하기
+
+
+- 특정 댓글에서 반복 사용되어 TF-IDF가 높은 문제를 방지하기 위해 댓글 내 중복 단어 제거
+- TF-IDF는 단어 사용 빈도를 이용해 계산되므로 어떤 단어가 여러 댓글에 언급된 게 아니라
+단순히 한 댓글에 여러 번 사용되더라도 높은 값 지님
+
+
+```r
+# 카테고리별 단어 빈도 구하기
+frequency_category &lt;- bind_category %&gt;%
+  filter(!word %in% stopword_category) %&gt;%  # 불용어 제거
+
+  group_by(id) %&gt;%                          # 댓글별 분리
+  distinct(word, .keep_all = T) %&gt;%         # 댓글 내 중복 단어 제거
+  ungroup() %&gt;%                             # 그룹 해제
+
+  count(category, word, sort = T) %&gt;%       # 카테고리별 단어 빈도
+  filter(str_count(word) &gt;= 2)              # 2글자 이상 추출
+```
+
+---
+
+##### 3.3 TF-IDF 구하기
+
+.scroll-box-26[
+
+
+
+```r
+# tf-idf 구하기
+tfidf_category &lt;- frequency_category %&gt;%
+  bind_tf_idf(term = word,
+              document = category,
+              n = n) %&gt;%
+  arrange(-tf_idf)
+
+tfidf_category
+```
+
+```
+## # A tibble: 4,145 x 6
+##    category word         n      tf   idf  tf_idf
+##    &lt;chr&gt;    &lt;chr&gt;    &lt;int&gt;   &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+##  1 국회의원 박홍근      12 0.00411 1.10  0.00451
+##  2 국회의원 발의        10 0.00342 1.10  0.00376
+##  3 정부     현정부       5 0.00204 1.10  0.00225
+##  4 택시업계 대기업       4 0.00191 1.10  0.00210
+##  5 택시업계 밥그릇      10 0.00479 0.405 0.00194
+##  6 국회의원 기억         5 0.00171 1.10  0.00188
+##  7 국회의원 만장일치     5 0.00171 1.10  0.00188
+##  8 국회의원 명단         5 0.00171 1.10  0.00188
+##  9 국회의원 투표         5 0.00171 1.10  0.00188
+## 10 정부     가족         4 0.00164 1.10  0.00180
+## # ... with 4,135 more rows
+```
+]
+---
+
+#### 카테고리별 주요 단어 비교하기
+
+
+##### 1. 불용어 목록 만들기
+
+&lt;br-10&gt;
+
+.scroll-box-24[
+
+
+```r
+# 주요 단어 추출, 불용어 확인
+tfidf_category %&gt;%
+  group_by(category) %&gt;%
+  slice_max(tf_idf, n = 15, with_ties = F) %&gt;%
+  print(n = Inf)
+```
+
+```
+## # A tibble: 45 x 6
+## # Groups:   category [3]
+##    category word               n       tf   idf  tf_idf
+##    &lt;chr&gt;    &lt;chr&gt;          &lt;int&gt;    &lt;dbl&gt; &lt;dbl&gt;   &lt;dbl&gt;
+##  1 국회의원 박홍근            12 0.00411  1.10  0.00451
+##  2 국회의원 발의              10 0.00342  1.10  0.00376
+##  3 국회의원 기억               5 0.00171  1.10  0.00188
+##  4 국회의원 만장일치           5 0.00171  1.10  0.00188
+##  5 국회의원 명단               5 0.00171  1.10  0.00188
+##  6 국회의원 투표               5 0.00171  1.10  0.00188
+##  7 국회의원 게임               4 0.00137  1.10  0.00150
+##  8 국회의원 국회의윈님하고     4 0.00137  1.10  0.00150
+##  9 국회의원 깨구락지           4 0.00137  1.10  0.00150
+## 10 국회의원 꼴통               4 0.00137  1.10  0.00150
+## 11 국회의원 만세               4 0.00137  1.10  0.00150
+## 12 국회의원 만수무강           4 0.00137  1.10  0.00150
+## 13 국회의원 보시               4 0.00137  1.10  0.00150
+## 14 국회의원 빙자               4 0.00137  1.10  0.00150
+## 15 국회의원 열폭               4 0.00137  1.10  0.00150
+## 16 정부     현정부             5 0.00204  1.10  0.00225
+## 17 정부     가족               4 0.00164  1.10  0.00180
+## 18 정부     간섭               4 0.00164  1.10  0.00180
+## 19 정부     지원               4 0.00164  1.10  0.00180
+## 20 정부     난리               3 0.00123  1.10  0.00135
+## 21 정부     단어               3 0.00123  1.10  0.00135
+## 22 정부     말해               3 0.00123  1.10  0.00135
+## 23 정부     무능               3 0.00123  1.10  0.00135
+## 24 정부     발급               3 0.00123  1.10  0.00135
+## 25 정부     부처               3 0.00123  1.10  0.00135
+## 26 정부     불안               3 0.00123  1.10  0.00135
+## 27 정부     사용자             3 0.00123  1.10  0.00135
+## 28 정부     소득               3 0.00123  1.10  0.00135
+## 29 정부     에휴               3 0.00123  1.10  0.00135
+## 30 정부     정상적             3 0.00123  1.10  0.00135
+## 31 택시업계 대기업             4 0.00191  1.10  0.00210
+## 32 택시업계 밥그릇            10 0.00479  0.405 0.00194
+## 33 택시업계 개편               3 0.00144  1.10  0.00158
+## 34 택시업계 국민편익           3 0.00144  1.10  0.00158
+## 35 택시업계 근본적             3 0.00144  1.10  0.00158
+## 36 택시업계 내부               3 0.00144  1.10  0.00158
+## 37 택시업계 방향               3 0.00144  1.10  0.00158
+## 38 택시업계 분신               3 0.00144  1.10  0.00158
+## 39 택시업계 청결               3 0.00144  1.10  0.00158
+## 40 택시업계 가면               2 0.000957 1.10  0.00105
+## 41 택시업계 갈라               2 0.000957 1.10  0.00105
+## 42 택시업계 결국               2 0.000957 1.10  0.00105
+## 43 택시업계 경쟁사             2 0.000957 1.10  0.00105
+## 44 택시업계 공간               2 0.000957 1.10  0.00105
+## 45 택시업계 근본               2 0.000957 1.10  0.00105
+```
+]
+
+---
+
+##### 2. 주요 단어 추출하기
+
+```r
+# 불용어 목록 생성
+stopword_tfidf &lt;- c("국회의윈님하고", "현정부", "에휴")
+
+# 주요 단어 추출
+top10 &lt;- tfidf_category %&gt;%
+  filter(!word %in% stopword_tfidf) %&gt;%
+  group_by(category) %&gt;%
+  slice_max(tf_idf, n = 10, with_ties = F)
+```
+
+---
+
+
+##### 3. 막대 그래프 만들기
+
+
+```r
+# 그래프 순서 정하기
+top10$category &lt;- factor(top10$category,
+                         levels = c("택시업계", "정부", "국회의원"))
+```
+
+---
+
+##### 3. 막대 그래프 만들기
+
+
+```r
+# 막대 그래프 만들기
+ggplot(top10, aes(x = reorder_within(word, tf_idf, category),
+                  y = tf_idf,
+                  fill = category)) +
+  geom_col(show.legend = F) +
+  coord_flip() +
+  facet_wrap(~ category, scales = "free", ncol = 3) +
+  scale_x_reordered() +
+  scale_y_continuous(n.breaks = 5,
+                     labels = number_format(accuracy = .001)) +
+
+  labs(title = "타다 금지법 기사 댓글 주요 단어",
+       subtitle = "카테고리별 TF-IDF Top 10",
+       x = NULL) +
+
+  theme_minimal() +
+  theme(text = element_text(family = "nanumgothic"),
+        plot.title = element_text(size = 14, face = "bold"),
+        plot.subtitle = element_text(size = 12),
+        strip.text = element_text(size = 11))  # 카테고리명 폰트
+```
+
+---
+![](07-project1_files/figure-html/unnamed-chunk-54-1.png)&lt;!-- --&gt;
+---
+
+
+#### 카테고리별 댓글 내용 살펴보기
+
+
+##### 1. 중복 댓글 제거하기
+
+
+```r
+# 중복 댓글 제거
+reply_category &lt;- bind_category %&gt;%
+  group_by(category) %&gt;%
+  distinct(id, .keep_all = T)
+```
+
+---
+
+##### 2. 댓글 내용 살펴보기
+
+
+```r
+# 택시업계 카테고리
+reply_category %&gt;%
+  filter(category == "택시업계") %&gt;%
+  find_word(x = reply_raw, keyword = "대기업")
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 타다가 신사업이냐? 기존 택시랑 아주 똑같은 개념의 사업을 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;대기업&lt;/span&gt;&lt;span&gt;이 택시업계 말살하고 독식하겠단거지.. 이런 게 논란이 되고 있다는 자체가 넌센스..&lt;br&gt;##&lt;br&gt;## [2] 대한민국 자유민주주의 공화국이며, 노조입김이빠이공화국이자, 떼쓰면해주는공화국으로써 국민의 편의는 없고 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;대기업&lt;/span&gt;&lt;span&gt;과 그노조의 일당들만 위하는 나라요, 서민들은 죽어나도 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;대기업&lt;/span&gt;&lt;span&gt;과 그노조들 그외 수많은 단체와 조합들의 세상일세....&lt;br&gt;##&lt;br&gt;## [3] 진짜 머저리들아 택시업계 눈치보는 ㅅ ㄲ 들 때문에 국민 편의성은 무시되는 잦도 논리도 없고 명분도 없는 법을 왜 통과시키려고 하냐. 그따위 개도 안먹히는 논리대로면 동네 슈퍼마켓도 보호해 줘야하니 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;대기업&lt;/span&gt;&lt;span&gt; 마트들 들어오면 안되고 빵집도 보호해줘야하니 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;대기업&lt;/span&gt;&lt;span&gt; 빵집은 막아야 하는거 아니냐? 사회주의 시장경제로 가라 그냥
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+
+```r
+# 정부 카테고리
+reply_category %&gt;%
+  filter(category == "정부") %&gt;%
+  find_word(x = reply_raw, keyword = "지원")
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 4차산업 같은 소리하고 있네. 말 따로 정부 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;지원&lt;/span&gt;&lt;span&gt; 없는 대한민국 경제 발전? 정말 이 나라는 뭘 먹고 사려고하는지 모든 비지니스를 규제와 노동법으로 막아 놓고 있구나. 정말 해외로 뜨려는 사람들 러쉬가 있을까 겁난다&lt;br&gt;##&lt;br&gt;## [2] 택시기사들 눈치 보지 말고, 내년 선거를 의식 하지 말고, 불법은 불법으로 규정 짓고 합법은 대대적인 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;지원&lt;/span&gt;&lt;span&gt;을 통해 국민의 삶을 더욱 윤택하게 하라. 내년 제정만 방만하게 하면 나라 살림과 국민의 삶이 풍요롭게 되는지 되묻고 싶다. 소득이 주도하는 성장은 이제 그만하고 멀리 볼 수 있는 국가적 먹거리에 투자하길 바란다. 지금 정부가 쏟아 붓고 있는 내년 예산은 빛이며 후대의 우리 자손들이 값아야 할 빚이다. 이정부 너무하네.... ㅠ&lt;br&gt;##&lt;br&gt;## [3] 개발도상국 지위나 박탈 해라. 선진국 비교질 하면서 왜 아직도 개발도상국 지위 가지고 있냐 어디 하나 경쟁력이 없고 정부 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;지원&lt;/span&gt;&lt;span&gt;금만 축내는 기업들이 태반이다
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+
+```r
+# 국회의원 카테고리
+reply_category %&gt;%
+  filter(category == "국회의원") %&gt;%
+  find_word(x = reply_raw, keyword = "박홍근")
+```
+
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 더불어민주당 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;박홍근&lt;/span&gt;&lt;span&gt; 의원이 대표 발의했다. 더불어민주당 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;박홍근&lt;/span&gt;&lt;span&gt; 의원이 대표 발의했다. 더불어민주당 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;박홍근&lt;/span&gt;&lt;span&gt; 의원이 대표 발의했다.&lt;br&gt;##&lt;br&gt;## [2] 타다 금지법 발의한 의원 - 더불어민주당 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;박홍근&lt;/span&gt;&lt;span&gt;&lt;br&gt;##&lt;br&gt;## [3] 그래도정의로운국회의원이있어다행입니다 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;박홍근&lt;/span&gt;&lt;span&gt;의원화이팅중랑구조합원님들 내년선거에꼭지원바랍니다본회의통과응원합시다
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+
+---
+name: 07-4
+class: title1
+
+07-4 단어 간 관계 살펴보기
+---
+
+#### 파이 계수로 단어 간 상관관계 살펴보기
+
+##### 분석 절차
+- 1.파이 계수를 구해 관심 단어와 관련성이 큰 단어를 추출합니다.
+- 2.막대 그래프를 만들어 주요 단어를 살펴봅니다.
+- 3.네트워크 그래프를 만들어 단어의 관계를 살펴봅니다.
+- 4.단어쌍이 언급된 댓글을 추출해 내용을 살펴봅니다.
+
+
+---
+
+#### 1. 파이 계수 구하기
+
+##### 1.1 토큰화하기
+
+- 중복 댓글을 제거한 `tada`의 `reply`를 토큰화해 명사, 동사, 형용사 추출
+
+
+```r
+# 토큰화
+pos_tada &lt;- tada %&gt;%
+  unnest_tokens(input = reply,
+                output = word_pos,
+                token = SimplePos22,
+                drop = F)
+
+# 품사 태그 정리
+separate_pos_tada &lt;- pos_tada %&gt;%
+  separate_rows(word_pos, sep = "[+]") %&gt;%                   # 품사 태그 분리
+  filter(str_detect(word_pos, "/n|/pv|/pa")) %&gt;%             # 품사 추출
+  mutate(word = ifelse(str_detect(word_pos, "/pv|/pa"),      # "/pv", "/pa" 추출
+                       str_replace(word_pos, "/.*$", "다"),  # "~다"로 바꾸기
+                       str_remove(word_pos, "/.*$"))) %&gt;%    # 태그 제거
+  filter(str_count(word) &gt;= 2) %&gt;%                           # 2글자 이상 추출
+  arrange(id)
+```
+
+---
+
+
+```r
+separate_pos_tada %&gt;%
+  select(word)
+```
+
+```
+## # A tibble: 55,567 x 1
+##    word    
+##    &lt;chr&gt;   
+##  1 분단    
+##  2 결론    
+##  3 진정성  
+##  4 결과적  
+##  5 타다    
+##  6 택시    
+##  7 맞다    
+##  8 택시업계
+##  9 헌법위반
+## 10 드론택배
+## # ... with 55,557 more rows
+```
+
+---
+
+##### 1.2 파이 계수 구하기
+
+
+```r
+library(widyr)
+word_cors &lt;- separate_pos_tada %&gt;%
+  add_count(word) %&gt;%
+  filter(n &gt;= 20) %&gt;%
+  pairwise_cor(item = word, feature = id, sort = T)
+
+word_cors
+```
+
+```
+## # A tibble: 128,522 x 3
+##    item1  item2  correlation
+##    &lt;chr&gt;  &lt;chr&gt;        &lt;dbl&gt;
+##  1 역행하 시대         0.408
+##  2 시대   역행하       0.408
+##  3 냄새   담배         0.333
+##  4 담배   냄새         0.333
+##  5 챙기다 밥그릇       0.293
+##  6 밥그릇 챙기다       0.293
+##  7 그랩   우버         0.286
+##  8 우버   그랩         0.286
+##  9 흐르다 시대         0.269
+## 10 시대   흐르다       0.269
+## # ... with 128,512 more rows
+```
+
+---
+
+##### 2. 관심 단어와 관련성이 큰 단어로 막대 그래프 만들기
+
+&lt;br-10&gt;
+
+.scroll-box-26[
+
+```r
+target &lt;- c("타다", "정부", "택시")
+
+# 상위 10개 추출
+top_cors &lt;- word_cors %&gt;%
+  filter(item1 %in% target) %&gt;%
+  group_by(item1) %&gt;%
+  slice_max(correlation, n = 10)
+
+top_cors
+```
+
+```
+## # A tibble: 30 x 3
+## # Groups:   item1 [3]
+##    item1 item2    correlation
+##    &lt;chr&gt; &lt;chr&gt;          &lt;dbl&gt;
+##  1 정부  세금          0.0862
+##  2 정부  기업          0.0813
+##  3 정부  개인택시      0.0687
+##  4 정부  상황          0.0670
+##  5 정부  막다          0.0592
+##  6 정부  문재인        0.0586
+##  7 정부  자유          0.0565
+##  8 정부  경제          0.0564
+##  9 정부  규제          0.0561
+## 10 정부  시장          0.0533
+## 11 타다  택시          0.224 
+## 12 타다  좋다          0.145 
+## 13 타다  서비스        0.103 
+## 14 타다  아니다        0.102 
+## 15 타다  카카오        0.0959
+## 16 타다  비싸다        0.0955
+## 17 타다  편하다        0.0925
+## 18 타다  많다          0.0914
+## 19 타다  다니다        0.0858
+## 20 타다  사람          0.0856
+## 21 택시  타다          0.224 
+## 22 택시  서비스        0.170 
+## 23 택시  승차거부      0.154 
+## 24 택시  손님          0.145 
+## 25 택시  불친절        0.141 
+## 26 택시  기사          0.137 
+## 27 택시  많다          0.132 
+## 28 택시  비싸다        0.118 
+## 29 택시  좋다          0.114 
+## 30 택시  요금          0.113
+```
+]
+
+
+---
+
+
+```r
+# 그래프 순서 정하기
+top_cors$item1 &lt;- factor(top_cors$item1, levels = target)
+
+# 막대 그래프 만들기
+ggplot(top_cors, aes(x = reorder_within(item2, correlation, item1),
+                     y = correlation,
+                     fill = item1)) +
+  geom_col(show.legend = F) +
+  facet_wrap(~ item1, scales = "free") +
+  coord_flip() +
+  scale_x_reordered() +
+
+  labs(title = "타다 금지법 기사 댓글 주요 단어",
+       subtitle = "파이 계수 Top 10",
+       x = NULL) +
+
+  theme_minimal() +
+  theme(text = element_text(family = "nanumgothic"),
+        plot.title = element_text(size = 14, face = "bold"),
+        plot.subtitle = element_text(size = 12),
+        strip.text = element_text(size = 11))
+```
+
+---
+![](07-project1_files/figure-html/unnamed-chunk-65-1.png)&lt;!-- --&gt;
+---
+
+##### 관심 단어와 관련성이 큰 단어 해석
+
+&lt;br&gt;
+
+- **타다**
+  - 타다와 택시 업계의 갈등을 다룬 댓글이 많다
+  - `"서비스"`, `"편하다"`, `"좋다"`, `"많다"`: 타다의 장점을 표현한 단어와 관련성 크다
+
+
+- **택시**
+  - 타다와 택시 업계의 갈등을 다룬 댓글이 많다
+  - `"서비스"`, `"승차거부"`, `"불친절"`, `"요금"`, `"비싸다"`: 택시 서비스의 품질을 비판할 때 사용하는 단어와 관련성이 크다
+
+
+- **정부**
+  - `"세금"`: 정부의 세금 운용을 비판하는 댓글이 많다
+  - `"기업"`, `"자유"`, `"시장"`, `"경제"`, `"규제"`, `"막다"`: 정부가 산업 발전을 막는다는 비판을 할 때 &lt;br&gt;사용하는 단어와 관련성이 크다
+
+
+---
+
+
+#### 3. 네트워크 그래프 만들기
+
+
+```r
+# 네트워크 그래프 데이터 만들기
+library(tidygraph)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## 
+## Attaching package: 'tidygraph'
+&lt;/code&gt;&lt;/pre&gt;&lt;pre class="r-output"&gt;&lt;code&gt;## The following object is masked from 'package:stats':
+## 
+##     filter
+&lt;/code&gt;&lt;/pre&gt;
+
+```r
+set.seed(1234)
+graph_cors &lt;- word_cors %&gt;%
+  filter(correlation &gt;= 0.15) %&gt;%
+  as_tbl_graph(directed = F) %&gt;%
+  mutate(centrality = centrality_degree(),       # 중심성
+         group = as.factor(group_infomap()))     # 커뮤니티
+```
+
+---
+
+
+
+```r
+# 네트워크 그래프 만들기
+library(ggraph)
+set.seed(1234)
+ggraph(graph_cors, layout = "fr") +              # 레이아웃
+
+  geom_edge_link(color = "gray50",               # 엣지 색깔
+                 aes(edge_alpha = correlation,   # 엣지 명암
+                     edge_width = correlation),  # 엣지 두께
+                 show.legend = F) +              # 범례 삭제
+  scale_edge_width(range = c(1, 4)) +            # 엣지 두께 범위
+
+  geom_node_point(aes(size = centrality,         # 노드 크기
+                      color = group),            # 노드 색깔
+                  show.legend = F) +             # 범례 삭제
+  scale_size(range = c(5, 10)) +                 # 노드 크기 범위
+
+  geom_node_text(aes(label = name),              # 텍스트 표시
+                 repel = T,                      # 노드밖 표시
+                 size = 5,                       # 텍스트 크기
+                 family = "nanumgothic") +       # 폰트
+
+  theme_graph()                                  # 배경 삭제
+```
+
+![](07-project1_files/figure-html/p_graph_cors-1.png)&lt;!-- --&gt;
+
+---
+
+&lt;br-back-20&gt;
+
+&lt;img src="Image/07/07_4_2.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+&lt;svg viewBox="0 0 352 512" xmlns="http://www.w3.org/2000/svg" style="height:1em;fill:currentColor;position:relative;display:inline-block;top:.1em;"&gt;  [ comment ]  &lt;path d="M176 80c-52.94 0-96 43.06-96 96 0 8.84 7.16 16 16 16s16-7.16 16-16c0-35.3 28.72-64 64-64 8.84 0 16-7.16 16-16s-7.16-16-16-16zM96.06 459.17c0 3.15.93 6.22 2.68 8.84l24.51 36.84c2.97 4.46 7.97 7.14 13.32 7.14h78.85c5.36 0 10.36-2.68 13.32-7.14l24.51-36.84c1.74-2.62 2.67-5.7 2.68-8.84l.05-43.18H96.02l.04 43.18zM176 0C73.72 0 0 82.97 0 176c0 44.37 16.45 84.85 43.56 115.78 16.64 18.99 42.74 58.8 52.42 92.16v.06h48v-.12c-.01-4.77-.72-9.51-2.15-14.07-5.59-17.81-22.82-64.77-62.17-109.67-20.54-23.43-31.52-53.15-31.61-84.14-.2-73.64 59.67-128 127.95-128 70.58 0 128 57.42 128 128 0 30.97-11.24 60.85-31.65 84.14-39.11 44.61-56.42 91.47-62.1 109.46a47.507 47.507 0 0 0-2.22 14.3v.1h48v-.05c9.68-33.37 35.78-73.18 52.42-92.16C335.55 260.85 352 220.37 352 176 352 78.8 273.2 0 176 0z"&gt;&lt;/path&gt;&lt;/svg&gt; 별도의 이미지 출력 창을 열어 크게 만든 다음 그래프 출력하기: 윈도우 `windows()`, 맥 `x11()`
+
+---
+
+
+##### 4. 댓글 내용 살펴보기
+
+- **선거-내년-총선**: 2020년에 있을 국회의원 선거를 의식하고 법안을 개정했다는 비판
+
+
+
+```r
+tada %&gt;%
+  filter(str_detect(reply_raw, "선거")) %&gt;%
+  find_word(x = reply_raw, keyword = "내년", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 이런 인간들이 어딨어? 국토위 의원 이 사람들 반드시 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;내년&lt;/span&gt;&lt;span&gt;에 낙선시켜야 한다! 선거표 의식에서 국민들의 편익이나 변화에는 관심없고...쪽수가 많은 택시기사들 눈치보니라고 이런 짓껄이를 하는가 보네....예전에 박그네가 지 대통령 표의식해서 세종시 추진한 것하고 똑같네....나라 말아먹는 짓거리지...한국당 의원들도 똑같은 인간들이지 지들 표만 건질려고...한마디로 의원들 잘살펴보고 투표합시다!! 당장 취소해라!!&lt;br&gt;##&lt;br&gt;## [2] 택시기사들 눈치 보지 말고, &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;내년&lt;/span&gt;&lt;span&gt; 선거를 의식 하지 말고, 불법은 불법으로 규정 짓고 합법은 대대적인 지원을 통해 국민의 삶을 더욱 윤택하게 하라. &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;내년&lt;/span&gt;&lt;span&gt; 제정만 방만하게 하면 나라 살림과 국민의 삶이 풍요롭게 되는지 되묻고 싶다. 소득이 주도하는 성장은 이제 그만하고 멀리 볼 수 있는 국가적 먹거리에 투자하길 바란다. 지금 정부가 쏟아 붓고 있는 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;내년&lt;/span&gt;&lt;span&gt; 예산은 빛이며 후대의 우리 자손들이 값아야 할 빚이다. 이정부 너무하네.... ㅠ&lt;br&gt;##&lt;br&gt;## [3] 그래도정의로운국회의원이있어다행입니다 박홍근의원화이팅중랑구조합원님들 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;내년&lt;/span&gt;&lt;span&gt;선거에꼭지원바랍니다본회의통과응원합시다
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+##### 4. 댓글 내용 살펴보기
+
+- **선거-내년-총선**: 2020년에 있을 국회의원 선거를 의식하고 법안을 개정했다는 비판
+
+
+
+```r
+tada %&gt;%
+  filter(str_detect(reply_raw, "내년")) %&gt;%
+  find_word(x = reply_raw, keyword = "총선", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 내년에 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;총선&lt;/span&gt;&lt;span&gt; 민주당은 아마도 작살날것...지난 서울.,수도권 싹쓸이 꿈도 꾸지 말지어다..그렇다고 표가 자한당으로 갈것도 아니고..지금보다 국회가 더 어수선한 상황이 전개될것..서민은 더 살기 힘들고 서울 집값은 더 오르고 민심 대란이 일어날것..&lt;br&gt;##&lt;br&gt;## [2] 이 나라는 국민이 내년 4월 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;총선&lt;/span&gt;&lt;span&gt;에서 심판해야 할 것이다&lt;br&gt;##&lt;br&gt;## [3] ㅎㅎ. 지금 정부가 타다 운전자와 가족들수 그리고 전국의 택시기사들과 그 가족들 수 합계를 계산해본 결과 택시 쪽 손을 들어주는게 내년 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;총선&lt;/span&gt;&lt;span&gt;과 정권 연장에 도움이 된다고 판단한거야. 이용자의 불편 따위는 표로 환산 되는게 아니거던.ㅎㅎ
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+- **목적지-손님-고르다**: 택시 기사가 손님을 골라 태운다는 비판
+
+
+```r
+tada %&gt;%
+  filter(str_detect(reply_raw, "목적지")) %&gt;%
+  find_word(x = reply_raw, keyword = "손님", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 목적지 입력없이 앱이나 전화로 콜만해서[가려받기 방지] 기사 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;손님&lt;/span&gt;&lt;span&gt; 둘다 평가받게 하고[클린한 문화] 3진아웃제도 적용해서 기사 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;손님&lt;/span&gt;&lt;span&gt; 둘다 블랙 만들면 좀 나아지려나 욕부터 하지말고 방법을 찾아봅시다. 택시 손들고 잡는 구시대적인 방법 좀 없애고 목적지 부터 묻는 문화 없애고 서로 평가하면서 클린하게&lt;br&gt;##&lt;br&gt;## [2] 발전을 하려면 변화를 가지고 시도하는게 맞다 근데 대한민국은 정치 때문에 본인욕심 챙기고 나머지를 볼려고하니 국민들이 원하는 발전보다 본인들 이득이 생기는 발전을 지향한다 타다가 택시의 생계를 위협하면 경쟁하면된다 택시들도 서비스 질을 높이고, 승차거부없이 목적지 골라 태우지말고 모든 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;손님&lt;/span&gt;&lt;span&gt;을 태우면되는것이다. 간혹 택시기사님들 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;손님&lt;/span&gt;&lt;span&gt; 없다고 택시안에서 담배 핀다 몇번이고 목격했다. 그리고 택시를 타는 가장 큰 목적은 편의성인데 조금만 골목길로 들어가는 경로, 빈차로 되돌아 와야하는 외진 지역은 거의 대놓고 싫은 내색 다한다.&lt;br&gt;##&lt;br&gt;## [3] 타다가 불법인것은 사실이다..이재웅이가 말 장난으로 공유서비스라는 명목하에 영업 면허없이 유상 운송수단으로 불법 영업을한게 사실이기때문에 타다가 처음 운행될때 조금 염려 스러웠는데 결국은 이렇게 되는군...택시 기사들이 친절하게 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;손님&lt;/span&gt;&lt;span&gt;을 맞이하고 차안에서 담배피지 말고 쓸데없는말않하고 조용히 목적지 까지 바래다주는 모범 적인 행동을 보여줘야 한다~ 타다가 불법이라고 또 택시기사들 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;손님&lt;/span&gt;&lt;span&gt;들한테 이런저런 소리 하지말고 본연의 소임만 하기 바란다..
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+- **목적지-손님-고르다**: 택시 기사가 손님을 골라 태운다는 비판
+
+
+
+```r
+tada %&gt;%
+  filter(str_detect(reply_raw, "손님")) %&gt;%
+  find_word(x = reply_raw, keyword = "골라", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 소비자들을 좀 생각해줘야 되는거 아닌가... 이럴거면 택시 승차거부 문제같은거좀 해결해주던가.. 이마저 없애버리면 우린 또 택시 전쟁해야 하고 택시는 또 손님 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;골라&lt;/span&gt;&lt;span&gt;태우고 바뀌는게 없잖아...&lt;br&gt;##&lt;br&gt;## [2] 발전을 하려면 변화를 가지고 시도하는게 맞다 근데 대한민국은 정치 때문에 본인욕심 챙기고 나머지를 볼려고하니 국민들이 원하는 발전보다 본인들 이득이 생기는 발전을 지향한다 타다가 택시의 생계를 위협하면 경쟁하면된다 택시들도 서비스 질을 높이고, 승차거부없이 목적지 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;골라&lt;/span&gt;&lt;span&gt; 태우지말고 모든 손님을 태우면되는것이다. 간혹 택시기사님들 손님 없다고 택시안에서 담배 핀다 몇번이고 목격했다. 그리고 택시를 타는 가장 큰 목적은 편의성인데 조금만 골목길로 들어가는 경로, 빈차로 되돌아 와야하는 외진 지역은 거의 대놓고 싫은 내색 다한다.&lt;br&gt;##&lt;br&gt;## [3] 택시 타려고 해도 탑승거부에 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;골라&lt;/span&gt;&lt;span&gt;서 손님 받고.. 대체 서비스도 있어야 서로 경쟁하며 고객들의 편의와 만족도가 오르지 않을까요.. 어떤 분야던 단독은 아닌듯
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+.box[
+
+.info[&lt;svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="height:1em;position:relative;display:inline-block;top:.1em;fill:#FF7333;"&gt;  [ comment ]  &lt;path d="M505.12019,19.09375c-1.18945-5.53125-6.65819-11-12.207-12.1875C460.716,0,435.507,0,410.40747,0,307.17523,0,245.26909,55.20312,199.05238,128H94.83772c-16.34763.01562-35.55658,11.875-42.88664,26.48438L2.51562,253.29688A28.4,28.4,0,0,0,0,264a24.00867,24.00867,0,0,0,24.00582,24H127.81618l-22.47457,22.46875c-11.36521,11.36133-12.99607,32.25781,0,45.25L156.24582,406.625c11.15623,11.1875,32.15619,13.15625,45.27726,0l22.47457-22.46875V488a24.00867,24.00867,0,0,0,24.00581,24,28.55934,28.55934,0,0,0,10.707-2.51562l98.72834-49.39063c14.62888-7.29687,26.50776-26.5,26.50776-42.85937V312.79688c72.59753-46.3125,128.03493-108.40626,128.03493-211.09376C512.07526,76.5,512.07526,51.29688,505.12019,19.09375ZM384.04033,168A40,40,0,1,1,424.05,128,40.02322,40.02322,0,0,1,384.04033,168Z"&gt;&lt;/path&gt;&lt;/svg&gt; 원형으로 변형되기 전의 단어 알아내기]
+
+- `"골라"`가 전처리 과정에서 원형인 `"고르다"`로 변형되었기 때문에 `"골라"` 언급 댓글 추출
+-  관심 단어 언급한 원문 찾을 때는 전처리 작업을 통해 변형되기 전의 단어를 이용해야 함
+
+
+```r
+separate_pos_tada %&gt;%
+  filter(word == "고르다") %&gt;%
+  pull(reply_raw)
+```
+
+
+
+```
+## [1] "말도 안 걸지, 깨끗하지, 다 기록 남아 안전하지, 동물 이동 시에도 눈치 안 봐도 되지, 골라서 타겠다는데 이걸 왜 막아? 여자들이 택시 탔다가 죽어나가는 게 하루이틀 일이냐고. 왜 안전을 운에 맡겨야 하냐?"                                                                                                                                                                                                                                                                          
+## [2] "정말 나라가 거꾸러 가는구만...시대정신에 약행하는 기회주의자들의 끝이 보인다...씁쓸....나는 택시보다 더 친절한 타다을 타고 싶다...내돈주고 내마음되로 골라타고 싶다..."                                                                                                                                                                                                                                                                                                        
+## [3] "택시타고 싶지않고 타다 편했는데 이제는 국민이 원하는거 탑승할 권리 골라서 탈권리까지 망치는 이놈의 국가 !!!! 정말 화가난다 우리나라 국회의원들 돈받고 일하면 안된다 외국처럼 원하는 연륜있는 분들이 돈안받고 봉사하면서 국회의원해야 나라가 바르게 설텐데 매일 국민들 세금으로 말도안되는 억단위의 돈과 경호원 자가용 등등 골프나 치면서 유흥이나 다니고 정말 국민들의 피같은 돈들이 아깝다 한심하게 앉아서 엉뚱한거 하지말고 강남바닥아래 썩어가는 하수구공사나 다시해라 !!!!"
+```
+
+]
+
+---
+
+#### 엔그램으로 연이어 사용된 단어 살펴보기
+
+##### 분석 절차
+- 1.댓글을 바이그램으로 토큰화해 빈도를 구합니다.
+- 2.네트워크 그래프를 만들어 단어의 관계를 살펴봅니다.
+- 3.바이그램 단어쌍이 언급된 댓글을 추출해 내용을 확인합니다.\
+
+---
+
+
+#### 1. 바이그램으로 토큰화해 빈도 구하기
+
+
+```r
+# 한 댓글이 하나의 행을 구성하도록 결합
+line_comment &lt;- separate_pos_tada %&gt;%
+  group_by(id) %&gt;%
+  summarise(sentence = paste(word, collapse = " "))
+
+# 바이그램으로 토큰화
+bigram_comment &lt;- line_comment %&gt;%
+  unnest_tokens(input = sentence,
+                output = bigram,
+                token = "ngrams",
+                n = 2)
+
+bigram_comment
+```
+
+---
+
+```
+## # A tibble: 50,608 x 2
+##       id bigram           
+##    &lt;int&gt; &lt;chr&gt;            
+##  1     1 분단 결론        
+##  2     1 결론 진정성      
+##  3     1 진정성 결과적    
+##  4     1 결과적 타다      
+##  5     1 타다 택시        
+##  6     1 택시 맞다        
+##  7     1 맞다 택시업계    
+##  8     1 택시업계 헌법위반
+##  9     1 헌법위반 드론택배
+## 10     1 드론택배 불법    
+## # ... with 50,598 more rows
+```
+---
+
+
+
+```r
+# 바이그램 분리하기
+bigram_seprated &lt;- bigram_comment %&gt;%
+  separate(bigram, c("word1", "word2"), sep = " ")
+
+# 단어쌍 빈도 구하기
+pair_bigram &lt;- bigram_seprated %&gt;%
+  count(word1, word2, sort = T) %&gt;%
+  na.omit()
+
+pair_bigram
+```
+
+```
+## # A tibble: 43,244 x 3
+##    word1 word2      n
+##    &lt;chr&gt; &lt;chr&gt;  &lt;int&gt;
+##  1 택시  타다     159
+##  2 타다  타다      79
+##  3 타다  택시      72
+##  4 타다  혁신      49
+##  5 타다  좋다      44
+##  6 타다  불법      42
+##  7 택시  서비스    37
+##  8 타다  금지법    27
+##  9 타다  다니다    27
+## 10 택시  기사      27
+## # ... with 43,234 more rows
+```
+
+
+---
+
+
+##### 2. 네트워크 그래프 만들기
+
+
+```r
+# 네트워크 그래프 데이터 만들기
+set.seed(1234)
+graph_bigram &lt;- pair_bigram %&gt;%
+  filter(n &gt;= 8) %&gt;%
+  as_tbl_graph(directed = F) %&gt;%
+  mutate(centrality = centrality_degree(),       # 중심성
+         group = as.factor(group_infomap()))     # 커뮤니티
+```
+
+
+---
+
+
+```r
+# 네트워크 그래프 만들기
+set.seed(1234)
+ggraph(graph_bigram, layout = "fr") +            # 레이아웃
+
+  geom_edge_link(color = "gray50",               # 엣지 색깔
+                 alpha = 0.5) +                  # 엣지 명암
+
+  geom_node_point(aes(size = centrality,         # 노드 크기
+                      color = group),            # 노드 색깔
+                  show.legend = F) +             # 범례 삭제
+  scale_size(range = c(5, 15)) +                 # 노드 크기 범위
+
+  geom_node_text(aes(label = name),              # 텍스트 표시
+                 repel = T,                      # 노드밖 표시
+                 size = 5,                       # 텍스트 크기
+                 family = "nanumgothic") +       # 폰트
+
+  theme_graph()                                  # 배경 삭제
+```
+
+---
+
+&lt;img src="Image/07/07_4_3.png" width="80%" style="display: block; margin: auto;" /&gt;
+
+---
+
+##### 3. 댓글 내용 살펴보기
+
+##### 3.1 `line_comment`에 `tada` 결합하기
+
+
+```r
+line_tada &lt;- line_comment %&gt;%
+  left_join(tada, by = "id")
+
+line_tada %&gt;%
+  select(sentence)
+```
+
+```
+## # A tibble: 5,108 x 1
+##    sentence                                       
+##    &lt;chr&gt;                                          
+##  1 분단 결론 진정성 결과적 타다 택시 맞다 택시업계 헌법위반 드론택배 불법 현재국기 ~
+##  2 러다이트 운동 영국 중부 북부 직물공업지대 일어나다 기계 파괴운동 택시기사들 나중 ~
+##  3 저런것들도 국회의원                            
+##  4 우버 그랩 같다 서비스 자연 서비스 택시 서비스 자율경쟁 통하다 상생 제도 개선해 ~
+##  5 택시승차거부하면 벌금 만원 때리다 근무복       
+##  6 자율주행택시 나오다 택시기사들 뒤지다 왜이렇게 밥그릇 지키다~
+##  7 옛말 고인 물다 썩다 택시기사들 꼬라지 고이다 상태 승차거부 시작해서 정치 이야기 ~
+##  8 택시 자격증 따다 운행하면 모르다 자격증 운행   
+##  9 편법 돈벌라는 양아치들 내주                    
+## 10 똥남아보다 우리나라 네트웍 강국 맞다 택시 타다 태국 민주당 감성팔이 우치다보 나라~
+## # ... with 5,098 more rows
+```
+
+---
+
+##### 3.2 댓글 원문 살펴보기
+
+- **역행-시대-뒤떨어지다** : 법안 개정이 시대에 뒤떨어진 판단이라는 비판
+
+
+```r
+line_tada %&gt;%
+  filter(str_detect(sentence, "시대 역행")) %&gt;%
+  find_word(x = reply_raw, keyword = "역행", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 한국은 정치인들땜에 발전이 없고 나라 망한다! 택시표심때문에 시대의 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;역행&lt;/span&gt;&lt;span&gt;하고 있고 진작 우버라든지 시대의 맞게 개방하고 개선되야 하는데 기득권 지킬려다 조선망하듯 망할듯 ㅜ ㅜ 꼭 노조집행부와 정치인들이 똑같해~~~&lt;br&gt;##&lt;br&gt;## [2] 미친.... 이런 시대를 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;역행&lt;/span&gt;&lt;span&gt;하는 법안은 도데체 어디서 발의하는거냐&lt;br&gt;##&lt;br&gt;## [3] 시대랑 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;역행&lt;/span&gt;&lt;span&gt;으로 가네 ㅋㅋㅋㅋ 무인주행자동차 금지법도 만들어라 이럴꺼면 ㅋㅋㅋㅋㅋㅋㅋㅋㅋ
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+##### 3.2 댓글 원문 살펴보기
+
+- **역행-시대-뒤떨어지다** : 법안 개정이 시대에 뒤떨어진 판단이라는 비판
+
+
+```r
+line_tada %&gt;%
+  filter(str_detect(sentence, "시대 뒤떨어지다")) %&gt;%
+  find_word(x = reply_raw, keyword = "뒤떨어", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 대한민국이 자유민주주의 국가 맞나요? 시대 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;뒤떨어&lt;/span&gt;&lt;span&gt;진 사고로 나라가 낙후되어 가네요.&lt;br&gt;##&lt;br&gt;## [2] 전 세계에 우버가 다 있는데 이거 결국 시대에 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;뒤떨어&lt;/span&gt;&lt;span&gt;지는 결정임...&lt;br&gt;##&lt;br&gt;## [3] 거꾸로 가는 나라. 시대에 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;뒤떨어&lt;/span&gt;&lt;span&gt;진 나라가 되어 가는구나.
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+- **택시-면허-사다**
+  - 택시 면허 거래를 비판하는 의견
+  - 타다도 택시와 동등하게 면허를 사서 영업해야 한다는 의견
+
+
+```r
+line_tada %&gt;%
+  filter(str_detect(sentence, "택시 면허")) %&gt;%
+  find_word(x = reply_raw, keyword = "면허", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 택시 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;면허&lt;/span&gt;&lt;span&gt; 남발 하자 타다불법이라니 왜 막음&lt;br&gt;##&lt;br&gt;## [2] 택시 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;면허&lt;/span&gt;&lt;span&gt;를 사서 영업을 해야지...&lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;면허&lt;/span&gt;&lt;span&gt;도 없이 권리도 없이 택시와 유사 행위를 하는게 맞냐??&lt;br&gt;##&lt;br&gt;## [3] 택시 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;면허&lt;/span&gt;&lt;span&gt;제를 완전히 없애라!!!
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+---
+
+- **택시-면허-사다**
+  - 택시 면허 거래를 비판하는 의견
+  - 타다도 택시와 동등하게 면허를 사서 영업해야 한다는 의견
+
+
+```r
+line_tada %&gt;%
+  filter(str_detect(sentence, "면허 사다")) %&gt;%
+  find_word(x = reply_raw, keyword = "사서", n = 10)
+```
+
+&lt;pre class="r-output"&gt;&lt;code&gt;## [1] 택시 면허를 &lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;사서&lt;/span&gt;&lt;span&gt; 영업을 해야지...면허도 없이 권리도 없이 택시와 유사 행위를 하는게 맞냐??&lt;br&gt;##&lt;br&gt;## [2] 타다가 무슨 혁신기업이라고 봐줘야 되냐. 기존 점보택시랑 다할게 없는데. 정식으로 택시 면허 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;사서&lt;/span&gt;&lt;span&gt; 하면 누가 뭐라 하냐. 꼼수로 면허 돈 주고 안&lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;사서&lt;/span&gt;&lt;span&gt; 한다니 문제지.&lt;br&gt;##&lt;br&gt;## [3] 이건 타다가 잘못한거. 면허 &lt;/span&gt;&lt;span style='color: #FFFFFF;background-color: #FF00AF;font-weight: bold;'&gt;사서&lt;/span&gt;&lt;span&gt; 하겠다더니 정부와 합의 꺠고 렌터카로만 1만대 돌리겠다고 발표하면 어쩌라는겨. 국토부에서 불법화 검토하겠다고 한 후에도 바로잡지 않고 버티면서 타다 금지법 어쩌구 언플만하는데. 나라시 콜밴에 어플 붙여서 혁신이라고 우기는데. 우버나 그랩 케이스를 봐도 그렇고 결국 대중교통 택시시장 진입하고 접수하기 위한 방편이라는 혐의에서 자유롭지 않아 보이기도 하고.
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;svg viewBox="0 0 352 512" xmlns="http://www.w3.org/2000/svg" style="height:1em;fill:currentColor;position:relative;display:inline-block;top:.1em;"&gt;  [ comment ]  &lt;path d="M176 80c-52.94 0-96 43.06-96 96 0 8.84 7.16 16 16 16s16-7.16 16-16c0-35.3 28.72-64 64-64 8.84 0 16-7.16 16-16s-7.16-16-16-16zM96.06 459.17c0 3.15.93 6.22 2.68 8.84l24.51 36.84c2.97 4.46 7.97 7.14 13.32 7.14h78.85c5.36 0 10.36-2.68 13.32-7.14l24.51-36.84c1.74-2.62 2.67-5.7 2.68-8.84l.05-43.18H96.02l.04 43.18zM176 0C73.72 0 0 82.97 0 176c0 44.37 16.45 84.85 43.56 115.78 16.64 18.99 42.74 58.8 52.42 92.16v.06h48v-.12c-.01-4.77-.72-9.51-2.15-14.07-5.59-17.81-22.82-64.77-62.17-109.67-20.54-23.43-31.52-53.15-31.61-84.14-.2-73.64 59.67-128 127.95-128 70.58 0 128 57.42 128 128 0 30.97-11.24 60.85-31.65 84.14-39.11 44.61-56.42 91.47-62.1 109.46a47.507 47.507 0 0 0-2.22 14.3v.1h48v-.05c9.68-33.37 35.78-73.18 52.42-92.16C335.55 260.85 352 220.37 352 176 352 78.8 273.2 0 176 0z"&gt;&lt;/path&gt;&lt;/svg&gt; `"사서"`가 전처리 과정에서 원형인 `"사다"`로 변형되었기 때문에 `"사서"` 언급 댓글  추출
+
+---
+name: 07-5
+class: title1
+
+07-5 토픽 모델링
+---
+
+##### 분석 절차
+- 1.댓글 이용해 LDA 모델을 만듭니다.
+- 2.토픽별 주요 단어로 막대 그래프를 만듭니다.
+- 3.댓글을 토픽별로 분류하고 토픽별 댓글 수와 주요 단어를 나타낸 막대 그래프를 만듭니다.
+- 4.토픽별 주요 문서의 내용을 살펴보고 토픽 이름을 짓습니다.
+
+---
+
+#### 토픽 모델링을 위한 전처리
+
+- 중복 댓글과 짧은 문서 제거 후 명사 추출
+- 댓글 내 중복 단어와 빈도 높은 단어 제거
+
+
+```r
+# 명사 추출
+noun_tada &lt;- tada %&gt;%
+  distinct(reply, .keep_all = T) %&gt;%                   # 중복 댓글 제거
+  filter(str_count(reply, boundary("word")) &gt;= 3) %&gt;%  # 짧은 댓글 제거
+  unnest_tokens(input = reply,                         # 명사 추출
+                output = word,
+                token = extractNoun,
+                drop = F) %&gt;%
+  filter(str_count(word) &gt; 1)
+```
+
+---
+
+
+```r
+# 중복, 고빈도 단어 제거
+unique_noun_tada &lt;- noun_tada %&gt;%
+  group_by(id) %&gt;%                                     # 중복 단어 제거
+  distinct(word, .keep_all = T) %&gt;%
+  ungroup() %&gt;%
+  add_count(word) %&gt;%                                  # 고빈도 단어 제거
+  filter(n &lt;= 200) %&gt;%
+  select(id, word)
+
+unique_noun_tada
+```
+
+```
+## # A tibble: 36,972 x 2
+##       id word    
+##    &lt;int&gt; &lt;chr&gt;   
+##  1     1 분단    
+##  2     1 결론    
+##  3     1 진정    
+##  4     1 결과    
+##  5     1 업계    
+##  6     1 헌법위반
+##  7     1 드론    
+##  8     1 택배    
+##  9     1 현재    
+## 10     1 국기    
+## # ... with 36,962 more rows
+```
+
+---
+
+
+#### 모델 만들기
+
+
+##### 1. 문서별 단어 빈도를 이용해 DTM 만들기
+
+
+```r
+# 문서별 단어 빈도 구하기
+count_word &lt;- unique_noun_tada %&gt;%
+  count(id, word, sort = T)
+
+# DTM 만들기
+dtm_tada &lt;- count_word %&gt;%
+  cast_dtm(document = id, term = word, value = n)
+
+dtm_tada
+```
+
+```
+## &lt;&lt;DocumentTermMatrix (documents: 4745, terms: 11025)&gt;&gt;
+## Non-/sparse entries: 36972/52276653
+## Sparsity           : 100%
+## Maximal term length: 41
+## Weighting          : term frequency (tf)
+```
+
+---
+
+##### 2. 하이퍼파라미터 튜닝으로 토픽 수 정하기
+
+- 토픽 수를 2~20까지 바꾸어 가며 성능 지표 비교
+
+
+&lt;svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="height:1em;position:relative;display:inline-block;top:.1em;fill:#FF7333;"&gt;  [ comment ]  &lt;path d="M569.517 440.013C587.975 472.007 564.806 512 527.94 512H48.054c-36.937 0-59.999-40.055-41.577-71.987L246.423 23.985c18.467-32.009 64.72-31.951 83.154 0l239.94 416.028zM288 354c-25.405 0-46 20.595-46 46s20.595 46 46 46 46-20.595 46-46-20.595-46-46-46zm-43.673-165.346l7.418 136c.347 6.364 5.609 11.346 11.982 11.346h48.546c6.373 0 11.635-4.982 11.982-11.346l7.418-136c.375-6.874-5.098-12.654-11.982-12.654h-63.383c-6.884 0-12.356 5.78-11.981 12.654z"&gt;&lt;/path&gt;&lt;/svg&gt; 19개의 LDA 모델을 만들므로 컴퓨터 성능에 따라 실행하는 데 시간이 오래 걸릴 수 있음
+
+
+```r
+library(ldatuning)
+models_tada &lt;- FindTopicsNumber(dtm = dtm_tada,
+                                topics = 2:20,
+                                return_models = T,
+                                control = list(seed = 1234))
+# 성능 지표 그래프
+FindTopicsNumber_plot(models_tada)
+```
+
+&lt;img src="07-project1_files/figure-html/models_tada-1.png" width="50%" /&gt;
+
+
+---
+
+![](07-project1_files/figure-html/unnamed-chunk-95-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+# 토픽 수가 9개인 모델 추출
+lda_model &lt;- models_tada %&gt;%  
+  filter(topics == 9) %&gt;%
+  pull(LDA_model) %&gt;%         # 모델 추출
+  .[[1]]                      # list 추출
+
+lda_model
+```
+
+```
+## A LDA_Gibbs topic model with 9 topics.
+```
+
+---
+
+#### 토픽별 주요 단어 살펴보기
+
+##### 1. 주요 단어 추출하기
+
+- 토픽별 단어 확률을 나타낸 `beta` 추출
+
+.scroll-box-22[
+
+```r
+# 토픽별 단어 확률 beta 추출
+term_topic &lt;- tidy(lda_model, matrix = "beta")
+
+# 토픽별 beta 상위 단어 추출
+term_topic %&gt;%
+  group_by(topic) %&gt;%
+  slice_max(beta, n = 15)
+```
+
+```
+## # A tibble: 136 x 3
+## # Groups:   topic [9]
+##    topic term     beta
+##    &lt;int&gt; &lt;chr&gt;   &lt;dbl&gt;
+##  1     1 하게  0.0182 
+##  2     1 금지  0.0176 
+##  3     1 하다  0.0166 
+##  4     1 기존  0.0166 
+##  5     1 때문  0.0139 
+##  6     1 하려  0.0108 
+##  7     1 해라  0.0108 
+##  8     1 이상  0.0103 
+##  9     1 반대  0.00948
+## 10     1 공유  0.00948
+## # ... with 126 more rows
+```
+]
+
+---
+
+##### 2. 불용어 제외하고 상위 10개 단어 추출하기
+
+&lt;br-10&gt;
+
+.scroll-box-26[
+
+```r
+# 불용어 목록 생성
+stopword_lda &lt;- c("하게", "하다", "하려", "해라", "그것", "하면", "하네",
+                  "하기", "하나", "해서", "하면", "하지", "한거", "니들")
+
+# 불용어 제외 후 상위 10개 단어 추출
+top_term_topic &lt;- term_topic %&gt;%
+  filter(!term %in% stopword_lda) %&gt;%
+  group_by(topic) %&gt;%
+  slice_max(beta, n = 10)
+
+top_term_topic
+```
+
+```
+## # A tibble: 93 x 3
+## # Groups:   topic [9]
+##    topic term        beta
+##    &lt;int&gt; &lt;chr&gt;      &lt;dbl&gt;
+##  1     1 금지     0.0176 
+##  2     1 기존     0.0166 
+##  3     1 때문     0.0139 
+##  4     1 이상     0.0103 
+##  5     1 반대     0.00948
+##  6     1 공유     0.00948
+##  7     1 개인     0.00929
+##  8     1 신사업   0.00600
+##  9     1 국회의원 0.00581
+## 10     1 정책     0.00581
+## # ... with 83 more rows
+```
+]
+---
+
+
+##### 3. 막대 그래프 만들기
+
+
+```r
+ggplot(top_term_topic, aes(x = reorder_within(term, beta, topic),
+                           y = beta,
+                           fill = factor(topic))) +
+  geom_col(show.legend = F) +
+  facet_wrap(~ topic, scales = "free", ncol = 3) +
+  coord_flip() +
+  scale_x_reordered() +
+  labs(x = NULL) +
+  theme(text = element_text(family = "nanumgothic"))
+```
+
+
+---
+&lt;img src="07-project1_files/figure-html/unnamed-chunk-99-1.png" width="65%" /&gt;
+---
+
+#### 토픽별로 댓글 분류하기
+
+- `lda_model`에서 문서별 토픽 확률을 나타낸 `gamma` 추출하기
+- 문서별로 `gamma`가 가장 높은 토픽을 남기기
+- 댓글 원문에 결합해 토픽 변호 부여하기
+ 
+
+```r
+# 문서별 토픽 확률 gamma 추출하기
+doc_topic &lt;- tidy(lda_model, matrix = "gamma")
+
+# 문서별로 확률이 가장 높은 토픽 추출
+doc_class &lt;- doc_topic %&gt;%
+  group_by(document) %&gt;%
+  slice_max(gamma, n = 1)
+
+doc_class
+```
+
+---
+
+```
+## # A tibble: 8,134 x 3
+## # Groups:   document [4,745]
+##    document topic gamma
+##    &lt;chr&gt;    &lt;int&gt; &lt;dbl&gt;
+##  1 1            3 0.529
+##  2 10           1 0.165
+##  3 100          2 0.126
+##  4 100          6 0.126
+##  5 1000         6 0.140
+##  6 1001         4 0.129
+##  7 1002         3 0.140
+##  8 1003         6 0.124
+##  9 1003         8 0.124
+## 10 1003         9 0.124
+## # ... with 8,124 more rows
+```
+
+---
+
+
+```r
+# integer로 변환
+doc_class$document &lt;- as.integer(doc_class$document)
+
+# 원문에 토픽 번호 부여
+tada_topic &lt;- tada %&gt;%
+  left_join(doc_class, by = c("id" = "document"))
+```
+
+
+---
+
+#### 토픽별 댓글 수와 단어 시각화하기
+
+
+##### 1. 토픽별 주요 단어 목록 만들기
+
+
+```r
+top_terms &lt;- term_topic %&gt;%
+  filter(!term %in% stopword_lda) %&gt;%
+  group_by(topic) %&gt;%
+  slice_max(beta, n = 6, with_ties = F) %&gt;%
+  summarise(term = paste(term, collapse = ", "))
+
+top_terms
+```
+
+```
+## # A tibble: 9 x 2
+##   topic term                                    
+##   &lt;int&gt; &lt;chr&gt;                                   
+## 1     1 금지, 기존, 때문, 이상, 반대, 공유      
+## 2     2 시대, 자율, 주행, 한국, 법안, 정치      
+## 3     3 무시, 업계, 이유, 보호, 공유경제, 교통  
+## 4     4 경제, 경쟁, 요금, 사회, 시장, 변화      
+## 5     5 이용, 승차거부, 운전, 불친절, 손님, 냄새
+## 6     6 정부, 필요, 규제, 국가, 우리나라, 발전  
+## 7     7 문제, 밥그릇, 정치, 불편, 개선, 안타    
+## 8     8 국회의원, 국회, 총선, 통과, 민주당, 선거
+## 9     9 면허, 카카오, 회사, 렌트카, 운행, 버스
+```
+
+---
+
+##### 2. 토픽별 문서 빈도 구하기
+
+
+```r
+count_topic &lt;- tada_topic %&gt;%
+  count(topic) %&gt;%
+  na.omit()
+
+count_topic
+```
+
+```
+## # A tibble: 9 x 2
+##   topic     n
+##   &lt;int&gt; &lt;int&gt;
+## 1     1   897
+## 2     2   920
+## 3     3   809
+## 4     4   898
+## 5     5   866
+## 6     6   991
+## 7     7   852
+## 8     8  1002
+## 9     9   899
+```
+
+---
+
+##### 3. 문서 빈도에 주요 단어 결합하기
+
+
+```r
+count_topic_word &lt;- count_topic %&gt;%
+  left_join(top_terms, by = "topic") %&gt;%
+  mutate(topic_name = paste("Topic", topic))
+
+count_topic_word
+```
+
+```
+## # A tibble: 9 x 4
+##   topic     n term                                     topic_name
+##   &lt;int&gt; &lt;int&gt; &lt;chr&gt;                                    &lt;chr&gt;     
+## 1     1   897 금지, 기존, 때문, 이상, 반대, 공유       Topic 1   
+## 2     2   920 시대, 자율, 주행, 한국, 법안, 정치       Topic 2   
+## 3     3   809 무시, 업계, 이유, 보호, 공유경제, 교통   Topic 3   
+## 4     4   898 경제, 경쟁, 요금, 사회, 시장, 변화       Topic 4   
+## 5     5   866 이용, 승차거부, 운전, 불친절, 손님, 냄새 Topic 5   
+## 6     6   991 정부, 필요, 규제, 국가, 우리나라, 발전   Topic 6   
+## 7     7   852 문제, 밥그릇, 정치, 불편, 개선, 안타     Topic 7   
+## 8     8  1002 국회의원, 국회, 총선, 통과, 민주당, 선거 Topic 8   
+## 9     9   899 면허, 카카오, 회사, 렌트카, 운행, 버스   Topic 9
+```
+
+---
+
+##### 4. 막대 그래프 만들기
+
+
+
+```r
+library(scales)
+ggplot(count_topic_word,
+       aes(x = reorder(topic_name, n),
+           y = n,
+           fill = topic_name)) +
+  geom_col(show.legend = F) +
+  coord_flip() +
+
+  geom_text(aes(label = comma(n, accuracy = 1)),  # 문서 빈도 표시
+            hjust = -0.2) +
+
+  geom_text(aes(label = term),                    # 주요 단어 표시
+            hjust = 1.03,
+            col = "white",
+            fontface = "bold",
+            family = "nanumgothic") +
+
+  scale_y_continuous(expand = c(0, 0),            # y축-막대 간격 줄이기
+                     limits = c(0, 1100)) +       # y축 범위
+```
+
+---
+
+##### 4. 막대 그래프 만들기
+
+
+```r
+labs(title = "타다 금지법 기사 댓글 토픽",
+       subtitle = "토픽별 주요 단어 및 댓글 빈도",
+       x = NULL, y = NULL) +
+
+  theme_minimal() +
+  theme(text = element_text(family = "nanumgothic"),
+        plot.title = element_text(size = 14, face = "bold"),
+        plot.subtitle = element_text(size = 12))
+```
+
+&lt;svg viewBox="0 0 352 512" xmlns="http://www.w3.org/2000/svg" style="height:1em;fill:currentColor;position:relative;display:inline-block;top:.1em;"&gt;  [ comment ]  &lt;path d="M176 80c-52.94 0-96 43.06-96 96 0 8.84 7.16 16 16 16s16-7.16 16-16c0-35.3 28.72-64 64-64 8.84 0 16-7.16 16-16s-7.16-16-16-16zM96.06 459.17c0 3.15.93 6.22 2.68 8.84l24.51 36.84c2.97 4.46 7.97 7.14 13.32 7.14h78.85c5.36 0 10.36-2.68 13.32-7.14l24.51-36.84c1.74-2.62 2.67-5.7 2.68-8.84l.05-43.18H96.02l.04 43.18zM176 0C73.72 0 0 82.97 0 176c0 44.37 16.45 84.85 43.56 115.78 16.64 18.99 42.74 58.8 52.42 92.16v.06h48v-.12c-.01-4.77-.72-9.51-2.15-14.07-5.59-17.81-22.82-64.77-62.17-109.67-20.54-23.43-31.52-53.15-31.61-84.14-.2-73.64 59.67-128 127.95-128 70.58 0 128 57.42 128 128 0 30.97-11.24 60.85-31.65 84.14-39.11 44.61-56.42 91.47-62.1 109.46a47.507 47.507 0 0 0-2.22 14.3v.1h48v-.05c9.68-33.37 35.78-73.18 52.42-92.16C335.55 260.85 352 220.37 352 176 352 78.8 273.2 0 176 0z"&gt;&lt;/path&gt;&lt;/svg&gt; `geom_text()`에는 `theme()`으로 설정한 폰트가 적용되지 않기 때문에 별도로 폰트 지정
+
+
+
+
+---
+&lt;img src="07-project1_files/figure-html/unnamed-chunk-107-1.png" width="70%" /&gt;
+---
+
+
+#### 토픽 이름 짓기
+
+##### 1. 토픽별 주요 문서 추출하기
+
+- 토픽별로 `gamma`가 높은 주요 댓글 추출해 내용 살펴보기
+
+
+```r
+# 토픽별 주요 문서 추출
+reply_topic &lt;- tada_topic %&gt;%
+  group_by(topic) %&gt;%
+  slice_max(gamma, n = 100)
+```
+
+---
+
+- **토픽 1** : 국회가 산업 발전을 가로막는다는 비판
+
+
+```r
+# 토픽 1 내용 살펴보기
+reply_topic %&gt;%
+  filter(topic == 1) %&gt;%
+  pull(reply_raw)
+```
+
+
+```
+## [1] "택시 진짜 노답인데...급정거하고 앞차 답답하면 손님있던 없던 쌍욕 해대지 덥다고 에어콘 틀자면 춥다고 거절해 창문열면 시끄럽다고 닫으래 운전중에 당연하게 전화오면 듣던말던 시끄럽게 통화하고 공항서는 야매로 요금 더치고 오다 걸리면 묵비권행사하지 교회전도 하고 안믿는다니까 면전에대고 지옥간다지 않나 목적지 가까우면 내리라고 지랄해서 등록증 찍으면 그냥 출발해서 가는내내 욕하면서 안내려주고 목적지 가는짓도 적어도 적어도 택시가 하는 쓰레기 짓이 생기는데 이정도면 타다 불법으로 법통과할때 택시도 법으로 물갈아야 하지않겠냐?"                            
+## [2] "더불어민중당 것들은 이 나라 신성장 동력이라고 생각되면 다 사장시켜서 국가 경쟁력을 망가뜨리려 한다.. 미국가서 우버가 불법 콜택시라고 하면 뭐라고 하려나...."                                                                                                                                                                                                                                                                                                                                                                                                        
+## [3] "노동자는 경기가악화될수록 더 취약해져 안정적이고 위험하지않게 헌법으로 보장된 노조로 약자가않되게 노력하게되는거지 이젠 경제가 절정에 도달했기때문에 오직기업이 그만큼에 더 기술자질만이있어야 경제가 발전할수밖에 없는게 영원히 변하지않는 유일한법칙이다 않그럼 경제성장은 할수가없고 계속 기업은부실로 그대론데 근본적 조치도않되고 해결이 절대될수없고 경제와 상관도없는 노동개혁으로 노동자에게 부정적으로 여론조성해서 서민은 메말라가게 부당하고 나쁜 헌법으로도 보장된 노동법칙까지 위반하는 노동개악을 합의없이하는건 범법자가된다는건 분명은 명심하셔니다"
+```
+
+---
+
+- **토픽 2** : 법안이 시대 흐름에 역행한다는 비판
+
+
+```r
+# 토픽 2 내용 살펴보기
+reply_topic %&gt;%
+  filter(topic == 2) %&gt;%
+  pull(reply_raw)
+```
+
+
+
+```
+## [1] "타다는 확실히 서비스 품질의 표준을 상향시켰고, 승차거부에 시달리던 국민들이 차별 없이 이용할 수 있게 해줬다는 점에서 혁신이라는 것임. 이러한 점에서 국민의 편익을 향상시켰다는 점은 부정할 수 없다. 이러한 상황에서 시행령 개정에 만장일치로 처리한 국회의원들은 진정한 국민의 편익 보다는 당장 눈 앞에 보이는 표심에 눈이 멀어있다는 걸 단적으로 보여준다. 박홍근을 비롯한 만장일치한 국토교통위원회 교통법안심사소위원회는 반드시 다음 선거에 심판을 받길 바란다."
+## [2] "해외는 우버를 비롯해서 시대 흐름에 맞춰가는데 헬조선만 택시노조 후장빠느라 시대역행하는중"                                                                                                                                                                                                                                                                                                                                                                          
+## [3] "\u314b택시기사들과 가족들의 투표가 무섭더냐? 징징대는거 받아주면서 하늘을 나는 자동차 자율주행 자동차? \u314b웃기네~2030년에도 한국은 미터기 켜는 택시 타고 다닐꺼다 징징대는 기사들 때문에"
+```
+
+---
+
+
+##### 2. 토픽 이름 목록 만들기
+
+
+```r
+# 토픽 이름 목록 만들기
+name_topic &lt;- tibble(topic = 1:9,
+                     name = c("1. 신사업 가로막는 국회",
+                              "2. 시대 흐름 역행하는 법안",
+                              "3. 택시 업계 보호, 국민 무시",
+                              "4. 자유 시장경제 반하는 결정",
+                              "5. 불만족스러운 택시 서비스",
+                              "6. 국가 발전 가로막는 정부",
+                              "7. 기존 업계 밥그릇 지키는 정치인",
+                              "8. 총선만 신경 쓰는 국회의원",
+                              "9. 타다는 렌트카, 무면허 택시 안된다"))
+```
+
+
+---
+
+##### 3. 토픽 이름과 주요 단어 시각화하기
+
+
+```r
+# 토픽 이름 결합하기
+top_term_topic_name &lt;- top_term_topic %&gt;%
+  left_join(name_topic, name_topic, by = "topic")
+
+top_term_topic_name
+```
+
+```
+## # A tibble: 93 x 4
+## # Groups:   topic [9]
+##    topic term        beta name                   
+##    &lt;int&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;                  
+##  1     1 금지     0.0176  1. 신사업 가로막는 국회
+##  2     1 기존     0.0166  1. 신사업 가로막는 국회
+##  3     1 때문     0.0139  1. 신사업 가로막는 국회
+##  4     1 이상     0.0103  1. 신사업 가로막는 국회
+##  5     1 반대     0.00948 1. 신사업 가로막는 국회
+##  6     1 공유     0.00948 1. 신사업 가로막는 국회
+##  7     1 개인     0.00929 1. 신사업 가로막는 국회
+##  8     1 신사업   0.00600 1. 신사업 가로막는 국회
+##  9     1 국회의원 0.00581 1. 신사업 가로막는 국회
+## 10     1 정책     0.00581 1. 신사업 가로막는 국회
+## # ... with 83 more rows
+```
+
+---
+
+
+```r
+# 막대 그래프 만들기
+ggplot(top_term_topic_name,
+       aes(x = reorder_within(term, beta, name),
+           y = beta,
+           fill = factor(topic))) +
+  geom_col(show.legend = F) +
+  facet_wrap(~ name, scales = "free", ncol = 3) +
+  coord_flip() +
+  scale_x_reordered() +
+
+  labs(title = "타다 금지법 기사 댓글 토픽",
+       subtitle = "토픽별 주요 단어 Top 10",
+       x = NULL, y = NULL) +
+
+  theme_minimal() +
+  theme(text = element_text(family = "nanumgothic"),
+        plot.title = element_text(size = 14, face = "bold"),
+        plot.subtitle = element_text(size = 12),
+        axis.text.x = element_blank(),   # x축 이름 삭제
+        axis.ticks.x = element_blank())  # x축 눈금 삭제
+```
+
+---
+&lt;img src="07-project1_files/figure-html/unnamed-chunk-115-1.png" width="60%" /&gt;
+
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="libs/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": true,
+"ratio": "16:10",
+"navigation": {
+"scroll": true
+}
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,12 @@
+name: temp
+title: temp
+username:
+account: dschloe
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 3849539
+bundleId: 4392421
+url: https://dschloe.shinyapps.io/temp/
+when: 1616653054.26172
+asMultiple: FALSE
+asStatic: FALSE
