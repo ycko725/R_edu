@@ -5,7 +5,7 @@ library(mlogit) # 다항 로지스틱 회귀
 library(dplyr)
 
 #### 단계 2. 데이터 불러오기 ####
-# setwd("~/Documents/R_edu")
+# setwd("~/Documents/R_edu") 사용하지 않습니다. 
 chatData <- read.csv('R_NCS_2020/3_day/data/chat-up_lines.csv', header = TRUE) %>% 
   mutate_if(is.character, as.factor)
 

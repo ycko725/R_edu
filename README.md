@@ -101,7 +101,7 @@ Enter an item from the menu, or 0 to exit
 Selection: 
 ```
 
-그러면, `Selection:` 에서 `1`을 입력후 `Enter`를 클릭하셔서 설치하시기를 바랍니다. 
+그러면, `Selection:` 에서 `1`을 입력후 `Enter`를 클릭하셔서 설치하시기를 바랍니다.
 
 ## VII. 이슈
 - 소스 코드 실행 시, 에러가 발생이 되면 아래 메일로 문의 주세요.
