@@ -56,6 +56,10 @@ author: 강사
 - Parameter Tuning 절차 및 Sample 소개
 - 딥러닝 소개 및 keras and tensorflow 2.0 Sample 튜토리얼
 
+### 5일차: RShiny 
+- R Shiny의 개념 소개
+- 간단한 튜토리얼을 활용한 Shiny 예제 익히기
+
 ## III. R 언어 Version
 
 - 소스 코드는 아래와 같은 환경에서 작성되었습니다. 
