@@ -16,7 +16,7 @@
 # 로짓변환: 종속변수의 출력범위를 0과 1로 조정하는 과정을 의미합니다. 
 #### I. 이항분류 기존 방식 #### 
 #### 단계 1. 데이터 가져오기 ####
-setwd("~/Documents/R_edu")
+# setwd("~/Documents/R_edu")
 loan_data <- read.csv("R_NCS_2020/3_day/data/cleaned_loan_data.csv", stringsAsFactors = FALSE)
 
 head(loan_data)

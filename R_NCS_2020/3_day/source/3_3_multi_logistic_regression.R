@@ -6,7 +6,7 @@ library(dplyr)
 
 #### 단계 2. 데이터 불러오기 ####
 # setwd("~/Documents/R_edu")
-chatData <- read.csv('chat-up_lines.csv', header = TRUE) %>% 
+chatData <- read.csv('R_NCS_2020/3_day/data/chat-up_lines.csv', header = TRUE) %>% 
   mutate_if(is.character, as.factor)
 
 head(chatData)

@@ -350,17 +350,17 @@ summary(data)
 
 # 대응 두 집단 subset 생성하기
 # dplyr way
-
 result <- data %>% 
   filter(!(is.na(after))) %>% 
   select(before, after)
 
-# 동질성 검정
-var.test(result$before, result$after, paired = TRUE)
+# 정규성 검정
+diff <- result$before - result$after
+shapiro.test(diff)
 
 # p-value 값이 0.05보다 크기 때문에 귀무가설을 그대로 채택함
-# 귀무가설: 두 그룹간 데이터 분포의 모양은 동질적이다. ---> t.test()
-# 대립가설: 두 그룹간 데이터 분포의 모양은 동질적이지 않다. ---> wilcox.test()
+# 귀무가설: 데이터 분포는 정규분포를 나타낸다. ---> t.test()
+# 대립가설: 데이터 분포는 정규분포를 나타내고 있지 않다. ---> wilcox.test()
 
 t.test(result$before, result$after, paired = TRUE)
 # p-value값은 유의수준 0.05보다 매우 작기 때문에 귀무가설을 기각하고 대립가설을 채택한다, 즉, 두 집단 간의 평균에 차이가 있는 것으로 나타났다. 
