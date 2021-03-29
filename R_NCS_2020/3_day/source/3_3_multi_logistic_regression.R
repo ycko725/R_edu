@@ -59,7 +59,7 @@ summary(chatModel)
 # Likelihood ratio test : chisq = 278.52 (p.value = < 2.22e-16)
 # 로그 가능도는 교재에서 본 것처럼, 자료에서 설명되지 않은 변동이 어느 정도인지 말해주는 측도이다. 
 # 로그 가능도의 차이 또는 변화는 새 변수가 모형을 어느 정도나 설명하는지를 나타낸다. 
-# 기저 모형만 분석해보자.
+# 기저 모형만 분석해보자..
 chatBase <- mlogit(Success ~ 0 | Sex, data = mlChat, reflevel = "No response/Walk Off")
 summary(chatBase)
 
