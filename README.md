@@ -8,7 +8,7 @@ author: 강사
 
 ## 필수 프로그램 설치
 - R을 처음 접하시는 분들은 R & RStudio을 각각 설치하여 주시기를 바랍니다. 
-  + 윈도우 사용자 [Download R 4.0.0 for Windows](https://cran.r-project.org/bin/windows/base/)
+  + 윈도우 사용자 [R for Windows](https://cran.r-project.org/bin/windows/base/)
   + Mac 사용자 [R for Mac OS X](https://cran.r-project.org/bin/macosx/)
     * `R-4.0.0.pkg`를 클릭 하셔서 다운로드 받으시기를 바랍니다. 
   + Linux 사용자는 OS마다 다릅니다. 따라서, 어떤 OS를 선택하실지 폴더 선택 후 해당 명령어를 터미널에서 입력하셔서 설치하시기를 바랍니다. [Linux 설치](https://cran.r-project.org/bin/linux/)
