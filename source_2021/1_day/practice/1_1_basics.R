@@ -143,10 +143,16 @@ class(mix_vector4)
 # 특히 엑셀 데이터를 수집할 경우, 숫자와 문자 데이터가 섞여 있는 경우가 종종 있습니다. 꼭 주의하시기를 바랍니다. 
 
 #### 5. 범주형 변수 ####
+iris <- iris
+str(iris)
+
 # 명목형 자료형 Factor
 locaiton_vector <- c("서울", "인천", "부산")
-factor_location_vector <- (locaiton_vector)
+factor_location_vector <- factor(locaiton_vector)
 factor_location_vector
+
+class(factor_location_vector)
+help(factor)
 
 # 순서형 자료형 Factor
 temperature_factor <- c("기온높음", 
@@ -156,10 +162,12 @@ temperature_factor <- c("기온높음",
                         "기온보통", 
                         "기온보통")
 
-factor_temperature_factor <- (temperature_factor, 
-                               = TRUE, 
-                               = c("기온낮음", 
-                                               "기온보통", 
+temperature_factor
+
+factor_temperature_factor <- factor(temperature_factor, 
+                                    ordered = TRUE, 
+                                    levels  = c("기온보통", 
+                                               "기온낮음", 
                                                "기온높음"))
 factor_temperature_factor
 table(factor_temperature_factor)
