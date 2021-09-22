@@ -30,14 +30,17 @@
 sin(pi / 2)
 # > [1] 1
 
-# (2) 변수 저장 시, R은 '<-' 사용하는 것을 권장합니다. (단축키: Alt + - (the minus sign))
+# (2) 변수 저장 시, R은 '<-' 사용하는 것을 권장합니다. (단축키: Alt + - (the minus sign)) / Mac Option - 
 # 특별한 이유는 없습니다. 타 언어와의 차이점이라고 이해해도 좋습니다. 
 # 객체이름 <- 값 
 # 예) 
+x = 3 * 4
 x <- 3 * 4
 
+
 # 저장된 변수를 호출하는 방법
-print(x)
+print(x) 
+cat(x)
 
 x
 ## Tip: 강사는 가급적 print(x) 사용하는 것을 권유합니다. 
@@ -52,19 +55,20 @@ x
 # 여러가지를 써봤지만, 강사는 (A)를 추천합니다. 
 
 # (4) 가장 기본적인 에러 확인
- <- 2 ^ 3
+r_basics <- 2 ^ 3
 
 # 에러 유형 확인 (실행 후 에러를 확인하세요!!)
 r_basic 
 # Error: object 'r_basic' not found
+
 R_basics
 # Error: object 'R_basics' not found
 
 ## Tip: 당황하지 마세요. 위 이름으로 된 변수가 없다는 뜻입니다. 
 
 ## 에러 연습
- <- "나의 첫번째 변수"
-
+my_variable <- "나의 첫번째 변수"
+my_varlable
 # Error: object 'my_varlable' not found
 # 왜 에러 메시지가 나왔는지 맞춰보세요. 
 # 입문자가 흔히 범하는 실수! 그리고 잊지 말아야 할 코딩의 기본자세! 
@@ -77,55 +81,62 @@ R_basics
 # 4. 주요 변수 타입의 특징 공부
 ## 변수의 종류별 예시 코드
 # 숫자형 변수
- <- 42
+my_numeric <- 42
 
 # 문자형 변수
- <- "universe"
+my_character <- "universe"
 
 # 논리형 변수
- <- FALSE
+my_logical <- FALSE
 
 ## 변수 유형 확인 예시 코드
 # 숫자형 변수
+class(my_numeric)
 
 
 # 문자형 변수
+class(my_character)
 
 
 # 논리형 변수
+class(my_logical) 
 
 
 #### 4. 벡터 생성 ####
 # 벡터는 동질성의 특징을 가지고 있습니다. 
 # 예시
-?? <- c(1, 2, 3)
-class(??)
-print(??)
+numerc_vector <- c(1, 2, 3)
+class(numerc_vector)
+print(numerc_vector)
 
-?? <- c("A", "B", "C")
-class(??)
-print(??)
+char_vector <- c("A", "B", "C")
+class(char_vector)
+print(char_vector)
 
-?? <- c(TRUE, FALSE, TRUE)
-class(??)
-print(??)
+logical_vector <- c(TRUE, FALSE, TRUE)
+class(logical_vector)
+print(logical_vector)
 
 # 실무 Tip
 # 실제로 엑셀 또는 DB에는 잘못된 값이 들어오는 경우도 종종 있습니다. 
 # 특히, 입문자에게 조금 어려운 것 중 하나가 데이터 유형에 대한 구분인데, 
 # 데이터 셋이 많으면 많아질수록 판별하기 어렵습니다. 
 # 아래 간단한 예를 들도록 하겠습니다. 
-?? <- c(1, "'1", 3)
-??
-class(??)
+mix_vector1 <- c(1, "'1", 3)
+cat(mix_vector1)
+class(mix_vector1)
 
-?? <- c(4, FALSE, TRUE)
-??
-class(??)
+mix_vector2 <- c(4, FALSE, TRUE)
+mix_vector2
+class(mix_vector2)
 
-?? <- c("FALSE", FALSE, TRUE)
-??
-class(??)
+mix_vector3 <- c("FALSE", FALSE, TRUE)
+mix_vector3
+class(mix_vector3)
+
+mix_vector4 <- c("1", 1, TRUE)
+mix_vector4
+class(mix_vector4)
 
 # 위 3가지 예시를 통해서 알 수 있는 것은, 
 # 데이터 타입이 섞여 있을 경우, 컴퓨터는 문자, 숫자, 논리형 순으로 저장이 된다는 것입니다. 
