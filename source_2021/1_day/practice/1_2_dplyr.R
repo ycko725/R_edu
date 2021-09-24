@@ -6,20 +6,35 @@
 #### Step 1. 기본 예제 ####
 # 아래 예제를 통해서, 직접 데이터를 만들어보는 작업을 수행합니다. 
 #### 1. 가상 데이터 만들기 ####
+이름 = c("홍길동", "심청이", "김길동", "성춘향")
+나이 = c(25, 30, 33, 20)
+결석 = c(TRUE, FALSE, FALSE, FALSE)
 
+student = data.frame(name = 이름, 
+                     age = 나이, 
+                     attendence = 결석)
+
+
+
+student
 
 # 데이터 객체를 확인
-str(학생)
+str(student)
 
 #### 2. 파일 내보내기 ####
 # 1. CSV 파일로 내보내기
-
+getwd()
 
 # 경로 유의
+write.csv(x = student, file = "student.csv", row.names = FALSE)
+
 
 
 # 2. 엑셀파일로 내보내기
-# install.packages("writexl")
+install.packages("writexl")
+library(writexl)
+write_xlsx(x = student, path = "student.xlsx")
+
 
 
 # 모두 지우기
@@ -27,6 +42,12 @@ str(학생)
 
 #### 3. 파일 불러오기 ####
 # 현재 경로 불러오는 함수
+student = read.csv(file = "student.csv")
+
+install.packages("readxl")
+library(readxl)
+student = read_xlsx("student.xlsx", sheet = 1)
+student
 
 
 #### Step 2. dplyr 소개 및 패키지 설치 ####
@@ -36,13 +57,24 @@ str(학생)
 # dplyr을 사용하는 방법에는 크게 2가지 방법이 있습니다. 
 # 두가지 방법이 있음
 # The easiest way to get dplyr is to install the whole tidyverse:
+# install.packages("tidyverse")
 
 
 # Alternatively, install just dplyr:
-
+# install.packages("dplyr")
+library(dplyr)
 
 #### Step 3. 데이터 처리와 관련된 주요 함수 소개 ####
 # 데이터 가져오기
+glimpse(student)
+df = select(student, name)
+df = filter(df)
+
+df2 = student %>% 
+  select(name) %>% 
+  filter() %>% 
+  summarize() %>% 
+  arrange()
 
 
 # 실무 할 때, 우리는 데이터를 모른다는 전제하에 출발합니다. 
