@@ -76,6 +76,11 @@ df2 = student %>%
   summarize() %>% 
   arrange()
 
+library(readxl)
+library(dplyr)
+
+counties <- read_xlsx("counties.xslx", sheet = 1)
+
 
 # 실무 할 때, 우리는 데이터를 모른다는 전제하에 출발합니다. 
 # 생각보다 데이터셋이 매우 큽니다. 
@@ -83,7 +88,7 @@ df2 = student %>%
 
 # ----- (1) glimpse() -----
 ## 데이터를 전체적으로 개괄적으로 확인합니다. 
-
+glimpse(counties)
 
 ## 무엇이 먼저 보이나요? 
 # 데이터 보는 법
@@ -96,6 +101,8 @@ df2 = student %>%
 ## 데이터 분석가의 입장에서, 데이터 엔지니어 입장에서, 데이터 서비스 기획자 입장에서, 경영자 입장에서 생각해보기
 # 코드 작성
 # state, county, population, employed 변수를 추출하세요. 
+counties %>% 
+  select(state, county, population, employed)
 
 
 # 코드 연습
@@ -112,9 +119,8 @@ counties_selected %>%
 
 # self_employed 변수를 기준으로 오름차순으로 정렬합니다. 
 # 수강생이 직접입력합니다. (주석을 풉니다. )
-# counties_selected %>% 
-# 
-
+counties_selected %>%
+  arrange(self_employed)
 
 # ----- (4) filter() -----
 # 조건에 따라 불필요한 관측치는 제거합니다. 
@@ -124,21 +130,32 @@ counties_selected <- counties %>%
 
 # 조건이 한가지 일 때 
 # 인구가 1000000명이 넘는 state & county를 추출하세요. 
-counties_selected %>% 
-  filter(population > 1000000)
+counties_selected %>%
+  filter(population > 1000000) -> df3
 
 # 인구가 1000명이 아래인 state & county를 추출하세요. 
 # (주석을 풉니다. )
-# counties_selected %>% 
+counties_selected %>% 
+  filter(population < 1000)
 
 # 조건이 두가지 일 때
 # state가 캘리포니아이면서 인구가 백만명 이상인 지역을 추출하세요. (AND 조건)
+counties_selected %>% 
+  filter(state == "California") %>%
+  arrange(desc(population)) %>% 
+  filter(population > 1000000)
+
 counties_selected %>% 
   filter(state == "California" & population > 1000000)
 
 # state가 Colorado이거나 또는 인구가 천명 이하인 지역을 추출하세요 (OR 조건)
 counties_selected %>% 
   filter(state == "Colorado" | population < 1000)
+
+# state가 Montana 인구가 천명 이하인 지역을 추출 하세요! 
+counties_selected %>% 
+  filter(state == "Montana" & population < 1000)
+
 
 # ----- (5) filter() & Arrange() -----
 # 두개의 함수 중복 사용하기
@@ -150,12 +167,21 @@ counties_selected %>%
   filter(state == "California" & population >= 10000) %>% 
   arrange(desc(public_work))
 
+# 10000명이 넘는 캘리포니아, 몬타나 지역을 추출한 뒤; public_work 기준으로 내림차순으로 정렬하세요. 
+
+counties_selected %>%
+  filter(state %in% c("California", "Montana") & 
+           population >= 10000) %>% 
+  arrange(desc(public_work))
+
 # ----- (6) mutate() -----
 # mutate는 영어 사전에서 보면 돌연변이 또는 변이라는 의미를 내포하고 있습니다. 
 # 즉, 단순히 변수를 하나 더 추가하자는 뜻이 아니라 무언가 의미있는 데이터를 발견하고자 할 때 쓰는 경우가 좋습니다. 
 ## 데이터 분석가의 입장에서, 데이터 엔지니어 입장에서, 데이터 서비스 기획자 입장에서, 경영자 입장에서 생각해보기
 counties_selected <- counties %>%
   select(state, county, population, private_work)
+
+counties_selected
 
 # private_work에서 일하는 사람의 숫자를 구하는 변수를 추가해보세요. 
 counties_selected %>%
@@ -166,6 +192,8 @@ counties_selected %>%
 # 수강생 실습
 counties_selected <- counties %>% 
   select(state, county, population, men, women)
+
+counties_selected
 
 # mutate()를 사용하여, 각 county당 여성의 인구비율을 구하시고, 내림차순으로 정렬하세요. 
 # 추가할 변수명: proportion_women
@@ -190,6 +218,8 @@ counties_selected %>%
 # ----- (1) count() -----
 counties_selected <- counties %>%
   select(state, county, population, citizens)
+
+counties_selected
 
 # count() 함수를 사용하면 각 값의(행) 갯수를 자동적으로 카운팅해줍니다. 
 counties_selected %>% 
@@ -229,11 +259,13 @@ counties_selected <- counties %>%
 counties_selected <- counties %>%
   select(county, population, income, unemployment)
 
+counties_selected
+
 # min_population, max_unemployment, average_income을 구하세요. 
 counties_selected %>% 
-  summarise(min_population = min(population), 
+  summarise(min_unemployment = min(unemployment), 
             max_unemployment = max(unemployment), 
-            average_income = mean(unemployment))
+            average_unemployment = mean(unemployment))
 
 # 연습코드
 counties_selected <- counties %>%
@@ -258,6 +290,8 @@ counties_selected %>%
 # state와 region별로 평균과 중간값을 구하는 방법입니다. 
 counties_selected <- counties %>%
   select(region, state, county, population)
+
+counties_selected
 
 # summarise()를 한번만 사용하게 되면, 무언가 원하는 그림이 아닙니다. 
 counties_selected %>%
