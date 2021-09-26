@@ -176,11 +176,11 @@ qual_df
 - 이제 시각화를 그려본다. 
 ```{r}
 viz_plot <- function(data, column_name) {
-  column <- enquo(column_name)
+  column <- sym(column_name)
   # cat("column:", enquo(column_name))
-  data %>% select({{ column_name }}, mean, conf_val) %>% 
+  data %>% select({{ column }}, mean, conf_val) %>% 
   drop_na() %>% 
-  ggplot(aes(x={{ column_name }}, y = mean, color = {{ column_name }})) +
+  ggplot(aes(x= {{ column }}, y = mean, color = {{ column }})) +
   geom_point() +
   geom_errorbar(aes(ymin = mean - conf_val, ymax = mean + conf_val), width = 0.1) +
   theme_minimal() +
@@ -191,10 +191,18 @@ viz_plot <- function(data, column_name) {
   labs(title=column_name)
 }
 
-viz_plot(qual_df, "Married")
-
 column_names = colnames(qual_df %>% select(-c(mean, conf_val)))
+plots <- list()
+for (i in seq_along(column_names)) {
+  p1 <- viz_plot(qual_df, column_names[i])
+  plots[[i]] <- p1
+}
 
+wrap_plots(plots) + plot_annotation(
+  title = 'Proportion of Loan Data - Categorical Variables',
+  subtitle = 'With 95% Confidence Intervals',
+  caption = 'Data Source: Loan Prediction Problem by Analytics Vidhya'
+)
 ```
 
 
