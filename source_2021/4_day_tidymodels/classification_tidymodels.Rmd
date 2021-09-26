@@ -1,0 +1,200 @@
+---
+title: "classification wity tidymodels"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 개요
+- 새로운 ML 라이브러리인 `tidymodels`를 활용하여 분류 모델을 개발해본다. 
+
+## 데이터
+- 데이터는 `Loan Prediction Practice Problem`에서 가져왔다. 
+  + URL: https://datahack.analyticsvidhya.com/contest/practice-problem-loan-prediction-iii/#ProblemStatement
+- 회원가입 후, 대회 참여를 하면 3개의 파일을 다운로드 받을 수 있다. 
+  + Train file, Test file, Submission File
+
+### Data Dictionary
+- `Train 파일`의 데이터 명세서는 다음과 같다. 
+![](img/train.png)
+
+- `Test 파일`의 데이터 명세서는 다음과 같다. 
+![](img/test.png)
+
+- `Submission 파일`의 데이터 명세서는 다음과 같다. 
+![](img/submission.png)
+
+## 대회목적
+- 대출 승인 여부를 결정하는 모델을 만드는 것이 대회의 주 목적이며. 평가지표는 분류모형의 `Accurarcy`로 결정한다. 
+
+## 패키지 및 데이터 불러오기
+- 먼저 필수 패키지를 불러온다. 
+```{r, message=FALSE}
+# 데이터 수집
+library(readr)
+
+# 데이터 가공
+library(dplyr) # 데이터 가공
+library(stringr) # 문자열 데이터 다루기 
+library(forcats) # 범주형 데이터 다루기
+library(skimr) # 데이터 요약
+library(magrittr)
+
+# 데이터 시각화
+library(ggplot2) # 데이터 시각화 
+library(corrr) # 상관관계 시각화
+library(skimr) # 데이터 요약
+library(patchwork) # 데이터 시각화 분할
+library(GGally) # 산점도
+
+# 데이터 모델링
+library(tidymodels) # ML Packages 
+library(themis) # class imbalance 처리
+library(discrim) # 베이지안 모델링
+library(tidyposterior) # 베이지안 모델링 성능 비교
+```
+
+- 이번에는 데이터를 불러오도록 한다. 
+```{r}
+train = read_csv("data/train_ctrUa4K.csv")
+train %<>% rename(Applicant_Income = ApplicantIncome,
+                  CoApplicant_Income = CoapplicantIncome,
+                  Loan_Amount = LoanAmount) 
+
+loan_id = train$Loan_ID
+train %<>% select(-Loan_ID)
+str(train)
+```
+
+- 총 614개의 데이터에 13개의 컬럼이 있다. 
+
+## 탐색적 자료분석 (EDA)
+- 우선 skim() 함수를 활용하도록 한다. 
+```{r}
+skim(train)
+```
+
+## 데이터 시각화 
+- 데이터 시각화의 기본적인 가이드라인은 아래 그림을 참조 한다. 
+  + [20 ideas for better data visualization](https://uxdesign.cc/20-ideas-for-better-data-visualization-73f7e3c2782d)
+
+![](img/viz_guideline_20.jpeg)
+
+### 단변량 시각화 
+- 각 개별적인 컬럼에 대해 시각화를 자동으로 할 수 있는 코드를 작성해본다. 
+
+```{r, fig.width=10, fig.height=10, message=FALSE, warning=FALSE}
+plot_by_column_type <- function(x, y) {
+  # cat("y is:", y)
+  viz_title <- str_replace_all(y, "_", " ") %>% 
+    str_to_title()
+  
+  if ("factor" %in% class(x)) {
+    ggplot(train, aes(x, fill = x)) + 
+      geom_bar() + 
+      theme(legend.position = "none", 
+            axis.text.x = element_text(angle = 45, hjust = 1), 
+            axis.text = element_text(size = 8)) + 
+      scale_fill_viridis_d() + 
+      theme_minimal() + 
+      labs(title = viz_title, y = "", x = "")
+  } else if ("numeric" %in% class(x)) {
+    ggplot(train, aes(x)) + 
+      geom_histogram() + 
+      scale_fill_viridis_d() + 
+      theme_minimal() + 
+      labs(title = viz_title, y = "", x = "")
+  } else if ("integer" %in% class(x)) {
+    ggplot(train, aes(x)) + 
+      geom_histogram() + 
+      scale_fill_viridis_d() + 
+      theme_minimal() + 
+      labs(title = viz_title, y = "", x = "")
+  } else if ("character" %in% class(x)) {
+    ggplot(train, aes(x, fill = x)) + 
+      geom_bar() + 
+      theme(legend.position = "none", 
+            axis.text.x = element_text(angle = 45, hjust = 1), 
+            axis.text = element_text(size = 8)) + 
+      scale_fill_viridis_d() + 
+      theme_minimal() + 
+      labs(title = viz_title, y = "", x = "")
+  }
+}
+
+multiple_plots = map2(train, colnames(train), plot_by_column_type) %>% 
+  wrap_plots(ncol = 3, nrow = 5)
+
+multiple_plots
+```
+
+- 위 데이터를 간단하게 설명하면 다음과 같다. 
+  + 대출 지원자의 성별은 남성이 여성보다 많다. 
+  + 대출 지원자의 결혼 유무는 기혼자가 더 많다. 
+  + 대출 지원자 중 상당수는 자녀가 없다. 
+  + 대출 지원자 중 상당수는 대학을 졸업했고, `self-employed`가 아니다. 
+  + 대출 지원자의 수입은 `right skewed`이다. 
+  + `co-applicant`의 수입도 `right skewed`이다. 
+  + 대출 지원자 중 약 2/3은 대출을 승인받았다. 
+  
+### 양적 변수 시각화
+- 양적 변수 시각화를 하기 위해서는 산점도를 작성하는 것이 좋다. 
+- 관계성을 파악하기에도 매우 유용하다. 
+
+```{r, fig.width=10, fig.height=10, message=FALSE, warning=FALSE}
+num_df <- train %>% 
+  select(Loan_Status, where(is.numeric)) 
+
+str(num_df)
+ggpairs(num_df, aes(color = train$Loan_Status, alpha = 0.3)) + 
+  theme_minimal() + 
+  scale_fill_viridis_d(aesthetics = c("color", "fill"), begin = 0.15, end = 0.85) + 
+  labs(title = "Numeric Data Analysis")
+```
+
+### 질적 변수 시각화 
+- 이번에는 질적 변수 시각화를 진행하도록 한다. 
+- 우선, 질적 변수 시각화를 진행하기에 앞서서 평균과 신뢰구간을 구하도록 한다. 
+- 평균을 구하려면 우선 숫자 데이터를 만들어야 하는데, `Loan_Status` 대출을 승인받았으면 1, 그렇지 않으면 0이라고 표시를 한다. 
+
+```{r}
+qual_df <- train %>% 
+  select(where(is.character)) %>% 
+  drop_na() %>% 
+  mutate(Loan_Status = if_else(Loan_Status == "Y", 1, 0)) %>% 
+  pivot_longer(1:6, names_to = "Variables", values_to = "Values") %>% 
+  group_by(Variables, Values) %>% 
+  summarise(mean = mean(Loan_Status), 
+            conf_val = 1.96 * sd(Loan_Status) / sqrt(n())) %>% 
+  pivot_wider(names_from = Variables, values_from = Values)
+
+qual_df
+```
+
+- 이제 시각화를 그려본다. 
+```{r}
+viz_plot <- function(data, column_name) {
+  column <- enquo(column_name)
+  # cat("column:", enquo(column_name))
+  data %>% select({{ column_name }}, mean, conf_val) %>% 
+  drop_na() %>% 
+  ggplot(aes(x={{ column_name }}, y = mean, color = {{ column_name }})) +
+  geom_point() +
+  geom_errorbar(aes(ymin = mean - conf_val, ymax = mean + conf_val), width = 0.1) +
+  theme_minimal() +
+  theme(legend.position = "none",
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank()) +
+  scale_colour_viridis_d(aesthetics = c("color", "fill"), begin = 0.15, end = 0.85) +
+  labs(title=column_name)
+}
+
+viz_plot(qual_df, "Married")
+
+column_names = colnames(qual_df %>% select(-c(mean, conf_val)))
+
+```
+
+
