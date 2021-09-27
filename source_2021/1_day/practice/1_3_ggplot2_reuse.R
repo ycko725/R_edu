@@ -25,33 +25,26 @@
 # 그래프 단계별 층(Layer)을 만들자
 
 #### 3. 데이터 수집 ####
-# setwd("/Users/jihoonjung/Documents/R_edu/R_NCS_2020/1_day")
-who_disease <- readxl::read_xlsx("who_disease.xlsx")
+setwd("/Users/jihoonjung/Documents/R_edu/R_NCS_2020/1_day")
+who_disease <- readxl::read_xlsx("data/who_disease.xlsx")
 
 #### 4. 데이터 확인 ####
 library(dplyr)
-library(ggplot2)
 glimpse(who_disease)
 
 #### 5. 데이터 시각화 ####
 # ----- (1) 무작정 그려보기 -----
-ggplot(who_disease) + 
-  geom_point(mapping = aes(x = year, y = cases))
+
 
 # 그래프 공식
 # ggplot(data = <DATA>) + 
 #  <GEOM_FUNCTION>(mapping = aes(<MAPPINGS>))
 
 # (1) 투명도 주기
-ggplot(who_disease) + 
-  geom_point(mapping = aes(x = year, y = cases), 
-             alpha = 0.1)
 
 
 # (2) 색상주기
-ggplot(who_disease) + 
-  geom_point(mapping = aes(x = year, y = cases), 
-             alpha = 0.1, colour = "red")
+
 
 # (3) 그 외 옵션들
 # ?geom_point() 에서 확인합니다.
@@ -75,29 +68,17 @@ region_counts <- who_disease %>%
   group_by(region) %>% 
   summarise(total_cases = sum(cases))
 
-region_counts
-ggplot(region_counts, aes(x = 1, y = total_cases, fill = region)) + 
-  geom_col() + 
-  coord_polar(theta = "y") + 
-  theme_void() + 
-  ggtitle("Proportion of Region")
+
 
 # 위 그래프의 장단점은? 무엇인가요? 
-install.packages("waffle")
-library(waffle)
-
-region_counts <- who_disease %>% 
-  group_by(region) %>% 
-  summarise(total_cases = sum(cases)) %>%
-  mutate(percent = round(total_cases / sum(total_cases) * 100))
+# install.packages("waffle")
 
 
 # waffle 함수에 적용할 수 있도록 변환 (named vector)
-case_counts <- region_counts$percent
-names(case_counts) <- region_counts$region
+
 
 # ?waffle() 함수 일반 데이터 셋이 아니라, named vector of values to use for the chart
-waffle(case_counts)
+
 
 # Pie Chart와 Waffle 차트 중 가독성이 뛰어난 것이 무언인가요? 
 # 왜 그런가요? 퍼센트 기반으로 작성된 그래프가 단지 선을 긋는 정도의 그래프보다 더 나은 대안일 수 있습니다. 
@@ -109,48 +90,21 @@ glimpse(who_disease)
 
 # 질병 데이터 중, AMR 데이터, 연도는 1980년도, disease는 'pertussis' (백일해)
 #  새로운 데이터를 생성합니다. 
-amr_pertussis <- who_disease %>% 
-  filter(
-    region == "AMR", 
-    year == 1980,
-    disease == "pertussis", 
-    cases > 0
-  )
-
-amr_pertussis
 
 
 # Histogram
-colors()
-ggplot(amr_pertussis, aes(x = cases)) + 
-  geom_histogram(fill = "wheat4", color = "white", bins = 10) + 
-  theme_minimal()
+
 
 # 히스토그램의 가장 큰 문제점은 bin의 갯수에 따라 그래프의 형태가 달라집니다. 
 # 그럼 숫자 세팅은 어떻게 하는게 좋을까요? (메뉴얼 참조)
 
 # 히스토그램의 대안은 Kernel Density Plot입니다. 
-ggplot(amr_pertussis, aes(x = cases)) + 
-  geom_density(fill = "wheat4", color = "white", bw = 10000, alpha = 0.3) + 
-  theme_minimal()
 
 
 # Kernel Density Plot의 가장 큰 장점 중 하나는 여러 그룹별로 비교할 때 차이점이 명확하게 나타날 수 있습니다. 
 # 'AMR'과 'EUR' region별로 차이점을 구분하는 그래프를 작성합니다. 
-amr_eur_pertussis <- who_disease %>% 
-  filter(
-    region %in% c("AMR", "EUR"), 
-    year == 1980,
-    disease == "pertussis", 
-    cases > 0
-  )
 
-amr_eur_pertussis
 
-ggplot(amr_eur_pertussis, aes(x = cases)) + 
-  geom_density(aes(fill = region), 
-               color = "white", alpha = 0.5) + 
-  theme_minimal()
 
 
 
@@ -167,39 +121,16 @@ glimpse(who_disease)
 
 # 질병 데이터 중, EUR 데이터, 연도는 1980년도, disease는 'pertussis' (백일해)
 #  새로운 데이터를 생성합니다. 
-eur_pertussis <- who_disease %>% 
-  filter(
-    region == "EUR", 
-    year == 1980, 
-    disease == "pertussis"
-  )
 
-eur_pertussis
 
 # 이제 각 나라별 Case를 비교하는 그래프를 그립니다. 
 # reorder()와 coord_flip() 함수에 관한 내용은 교재를 참고하시기를 바랍니다. 
-ggplot(eur_pertussis, aes(x = reorder(country, cases), y = cases)) + 
-  geom_col() + 
-  coord_flip() + 
-  theme(
-    panel.grid.major.x = element_blank()
-  )
 
 
 # 위 그래프를 보니 어떤가요? 배경색이 무언가 방해를 주는 느낌이 있습니다. 
 # 이 때 해결법 중 하나가 theme 테마를 지정하는 것입니다. 
 # cases가 없는 나라들은 굳이 표시할 필요가 있을까요? 없을까요? 
 # 불필요한 항목들은 제거하는 것이 좋습니다. 
-eur_pertussis %>% 
-  filter(cases > 0) %>% 
-  ggplot(aes(x = reorder(country, cases), 
-             y = cases)) + 
-  geom_col() + 
-  coord_flip() + 
-  theme(
-    axis.ticks = element_blank()
-  ) + 
-  theme_minimal()
 
 
 
@@ -217,13 +148,8 @@ eur_pertussis %>%
 # 박스플롯의 기본 데이터는 비교군을 선정할 때 많으면 많을수록 좋습니다. 
 # install.packages("carData")
 data(Salaries, package="carData")
-glimpse(Salaries)
 
-ggplot(Salaries, 
-       aes(x = rank, 
-           y = salary, 
-           fill = sex)) + 
-  geom_boxplot()
+
 
 # 박스플롯의 장점은 직관적이기는 하지만, 박스플롯을 모르는 사람들에게는 다시 해석을 해드려야 하는 불편함이 있습니다. 
 # 우리가 보고해야 하는 상사와 고객은 통계 지식이 없다는 것을 늘 가정하고 작성해야 합니다. 
@@ -241,45 +167,17 @@ rank_data <- Salaries %>%
 print(rank_data)  
 
 # 평균과 오차에 관한 그래프 그리기
-ggplot(rank_data, aes(x = rank, y = mean, group = 1)) + 
-  geom_point(size = 3) + 
-  geom_line() + 
-  geom_errorbar(aes(ymin = mean-se, 
-                    ymax = mean + se), 
-                width = .1)
 
 
 # 이번에는 성별을 기준으로 측정하도록 합니다. 
-gender_data <- Salaries %>% 
-  group_by(rank, sex) %>% 
-  summarise(n = n(), 
-            mean = mean(salary), 
-            sd = sd(salary), 
-            se = sd/sqrt(n))
-
-gender_data
 
 
 # 평균과 오차에 관한 그래프 그리기 (성별 기준)
-ggplot(gender_data, aes(x = rank, y = mean, group = sex, colour = sex)) + 
-  geom_point(size = 3) + 
-  geom_line(size = 1) + 
-  geom_errorbar(aes(ymin = mean-se, 
-                    ymax = mean + se), 
-                width = .1)
 
 
 # 문제가 하나 있네요! 데이터가 겹치기 때문에 성별로 구분을 하도록 합니다. 
 # position_dodge를 활용합니다. 
-ggplot(gender_data, 
-       aes(x = rank, y = mean, group = sex, colour = sex)) + 
-  geom_point(size = 3, position = position_dodge(0.5)) + 
-  geom_line(size = 1, position = position_dodge(0.5)) + 
-  geom_errorbar(aes(ymin = mean-se, 
-                    ymax = mean + se), 
-                width = .1, 
-                position = position_dodge(0.5)) + 
-  theme_minimal()
+
 
 # 여전히 통계에 관한 내용이 나와 어렵습니다. 좀 더 쉬운 그래프가 없을까요?
 # 전체 데이터를 나타날 수 있도록 만드는 그래프를 작성해봅니다. 
@@ -290,29 +188,14 @@ ggplot(gender_data,
 # ----- (3) 산점도그래프와 회귀식의 만남 -----
 # 가장 기본적인 그래프 작성은 아래와 같습니다. 
 # simple scatterplot
-glimpse(Salaries)
-ggplot(Salaries, aes(x = yrs.since.phd, 
-                     y = salary)) + 
-  geom_point()
 
 
 # 위 그래프에서 확인할 수 있는 정보는 많지 않습니다. 
 # 산점도를 그릴 때 가장 중요한 포인트는 X와 Y축의 관계를 통해서, 수치가 증가하는지, 감소하는지, 큰 관련이 없는지를 찾는 것이 중요합니다. 
 # 이 때 가장, 확실한 방법은 회귀식을 그려보는 것입니다. 
-ggplot(Salaries, aes(x = yrs.since.phd, 
-                     y = salary)) + 
-  geom_point() + 
-  geom_smooth(color = "tomato")
 
 
-# 위 그래프보다 아래 그래프를 보면 무언가 조금 더 세련되게 그래프가 작성됨을 볼 수 있습니다.
-ggplot(Salaries, aes(x = yrs.since.phd, 
-                     y = salary, 
-                     colour = sex)) + 
-  geom_point() + 
-  geom_smooth() + 
-  labs(x = "Years Since Ph.D") + 
-  theme_minimal()
+# 위 그래프보다 아래 그래프를 보면 무언가 조금 더 세련되게 그래프가 작성됨을 볼 수 있습니다. 
 
 
 #### 5-3. 통계쟁이들을 위한 그래프 ####
@@ -326,11 +209,6 @@ df <- dplyr::select_if(mtcars, is.numeric)
 r <- cor(df, use="complete.obs")
 round(r,2)
 
-library(ggcorrplot)
-ggcorrplot(r, 
-           hc.order = TRUE, 
-           type = "lower", 
-           lab = TRUE)
 
 
 # ----- (2) 회귀모형 그래프 -----
