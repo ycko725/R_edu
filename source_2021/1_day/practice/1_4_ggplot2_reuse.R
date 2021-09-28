@@ -310,47 +310,5 @@ glimpse(flights)
 # : 실제로, 두 범주형 변수만 다루는 일은 아주 많지 않음
 # : ggplot 그래프 외, 다른 패키지 사용 필요 (vcd 등) 
 
-library(ggplot2)
-library(ggpubr)
-library(dplyr)
-theme_set(theme_pubr())
-
-data("HairEyeColor")
-HairEyeColor <- as.data.frame(HairEyeColor)
-glimpse(HairEyeColor)
-ggplot(HairEyeColor, aes(x = Hair, y = Freq, fill = Eye))+
-  geom_bar(stat = "identity", 
-           color = "white", 
-           position = position_dodge(0.9)
-  ) + 
-  facet_wrap(~Sex)
-
-housetasks <- read.delim(
-  system.file("demo-data/housetasks.txt", package = "ggpubr"),
-  row.names = 1
-)
-
-
-
-ggballoonplot(housetasks, fill = "value")+
-  scale_fill_viridis_c(option = "C")
-
-ggballoonplot(HairEyeColor, x = "Hair", y = "Eye", size = "Freq",
-              fill = "Freq", facet.by = "Sex",
-              ggtheme = theme_bw()) +
-  scale_fill_viridis_c(option = "C")
-
-# install.packages("vcd")
-library(vcd)
-data("HairEyeColor")
-glimpse(HairEyeColor)
-mosaic(HairEyeColor, shade = TRUE, legend = TRUE) 
-
 
 # 그 외 기타
-library(FactoMineR)
-library(factoextra)
-res.ca <- CA(housetasks, graph = FALSE)
-fviz_ca_biplot(res.ca, repel = TRUE)
-?fviz_ca_biplot
-

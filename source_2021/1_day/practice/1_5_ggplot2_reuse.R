@@ -12,19 +12,6 @@
 # 더 많은 변수들을 보여주기 전, 항상 보는 사람의 관점에서 그래프를 작성해야 합니다. 
 # 자세한 설명은 여기를 참조하시기를 바랍니다. 
 # Review
-library(dplyr)
-library(ggplot2)
-iris <- iris
-str(iris)
-
-colours()
-
-ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) + 
-  geom_point(colour = "skyblue4")
-
-str(mtcars)
-ggplot(mtcars, aes(x = cyl)) + 
-  geom_bar(fill = "#C4D950")
 
 
 #### -- (1) colour and Fill ####
@@ -48,79 +35,27 @@ ggplot(mtcars, aes(x = cyl)) +
 # Line의 형태는 size, linetype, linejoin, and lineend에 따라 달라짐
 # linetype 
 # An integer or name: 0 = blank, 1 = solid, 2 = dashed, 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash
-lty_type = c("solid", "dashed", "dotted", "dotdash", "longdash", "twodash")
-
-linetypes_df <- data.frame(
-  y = seq_along(lty_type), 
-  lty_type = lty_type, 
-  lty_name = paste("_No.", seq_along(lty_type), lty_type)
-)
 
 
 # example
-ggplot(linetypes_df, aes(0, y)) + 
-  geom_segment(aes(xend = 5, yend = y, linetype = lty_type)) + 
-  scale_linetype_identity() + 
-  geom_text(aes(label = lty_name), hjust = 0, nudge_y = 0.2) + 
-  scale_x_continuous(NULL, breaks = NULL) + 
-  scale_y_reverse(NULL, breaks = NULL) + 
-  theme_minimal()
 
-data("economics")
-# 참조: https://ggplot2.tidyverse.org/reference/geom_path.html
-
-glimpse(economics)
-ggplot() + 
-  geom_line(data = economics %>% filter(date < "1980-01-01"), aes(x = date, y = psavert), linetype = "solid", colour = "red") + 
-  geom_line(data = economics %>% filter(date > "1980-01-01"), aes(x = date, y = psavert), linetype = "solid", colour = "black") + 
-  theme_minimal()
-  
 
 #### -- (3) Size ####
 # The size of a line is its width in mm
 # 점의 모양
-ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) + 
-  geom_point(shape = 3, colour = "skyblue4", size = 4)
 
 
 # line의 두께
-ggplot(economics) + 
-  geom_line(aes(x = date, y = psavert), linetype = "solid", colour = "#4DF0AD", size = 2) + 
-  theme_minimal()
 
 
-#### -- (4) Shape ####
+#### -- (5) Shape ####
 # integer는 1~25
-shapes_df <- data.frame(
-  shape = c(0:19, 22, 21, 24, 23, 20), 
-  x = 0:24 %/% 5, 
-  y = -(0:24 %% 5)
-)
-
-shapes_df
-
-ggplot(shapes_df, aes(x, y)) + 
-  geom_point(aes(shape = shape), size = 5, fill = "red") + 
-  scale_shape_identity() + 
-  geom_text(aes(label = shape), hjust = 0, nudge_y = 0.2) + 
-  scale_x_continuous(NULL, breaks = NULL) + 
-  scale_y_reverse(NULL, breaks = NULL) + 
-  theme_minimal()
 
 
-#### (6) 최종 geom_*()의 속성값을 이용하여 객체를 추가하자. ####
-p1 <- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) + 
-  geom_point(aes(size = Petal.Length, colour = Species)) + 
-  theme(legend.position = "top")
-
-p2 <- ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) + 
-  geom_point()
+#### (6) 최종 geom_*()의 속성값을 이용하여 변수를 추가하자. ####
 
 
 # 위 두개의 그래프를 비교 해석해보세요.
-library(gridExtra)
-grid.arrange(p1, p2, ncol = 2)
-
 
 # 실습 2. 
 # 다음 데이터를 활용하여 위 그래프를 그려보세요.

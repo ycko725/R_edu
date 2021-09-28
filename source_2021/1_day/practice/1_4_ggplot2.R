@@ -305,10 +305,49 @@ glimpse(flights)
 # 1. 그래프 종류
 # : bar plot, balloon plot, mosaic plot
 # 2. 그래프 해석 시 고려사항
-# : 범주형 변수간 관계를 파악한다.
+# : 범주형 변수간 관계를 파악한다. (교차분석)
 # : 비율 or 갯수 등 어떤 표시를 해야할지 고려한다.
 # : 실제로, 두 범주형 변수만 다루는 일은 아주 많지 않음
 # : ggplot 그래프 외, 다른 패키지 사용 필요 (vcd 등) 
 
+library(ggplot2)
+library(ggpubr)
+library(dplyr)
+
+data("HairEyeColor")
+str(HairEyeColor)
+hair_df <- as.data.frame(HairEyeColor)
+glimpse(hair_df)
+
+ggplot(hair_df, aes(x = Hair, y = Freq, fill = Eye)) + 
+  geom_bar(stat = "identity", 
+           color = "white", 
+           position = position_dodge(1)) + 
+  facet_wrap(~Sex)
+
+ggballoonplot(hair_df, 
+              x = "Hair", 
+              y = "Eye", 
+              size = "Freq", 
+              fill = "Freq", 
+              facet.by = "Sex", 
+              ggtheme = theme_bw()) + 
+  scale_fill_viridis_c(option = "C")
+
+library(vcd)
+mosaic(HairEyeColor, shade = TRUE, legend = TRUE)
 
 
+# 그 외 기타
+library(FactoMineR)
+library(factoextra)
+
+housetasks <- read.delim(system.file(
+  "demo-data/housetasks.txt", package = "ggpubr"
+), 
+row.names = 1)
+
+housetasks
+
+res_ca <- CA(housetasks, graph=FALSE)
+fviz_ca_biplot(res_ca, repel = TRUE)
