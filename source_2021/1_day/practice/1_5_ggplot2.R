@@ -130,33 +130,114 @@ grid.arrange(p1, p2, ncol = 2)
 # 한국적인 표현으로는 면 분할이라고 함
 # 언제 사용이 필요한가? 
 # 데이터 범주간 비교 분석 할 때 사용되며 방법은 크게 2가지가 있음
-# (1) facet_grid
+library(ggplot2)
+library(reshape2)
+library(gridExtra)
 
+head(tips)
+
+# (1) facet_grid
+p1 <- ggplot(tips, aes(x = total_bill, y = tip)) + 
+  geom_point() + 
+  facet_grid(sex ~ .) # 행기준
+
+p2 <- ggplot(tips, aes(x = total_bill, y = tip)) + 
+  geom_point() + 
+  facet_grid(. ~ sex) # 열기준
+
+
+grid.arrange(p1, p2, ncol = 2)
+
+ggplot(tips, aes(x = total_bill, y = tip, colour = time)) + 
+  geom_point(size = 3) + 
+  facet_grid(day ~ sex) + 
+  theme_minimal()
 
 # (2) facet_wrap
+p1 <- ggplot(tips, aes(x = total_bill, y = tip)) + 
+  geom_point()
 
+p2 <- ggplot(tips, aes(x = total_bill, y = tip)) + 
+  geom_point() +
+  facet_wrap( ~ sex, ncol = 1) # 열 기준
+
+ggplot(tips, aes(x = total_bill, y = tip)) + 
+  geom_point() +
+  facet_wrap( ~ sex, nrow = 1) # 열 기준
+
+?facet_wrap
 
 #### 3. 그래프에 주석 추가하기 ####
 # 실무 팁! 만약 PPT 또는 이미지 수정이 즉시 가능하다면, Adobe와 같은 이미지 툴을 바로 사용하자. 
 # 경험적으로 이게 더 빠르다. 
 # 가급적 시각화에 불필요한 텍스트 사용은 지양하자.
+library(ggplot2)
+library(dplyr)
+str(iris)
+ggplot(iris %>% filter(Species != "setosa"), 
+       aes(x = Sepal.Length, y = Sepal.Width, colour = Species)) + 
+  geom_point() + 
+  theme_minimal()
+
+p1 + annotate(geom = "text", x = 7, y = 2.3, label = "virginica", size = 5)
+
+mtcars
+
+ggplot(mtcars, aes(x = wt, y = hp)) + 
+  geom_point(alpha = .5, colour = "red") + 
+  geom_text(aes(label = rownames(mtcars)), hjust = 0, nudge_x = 0.3, check_overlap = TRUE) + 
+  xlim(0, 10) + 
+  theme_minimal()
+
+# 참조: https://cran.r-project.org/web/packages/ggrepel/vignettes/ggrepel.html
+
+# install.packages("ggrepel")
+library(ggrepel)
+
+ggplot(mtcars, aes(x = wt, y = hp)) + 
+  geom_point(alpha = .5, colour = "red") + 
+  geom_label_repel(aes(label = rownames(mtcars), fill = factor(cyl))) + 
+  theme_minimal()
 
 
 #### 4. 데이터의 축 다루기 ####
 # x축과 y축은 표현된 데이터를 해석하는 데 필요한 맥락을 제공한다. 
 # 그래프의 성격 또는 값의 갯수에 따라 x축과 y축을 바꿔서 정렬할 필요가 있음
 # Case 1. x축과 y축 데이터 뒤바꾸기
+library(ggplot2)
+library(gridExtra)
+
+mtcars
+
+ggplot(mtcars, aes(x = reorder(rownames(mtcars), -mpg), y = mpg)) + 
+  geom_bar(stat = "identity", fill = "orange") + 
+  coord_flip() + 
+  theme_minimal()
 
 
 # Case 2. 연속적인 축의 범위 설정
 # 주 목적: 최소값과 최대값의 범위를 조정한다. 로그값을 정하는 이유와 비슷함
+ggplot(PlantGrowth, aes(x = group, y = weight)) + 
+  geom_boxplot() + 
+  theme_minimal() -> p
 
+p + ylim(4, 6.5) # 강사의 선호
+p + coord_cartesian(ylim = c(4, 6.5)) 
 
 # 눈금 표시 방법
+p + 
+  scale_y_continuous(limits = c(0, 10), 
+                     breaks = c(1, 3, 5, 7, 9), 
+                     labels = c("1st", "third", "five", "seven", "9"))
 
   
 
 # 범주형 축 항목 순서 변경하기
+p + 
+  scale_x_discrete(limits = c("trt1", "ctrl")) + 
+  scale_y_continuous(limits = c(0, 10), 
+                     breaks = c(1, 3, 5, 7, 9), 
+                     labels = c("1st", "third", "five", "seven", "9\nnine"))
 
 
 # 불필요한 범주형 항목은 아래와 같이 나타나지 않게 지정 가능
@@ -173,12 +254,32 @@ grid.arrange(p1, p2, ncol = 2)
 # 주요 함수
 ## scale_x(y)_log10() : x축의 눈금에 로그함수 취함 
 ## trans_format() : 지수표기법으로 변경 위해
+library(MASS)
+library(scales)
+
+ggplot(Animals, aes(x = body, y = brain, label = rownames(Animals))) + 
+  geom_text(size = 3) + 
+  theme_minimal() + 
+  theme(axis.text.x = element_text(size = 16)) + 
+  scale_x_log10(breaks = 10^(-1:5), 
+                labels = trans_format("log10", math_format(10^.x))) + 
+  scale_y_log10()
+
+?trans_format
 
 
 # R에서 표기법
 10^(-1:5)
 10^(0:3)
 
+ggplot(Animals, aes(x = body, y = brain, label = rownames(Animals))) + 
+  geom_text(size = 3) + 
+  theme_minimal() + 
+  theme(axis.text.x = element_text(size = 16)) + 
+  scale_x_continuous(trans = log_trans(), 
+                     breaks = trans_breaks("log", function(x) exp(x)), 
+                     labels = trans_format("log", math_format(e^.x))) + 
+  scale_y_continuous(trans = log10_trans())
 
 
 # Case 6. 축에 날짜 사용하기
@@ -188,11 +289,40 @@ grid.arrange(p1, p2, ncol = 2)
 ### 단, 여기에서는 기본함수로 작성 예정
 # 주요 함수
 ## scale_x_date() : x축의 눈금에 날짜 입력값 지정
+library(lubridate)
+library(dplyr)
+library(ggplot2)
+library(scales)
 
+temp_date <- Sys.Date()
+year(temp_date)
 
+temp_date <- "2020.07.01" # 일자 / 월 / 연도
+ymd(temp_date)
+
+temp_date <- "Sep, 12th 2021 14:01:05"
+mdy_hms(temp_date)
 
 # 데이터를 2000년 1월 ~ 2010년 12월 데이터를 가져오자.
+data("economics")
+glimpse(economics)
 
+economics_2010s = subset(economics, 
+                         date >= as.Date("2000-01-01") &
+                         date < as.Date("2010-12-01"))
+
+breaks_date = seq(from = as.Date("2000-01-01"), 
+                  to = as.Date("2010-12-01"), 
+                  by = "6 month")
+
+breaks_date
+
+ggplot(economics_2010s, aes(x = date, y=uempmed)) + 
+  geom_line() + 
+  theme_minimal() + 
+  scale_x_date(breaks = breaks_date, 
+               date_labels = paste0("%Y","년 ", "%m", "월")) + 
+  theme(axis.text.x = element_text(angle = 30, hjust = 1, family = "AppleGothic"))
 
 
 #### 5. 그래프의 범례 다루기 ####

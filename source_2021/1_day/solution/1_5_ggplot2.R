@@ -359,6 +359,18 @@ grid.arrange(p1, p2, p3, p4)
 ### 단, 여기에서는 기본함수로 작성 예정
 # 주요 함수
 ## scale_x_date() : x축의 눈금에 날짜 입력값 지정
+library(lubridate)
+temp_date <- Sys.Date()
+ymd(temp_date)
+
+temp_date <- "07.01.2020"
+dmy(temp_date)
+
+temp_date <- "Sep, 12th 2020 14:00"
+mdy_hm(temp_date)
+
+# https://r4ds.had.co.nz/dates-and-times.html
+
 
 str(economics)
 
