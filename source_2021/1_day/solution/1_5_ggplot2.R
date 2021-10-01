@@ -425,7 +425,6 @@ library(ggplot2)
 library(dplyr)
 
 glimpse(mpg)
-?scale_fill_manual
 
 # 1. 범례 제거
 ggplot(mpg, aes(x = class, y = hwy, fill = class)) + 

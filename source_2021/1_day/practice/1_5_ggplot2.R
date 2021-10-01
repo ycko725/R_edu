@@ -331,20 +331,69 @@ ggplot(economics_2010s, aes(x = date, y=uempmed)) +
 ## 독자에게 시각적인(에스테틱) 속성들을 데이터 값들로 어떻게 해석해야 하는지를 알려줌
 ## 그래프의 특징에 따라 범례를 별도 지정, 또는 삭제 해야 함
 ## 범례의 위치, 항목의 순서, 제목 지정 등을 코드로 익힘
+library(ggplot2)
+library(dplyr)
 
+glimpse(mpg)
 
 # 1. 범례 제거
+ggplot(mpg, aes(x = class, y = hwy, fill = class)) + 
+  geom_boxplot() + 
+  theme(legend.position = "none")
+
 
 # 2. 범례의 위치 변경하기
+ggplot(mpg, aes(x = class, y = hwy, fill = class)) + 
+  geom_boxplot() + 
+  scale_fill_brewer(palette = "Pastel2") + 
+  theme(legend.position = c(0.9, 0.4))
 
 
 # 3. 범례의 제목 변경하기
+ggplot(mpg, aes(x = class, y = hwy, fill = class)) + 
+  geom_boxplot() + 
+  scale_fill_brewer(palette = "Pastel2") + 
+  scale_fill_discrete(name = "change_class") + 
+  theme(legend.position = c(0.9, 0.4))
 
+ggplot(mpg, aes(x = class, y = hwy, fill = class)) + 
+  geom_boxplot() + 
+  scale_fill_brewer(palette = "Pastel2") + 
+  labs(title = "title", 
+       subtitle = "subtitle", 
+       x = "x-axis title", 
+       y = "y", 
+       caption = "Image Created by ??", 
+       fill = "change_class") + 
+  theme(legend.position = c(0.9, 0.4))
+
+library(gcookbook)
+
+str(heightweight)
+ggplot(heightweight, aes(x = ageYear, y = heightIn, colour = sex)) + 
+  geom_point(aes(size = weightLb)) + 
+  scale_size_continuous(range = c(1, 4)) + 
+  labs(colour = "Male/Female", size = "Weight\n(pounds)") + 
+  scale_colour_discrete(labels = c("Female", "Male")) + 
+  theme_minimal()
 
 # 4. 범례에 속한 라벨 변경하기
-
+ggplot(heightweight, aes(x = ageYear, y = heightIn, colour = sex)) + 
+  geom_point(aes(size = weightLb)) + 
+  scale_size_continuous(range = c(1, 4)) + 
+  labs(colour = "Male/Female", size = "Weight\n(pounds)") + 
+  scale_colour_discrete(labels = c("Female", "Male")) + 
+  theme_minimal()
   
 # 5. 범례제목 지우기
+ggplot(heightweight, aes(x = ageYear, y = heightIn, colour = sex)) + 
+  geom_point(aes(size = weightLb)) + 
+  scale_size_continuous(range = c(1, 4)) + 
+  labs(colour = "Male/Female", size = "Weight\n(pounds)") + 
+  scale_colour_discrete(labels = c("Female", "Male")) + 
+  guides(colour = guide_legend(title = NULL), 
+         size = guide_legend(title = NULL)) + 
+  theme_minimal()
 
 
 # 6. 그래프의 테마(theme) 다루기
@@ -353,34 +402,99 @@ ggplot(economics_2010s, aes(x = date, y=uempmed)) +
 # 그래프의 제목, 외형, 테마 설정, 외형 변경
 # 사용자 정의 테마 만들기 
 
+library(gcookbook)
+library(ggplot2)
+
 # 1. 그래프의 제목 
+ggplot(heightweight, aes(x = ageYear, y = heightIn)) + 
+  geom_point() + 
+  labs(title = "Plot Title Here") + 
+  theme_minimal() + 
+  theme(plot.title = element_text(vjust = -8, hjust = 0.01))
 
 
 # 2. 텍스트의 외형 변경하기
-
+ggplot(heightweight, aes(x = ageYear, y = heightIn)) + 
+  geom_point() + 
+  labs(title = "Plot Title Here") + 
+  theme_minimal() + 
+  theme(plot.title = element_text(vjust = -8, hjust = 0.01), 
+        axis.title = element_text(size = 16, 
+                                  lineheight = .9, 
+                                  family = "Times", 
+                                  face = "bold.italic", 
+                                  colour = "red"))
 
 # 3. 테마 사용하기
+ggplot(heightweight, aes(x = ageYear, y = heightIn)) + 
+  geom_point() + 
+  labs(title = "Plot Title Here") + 
+  theme(plot.title = element_text(vjust = -8, hjust = 0.01), 
+        axis.title = element_text(size = 16, 
+                                  lineheight = .9, 
+                                  family = "Times", 
+                                  face = "bold.italic", 
+                                  colour = "red"))
 
 
 # 테마 설정하기
+theme_set(theme_minimal())
+ggplot(heightweight, aes(x = ageYear, y = heightIn, colour = sex)) + 
+  geom_point()
+
+
 
 # 4. 테마 요소의 외형 변경하기 예제
 
 
-p
-
 ## 1. 그래프 관련 옵션
+ggplot(heightweight, aes(x = ageYear, y = heightIn, colour = sex)) + 
+  geom_point() + 
+  theme(
+    panel.grid.major = element_line(colour = "yellow"), 
+    panel.grid.minor = element_line(colour = "blue", linetype = "dashed"),
+    panel.background = element_rect(fill = "lightblue"), 
+    panel.border = element_rect(colour = "blue", fill = NA, size = 3)
+  )
 
 
 ## 2. 텍스트 항목 관련 옵션들
+ggplot(heightweight, aes(x = ageYear, y = heightIn, colour = sex)) + 
+  geom_point() + 
+  labs(title = "Title Plot Here") + 
+  theme(
+    plot.title = element_text(colour = "red", size = 20, face = "bold.italic")
+  )
 
 
 ## 3. 범례 관련 옵션들
+ggplot(heightweight, aes(x = ageYear, y = heightIn, colour = sex)) + 
+  geom_point() + 
+  theme(
+    legend.background = element_rect(fill = "grey85", colour = "red", size = 1), 
+    legend.title = element_text(colour = "blue", face = "bold", size = 14), 
+    legend.text = element_text(colour = "red"), 
+    legend.key = element_rect(colour = "blue", size = 0.25)
+  )
 
 
 ## 4. 면 분할 관련 옵션들
+ggplot(heightweight, aes(x = ageYear, y = heightIn, colour = sex)) + 
+  geom_point() + 
+  facet_grid(sex ~ .) + 
+  theme(
+    strip.background = element_rect(fill = "pink"), 
+    strip.text.y = element_text(size = 14, angle = -90, face = "bold")
+  )
 
 
 # 5. 사용자 정의 테마 설정
+library(ggthemes)
+my1stTheme <- theme_wsj() + 
+  theme(axis.title.x = element_text(size = 20), 
+        panel.grid.major = element_line(colour = "red", linetype = "dashed")
+        )
 
-
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width)) + 
+  geom_point() + 
+  my1stTheme
