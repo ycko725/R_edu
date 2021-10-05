@@ -1,0 +1,61 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r echo=FALSE, out.width='90%', fig.asp=.75, fig.align='center'}
+suppressPackageStartupMessages(library(kableExtra))
+suppressPackageStartupMessages(library(dplyr))
+require(knitr)
+
+knit_table <- function(df){
+if (knitr::is_html_output()) {
+df %>%
+kable("html", escape = F, align = "c", col.names = c("구분"
+                                                     , "사람에 대한 신뢰"
+                                                     , "제도에 대한 신뢰")) %>%
+kable_styling()
+} else {
+df <- data.frame(lapply(df, function(x) {gsub("<br>", "\n", x)}), stringsAsFactors = F)
+df %>%
+mutate_all(linebreak) %>%
+kable("latex", booktabs = T, escape = F, align = "c")
+}
+}
+text_tbl <- data.frame(
+`구분` = c("상태로서의 신뢰<br>(정서적)", "사건으로서의 신뢰<br>(계산적)"),
+`사람에 대한 신뢰` = c(
+"A<br>정태적 사적 신뢰:<br>마피아 집단 내의 신뢰,<br>혈연(학연/지연)에 대한 신뢰",
+"C<br>동태적 사적 신뢰:<br>계약자에 대한 신뢰"),
+`제도에 대한 신뢰` = c(
+"B<br>정태적 공적 신뢰:<br>추상적 제도(화폐, 과학 등)에<br>대한 신뢰",
+"D<br>동태적 공적 신뢰:<br>개혁정책에 대한 신뢰,<br>투자 대상국의 경제 제도에 대한 신뢰"
+)
+)
+knit_table(text_tbl)
+```
+
