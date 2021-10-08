@@ -7,22 +7,103 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+# Introduction 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+## 대회 개요
+- 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+## 데이터 파일 구조
+- 데이터 파일 구조는 크게 2가지로 나뉠 수 있다. 
 
-```{r cars}
-summary(cars)
+![](img/map.png)
+
+- Credit Bureau 파일 구조와 Home Credit 파일 구조로 분리할 수 있음. 
+- Bureau (External File)
+- Home Credit (Internal File)
+  + 현재 Home Credit File (Application train/test)
+  + 이전 Home Credit File (Other's)
+  
+## 평가 지표
+- 제출한 파일은 예측 확률과 기존 관측 대상 사이의 [ROC Curve](http://en.wikipedia.org/wiki/Receiver_operating_characteristic)로 평가 한다. 
+
+# 분석 준비
+
+## 패키지 불러오기
+- 주요 패키지를 불러오도록 한다. 
+
+```{r, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(skimr)
+library(GGally)
+library(plotly)
+library(viridis)
+library(caret)
+library(DT)
+library(data.table)
+library(lightgbm)
+library(kableExtra)
 ```
 
-## Including Plots
+## 데이터 불러오기
+- 이번에는 `fread()`를 활용하여 데이터를 불러도록 한다. 
 
-You can also embed plots, for example:
+```{r}
+na_strings = c("NA", "NaN", "?", "")
+train = fread('data/home-credit-default-risk/application_train.csv', 
+              stringsAsFactors = FALSE, 
+              data.table = FALSE, na.strings = na_strings)
 
-```{r pressure, echo=FALSE}
-plot(pressure)
+train %>% skim()
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+test = fread('data/home-credit-default-risk/application_test.csv', 
+              stringsAsFactors = FALSE, 
+              data.table = FALSE, na.strings = na_strings)
+
+dim(test)
+```
+```{r}
+bureau = fread('data/home-credit-default-risk/bureau.csv', 
+              stringsAsFactors = FALSE, 
+              data.table = FALSE, na.strings = na_strings)
+
+dim(bureau)
+bureau %>% skim()
+```
+```{r}
+prev = fread('data/home-credit-default-risk/previous_application.csv', 
+              stringsAsFactors = FALSE, 
+              data.table = FALSE, na.strings = na_strings)
+
+dim(prev)
+prev %>% skim()
+```
+
+# 주요 변수 시각화
+- 우선 Target Variable의 데이터를 확인해본다. 
+```{r}
+# fillColor = "#FFA07A"
+# fillColor2 = "#F1C40F"
+# fillColorLightCoral = "#F08080"
+
+train %>% 
+  group_by(TARGET) %>%
+  summarise(Count = n() / nrow(train) * 100) %>% 
+  arrange(desc(Count)) %>% 
+  ungroup() %>% 
+  mutate(TARGET = reorder(TARGET, Count)) %>% 
+  ggplot(aes(x = TARGET, y = Count)) + 
+    geom_bar(stat = "identity", fill = "#F1C40F") + 
+    geom_text(aes(x = TARGET, y = 1, label = paste0(round(Count, 2), " %")), 
+              hjust = 0, vjust = .5, size = 3.5, colour = "white", fontface = "bold") + 
+    coord_flip() + 
+    labs(x = "TARGET", 
+         y = "Percentage (%)", 
+         title = "Percentage of Target Data (N = 307,511)", 
+         subtitle = "0 - Capable to Repay Debt; 1 - Not Capable to Repay Debt", 
+         caption = "Created by McBert") + 
+    theme_minimal()
+```
+
+
