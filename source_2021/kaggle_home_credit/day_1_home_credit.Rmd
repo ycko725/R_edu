@@ -252,6 +252,9 @@ train %>%
                        breaks = seq(0, 1, 0.01), 
                        labels = percent_format(accuracy = 0.1)) + 
     facet_grid(~ CODE_GENDER) + 
+    labs(title = "Default Rate by Dept/Incomes Ratio (N = 303,498)", 
+         subtitle = "The Comparison between Female and Male", 
+         caption = "Created by McBert") +
     theme_minimal()
 ```
 
