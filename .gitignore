@@ -7,3 +7,4 @@
 .html
 .httr-oauth
 /source_2021/kaggle_home_credit/data/*
+/mecab*
