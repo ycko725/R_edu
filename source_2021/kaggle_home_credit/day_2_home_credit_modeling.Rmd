@@ -41,21 +41,27 @@ library(caret)
 library(DT)
 library(data.table)
 library(lightgbm)
+library(xgboost)
 library(kableExtra)
+library(magrittr)
 ```
 
 ## 데이터 불러오기
 - 이번에는 `fread()`를 활용하여 데이터를 불러도록 한다. 
 
+### train
 ```{r}
 na_strings = c("NA", "NaN", "?", "")
+
 train = fread('data/home-credit-default-risk/application_train.csv', 
               stringsAsFactors = FALSE, 
               data.table = FALSE, na.strings = na_strings)
 
-train %>% skim()
+# train %>% skim()
+dim(train)
 ```
 
+### test 
 ```{r}
 test = fread('data/home-credit-default-risk/application_test.csv', 
               stringsAsFactors = FALSE, 
@@ -63,6 +69,8 @@ test = fread('data/home-credit-default-risk/application_test.csv',
 
 dim(test)
 ```
+
+### bureau
 ```{r}
 bureau = fread('data/home-credit-default-risk/bureau.csv', 
               stringsAsFactors = FALSE, 
@@ -71,6 +79,8 @@ bureau = fread('data/home-credit-default-risk/bureau.csv',
 dim(bureau)
 bureau %>% skim()
 ```
+
+### previous application
 ```{r}
 prev = fread('data/home-credit-default-risk/previous_application.csv', 
               stringsAsFactors = FALSE, 
@@ -80,187 +90,208 @@ dim(prev)
 prev %>% skim()
 ```
 
-# 주요 변수 시각화
-## Target
-- 우선 Target Variable의 데이터를 확인해본다. 
-- 먼저 데이터 요약을 해보자. 
+
+### bureau balance
+
 ```{r}
-train %>% 
-  group_by(TARGET) %>%
-  summarise(Count = n())
+bur_balance = fread('data/home-credit-default-risk/bureau_balance.csv', 
+              stringsAsFactors = FALSE, 
+              data.table = FALSE, na.strings = na_strings)
+
+dim(bur_balance)
+bur_balance %>% skim()
 ```
 
-- 전체적인 비율을 구해본다. 
+### credit card balance
 
 ```{r}
-# fillColor = "#FFA07A"
-# fillColor2 = "#F1C40F"
-# fillColorLightCoral = "#F08080"
+credit_card_balance = fread('data/home-credit-default-risk/credit_card_balance.csv', 
+              stringsAsFactors = FALSE, 
+              data.table = FALSE, na.strings = na_strings)
 
-train %>% 
-  group_by(TARGET) %>%
-  summarise(Count = n() / nrow(train) * 100) %>% 
-  arrange(desc(Count)) %>% 
-  ungroup() %>% 
-  mutate(TARGET = reorder(TARGET, Count)) %>% 
-  ggplot(aes(x = TARGET, y = Count)) + 
-    geom_bar(stat = "identity", fill = "#F1C40F") + 
-    geom_text(aes(x = TARGET, y = 1, label = paste0(round(Count, 2), " %")), 
-              hjust = 0, vjust = .5, size = 3.5, colour = "white", fontface = "bold") + 
-    coord_flip() + 
-    labs(x = "TARGET", 
-         y = "Percentage (%)", 
-         title = "Percentage of Target Data (N = 307,511)", 
-         subtitle = "0 - Capable to Repay Debt; 1 - Not Capable to Repay Debt", 
-         caption = "Created by McBert") + 
-    theme_minimal()
-```
-
-## Gender
-
-- 이번에는 Gender의 숫자를 구해본다. 
-
-```{r}
-train %>% 
-  group_by(CODE_GENDER) %>%
-  summarise(Count = n())
-```
-
-- 이번에는 TARGET ~ TARGET 데이터를 요약해본다. 
-```{r}
-train %>% 
-  group_by(CODE_GENDER, TARGET) %>%
-  summarise(Count = n())
+dim(credit_card_balance)
+credit_card_balance %>% skim()
 ```
 
 
-- 이번에는 시각화를 해본다. 
-```{r}
-train %>% 
-  group_by(CODE_GENDER, TARGET) %>%
-  summarise(Count = n() / nrow(train) * 100) %>% 
-  arrange(desc(Count)) %>% 
-  ungroup() %>% 
-  mutate(CODE_GENDER = reorder(CODE_GENDER, Count), 
-         TARGET = as.factor(TARGET)) %>% 
-  ggplot(aes(x = CODE_GENDER, y = Count, fill = TARGET)) + 
-    geom_bar(stat = "identity", position = position_dodge(width = 1)) + 
-    geom_text(aes(x = CODE_GENDER, y = Count + 2, label = paste0(round(Count, 2), " %"), group = TARGET), 
-              position = position_dodge(width = 1), size = 3.5, colour = "black", fontface = "bold") + 
-    labs(x = "Gender", 
-         y = "Percentage (%)", 
-         title = "Percentage of Target ~ Gender Data (N = 307,511)", 
-         subtitle = "0 - Capable to Repay Debt; 1 - Not Capable to Repay Debt", 
-         caption = "Created by McBert") + 
-    scale_fill_manual(values = c("#F5896E", "#7BDCFF")) + 
-    theme_minimal()
-```
-
-## AMT CREDIT 
-- 이번에는 대출 잔액을 확인해본다. 
-```{r}
-summary(train$AMT_CREDIT)
-```
-- 데이터의 분포도를 그려보도록 한다. 
-```{r}
-train %>% 
-  ggplot(aes(x = AMT_CREDIT)) + 
-  geom_histogram(bins = 30, fill = "#F5896E") + 
-  labs(x = "Amount Credit", 
-       y = "Count", 
-       title = "Distribution of Amount Credit", 
-       caption = "Created by McBert") + 
-  theme_minimal()
-```
-- 이상치를 제거하도록 한다. 
-  + 상위 2.5%는 제거하도록 한다. 
+### installments payments
 
 ```{r}
-upper_threshold = quantile(train$AMT_CREDIT, 0.975)
-cat("Top 2.5% threshold is:", upper_threshold)
+payments = fread('data/home-credit-default-risk/installments_payments.csv', 
+              stringsAsFactors = FALSE, 
+              data.table = FALSE, na.strings = na_strings)
 
-train %>% 
-  filter(AMT_CREDIT <= upper_threshold) %>% 
-  ggplot(aes(x = AMT_CREDIT)) + 
-  geom_histogram(bins = 30, fill = "#F5896E") + 
-  labs(x = "Amount Credit", 
-       y = "Count", 
-       title = "Distribution of Amount Credit", 
-       caption = "Created by McBert") + 
-  theme_minimal()
+dim(payments)
+payments %>% skim()
 ```
 
-## TARGET ~ Age, Gender, Status 
-- 이번에는 조건문을 활용하여 데이터를 요약하고, 시각화를 진행해본다. 
+### POS Cash Balance
 ```{r}
-train$DAYS_BIRTH[1:5]
-```
+p_cash_balance = fread('data/home-credit-default-risk/POS_CASH_balance.csv', 
+              stringsAsFactors = FALSE, 
+              data.table = FALSE, na.strings = na_strings)
 
-```{r}
-train$CODE_GENDER[1:5]
-```
-
-```{r}
-table(train$CNT_FAM_MEMBERS)
-```
-
-```{r}
-table(train$NAME_FAMILY_STATUS)
+dim(p_cash_balance)
+p_cash_balance %>% skim()
 ```
 
 
 
-```{r}
-train %>% 
-  filter(!is.na(TARGET), CODE_GENDER != "XNA", CNT_FAM_MEMBERS <= 4) %>% # nrow() ~ 303498
-  group_by(age = -round(DAYS_BIRTH/365, 0), 
-           gender = ifelse(CODE_GENDER == "M", "Male", "Female"), 
-           status = ifelse(NAME_FAMILY_STATUS == "Civil marriage", "Married", 
-                           ifelse(NAME_FAMILY_STATUS == "Single / not married", "Single", as.character(NAME_FAMILY_STATUS)))) %>% # select(NAME_FAMILY_STATUS)
-  summarise(count = n(), 
-            AVG_CREDIT = mean(AMT_CREDIT), 
-            AVG_TARGET = mean(TARGET)) %>% 
-  mutate(AVG_TARGET = pmin(pmax(AVG_TARGET, 0.00), 0.20) * 100) %>% 
-  ggplot(aes(x = age, y = count, fill = AVG_TARGET)) + 
-    geom_histogram(stat = "identity", width = 1) + 
-    facet_grid(gender ~ status) + 
-    scale_fill_gradient("Avg. Default Rate %", low = "white", high = "blue") + 
-    labs(title = "Default Rate of Applicants (N = 303,498)", 
-         subtitle = "Age, Gender, And Marriage Status", 
-         caption = "Created by McBert") +   
-    theme_minimal()
-```
-- 상대적으로 Single, Male 그룹이 다른 그룹보다 Default 비율이 높았다. 
-- 또한, 상대적으로 연령대가 낮을수록 Default 비율이 높았다. 
 
-## Dept/Incomes Ratio %
-- Dept의 비율이 높으면 높으수록 Default 비율도 높을 것으로 예상할 수 있다. 실제로 그런지 확인해본다. 
+# 데이터 전처리
+
+## 데이터 특징
+- 모델링을 위한 데이터 전처리에서 가장 기본이 되는 train 데이터의 id를 확인해보면, 각 ID당 1개의 행(row)만 존재하는 것을 확인할 수 있다. 
+
 ```{r}
-library(scales)
-train %>% 
-  filter(!is.na(TARGET), CODE_GENDER != "XNA", CNT_FAM_MEMBERS <= 4) %>% 
-  mutate(CODE_GENDER = ifelse(CODE_GENDER == "M", "Male", "Female"), 
-         DEPT_INCOMES_RATIO = AMT_ANNUITY/AMT_INCOME_TOTAL) %>% 
-  select(CODE_GENDER, DEPT_INCOMES_RATIO, TARGET) %>%
-  ggplot(aes(x = DEPT_INCOMES_RATIO, y = TARGET)) + 
-    geom_smooth(se = FALSE) + 
-    scale_x_continuous(name = "Debt / Incomes Ratio (%)", 
-                       limits = c(0, 0.5), 
-                       labels = percent_format(accuracy = 0.1)) + 
-    # coord_cartesian(ylim=c(0.00, 0.15)) + 
-    scale_y_continuous(name = "Avg. Default Rate (%)", 
-                       breaks = seq(0, 1, 0.01), 
-                       labels = percent_format(accuracy = 0.1)) + 
-    facet_grid(~ CODE_GENDER) + 
-    labs(title = "Default Rate by Dept/Incomes Ratio (N = 303,498)", 
-         subtitle = "The Comparison between Female and Male", 
-         caption = "Created by McBert") +
-    theme_minimal()
+table(train$SK_ID_CURR) %>% head(10)
+```
+- 그런데, 다른 데이터셋의 경우, ID마다 서로 다른 행(row) 개수가 나타나는 것을 볼 수 있다. 
+- 이 때에는 우선 ID마다 Group by를 통해서 행의 결과를 단일하게 맞출 필요가 있다. 
+
+```{r}
+table(bur_balance$SK_ID_BUREAU) %>% head(10)
 ```
 
-## Bureau Data
+## sum_bureau_balance
 
-## (과제) 개인별 시각화 인사이트 찾기
-- 지금까지의 작성방법을 토대로 다양하게 시각화를 작성해본다. 
 
-# 
+```{r}
+cat("Processing...\n")
+glimpse(bur_balance)
+
+stat_fn = list(mean = mean, sd = sd)
+
+sum_bur_balance = bur_balance %>% 
+  mutate_if(is.character, funs(factor(.) %>% as.integer)) %>% # Ordinal Encoding
+  group_by(SK_ID_BUREAU) %>% 
+  mutate(SK_ID_BUREAU = as.character(SK_ID_BUREAU)) %>% 
+  summarise_all(stat_fn, na.rm = TRUE) 
+
+rm(bur_balance); gc()
+
+sum_bureau = bureau %>% 
+  mutate(SK_ID_BUREAU = as.character(SK_ID_BUREAU)) %>% 
+  left_join(sum_bur_balance, by = "SK_ID_BUREAU") %>% 
+  select(-SK_ID_BUREAU) %>% 
+  mutate_if(is.character, funs(factor(.) %>% as.integer)) %>% 
+  group_by(SK_ID_CURR) %>% 
+  summarise_all(stat_fn)
+
+rm(bureau, sum_bur_balance); gc()
+```
+# Data Merge
+
+```{r}
+train$SK_ID_CURR = as.character(train$SK_ID_CURR)
+test$SK_ID_CURR = as.character(test$SK_ID_CURR)
+sum_bureau$SK_ID_CURR = as.character(sum_bureau$SK_ID_CURR)
+
+tri = 1:nrow(train)
+y = train$TARGET
+length(y); length(tri)
+```
+
+
+```{r}
+train_test = train %>% 
+  dplyr::select(-TARGET) %>% 
+  bind_rows(test) %>% 
+  left_join(sum_bureau, by = "SK_ID_CURR") %>% 
+  select(-SK_ID_CURR) %>% 
+  mutate_if(is.character, funs(factor(.) %>% as.integer)) %>% 
+    mutate(na = apply(., 1, function(x) sum(is.na(x))),
+         DAYS_EMPLOYED = ifelse(DAYS_EMPLOYED == 365243, NA, DAYS_EMPLOYED),
+         DAYS_EMPLOYED_PERC = sqrt(DAYS_EMPLOYED / DAYS_BIRTH),
+         INCOME_CREDIT_PERC = AMT_INCOME_TOTAL / AMT_CREDIT,
+         INCOME_PER_PERSON = log1p(AMT_INCOME_TOTAL / CNT_FAM_MEMBERS),
+         ANNUITY_INCOME_PERC = sqrt(AMT_ANNUITY / (1 + AMT_INCOME_TOTAL)),
+         LOAN_INCOME_RATIO = AMT_CREDIT / AMT_INCOME_TOTAL,
+         ANNUITY_LENGTH = AMT_CREDIT / AMT_ANNUITY,
+         CHILDREN_RATIO = CNT_CHILDREN / CNT_FAM_MEMBERS, 
+         CREDIT_TO_GOODS_RATIO = AMT_CREDIT / AMT_GOODS_PRICE,
+         INC_PER_CHLD = AMT_INCOME_TOTAL / (1 + CNT_CHILDREN),
+         SOURCES_PROD = EXT_SOURCE_1 * EXT_SOURCE_2 * EXT_SOURCE_3,
+         CAR_TO_BIRTH_RATIO = OWN_CAR_AGE / DAYS_BIRTH,
+         CAR_TO_EMPLOY_RATIO = OWN_CAR_AGE / DAYS_EMPLOYED,
+         PHONE_TO_BIRTH_RATIO = DAYS_LAST_PHONE_CHANGE / DAYS_BIRTH,
+         PHONE_TO_EMPLOY_RATIO = DAYS_LAST_PHONE_CHANGE / DAYS_EMPLOYED) 
+
+train_test %>% glimpse()
+```
+
+## FLAG_DOC
+
+```{r}
+docs = str_subset(names(train), "FLAG_DOC")
+live = str_subset(names(train), "(?!NFLAG_)(?!FLAG_DOC)(?!_FLAG_)FLAG_")
+
+inc_by_org <- train_test %>% 
+  group_by(ORGANIZATION_TYPE) %>% 
+  summarise(m = median(AMT_INCOME_TOTAL)) %$% 
+  setNames(as.list(m), ORGANIZATION_TYPE)
+
+# install.packages("moments")
+final_df <- train_test %>% 
+  mutate(DOC_IND_KURT = apply(train_test[, docs], 1, moments::kurtosis),
+         LIVE_IND_SUM = apply(train_test[, live], 1, sum),
+         NEW_INC_BY_ORG = recode(train_test$ORGANIZATION_TYPE, !!!inc_by_org),
+         NEW_EXT_SOURCES_MEAN = apply(train_test[, c("EXT_SOURCE_1", "EXT_SOURCE_2", "EXT_SOURCE_3")], 1, mean),
+         NEW_SCORES_STD = apply(train_test[, c("EXT_SOURCE_1", "EXT_SOURCE_2", "EXT_SOURCE_3")], 1, sd))%>%
+  mutate_all(funs(ifelse(is.nan(.), NA, .))) %>% 
+  mutate_all(funs(ifelse(is.infinite(.), NA, .))) %>% 
+  data.matrix()
+
+length(final_df)
+```
+
+# Modeling
+
+```{r}
+cat("Preparing data...\n")
+length(final_df)
+dtest <- xgb.DMatrix(data = final_df[-tri, ])
+```
+
+```{r}
+tr_te <- final_df[tri, ]
+train_split <- caret::createDataPartition(y, p = 0.9, list = F) %>% c()
+
+dtrain <- xgb.DMatrix(data = tr_te[train_split, ], label = y[train_split])
+dval <- xgb.DMatrix(data = tr_te[-train_split, ], label = y[-train_split])
+cols <- colnames(final_df)
+```
+
+
+```{r}
+p <- list(objective = "binary:logistic",
+          booster = "gbtree",
+          eval_metric = "auc",
+          nthread = 6, 
+          eta = 0.05,
+          max_depth = 6,
+          min_child_weight = 30,
+          gamma = 0,
+          subsample = 0.85,
+          colsample_bytree = 0.7,
+          colsample_bylevel = 0.632,
+          alpha = 0,
+          lambda = 0,
+          nrounds = 100) # 3000
+
+set.seed(0)
+m_xgb <- xgb.train(p, dtrain, p$nrounds, list(val = dval), print_every_n = 50, early_stopping_rounds = 300)
+
+xgb.importance(cols, model=m_xgb) %>% 
+  xgb.plot.importance(top_n = 30)
+```
+# Submission 
+
+### Sample Submission
+```{r}
+read_csv("data/home-credit-default-risk/sample_submission.csv") %>%  
+  mutate(SK_ID_CURR = as.integer(SK_ID_CURR),
+         TARGET = predict(m_xgb, dtest)) %>%
+  write_csv(paste0("data/home-credit-default-risk/my_xgb_", round(m_xgb$best_score, 5), ".csv"))
+```
+
