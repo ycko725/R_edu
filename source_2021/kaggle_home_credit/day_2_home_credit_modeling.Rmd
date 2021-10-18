@@ -1,27 +1,82 @@
 ---
-title: "day_1_data_import"
-output: html_document
+title: "Home Credit Default - Data Modeling"
+date: 2020-10-14T09:10:39+09:00
+output: 
+  html_document: 
+    keep_md: true
+    toc: true
+tags:
+  - "R"
+  - "Data Visualization"
+  - "Data Transformation"
+  - "Kaggle"
+categories:
+  - "R"
+  - "Data Visualization"
+  - "Data Transformation"
+  - "Kaggle"
+menu: 
+  r:
+    name: Home Credit Default - Data Modeling
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# 공지
+- 본 포스트는 재직자 교육을 위해 만든 강의안의 일부입니다. 
+
+
 # Introduction 
 
 ## 대회 개요
-- 
+> Many people struggle to get loans due to insufficient or non-existent credit histories. And, unfortunately, this population is often taken advantage of by untrustworthy lenders. [Home Credit](http://www.homecredit.net/) strives to broaden financial inclusion for the unbanked population by providing a positive and safe borrowing experience. In order to make sure this underserved population has a positive loan experience, Home Credit makes use of a variety of alternative data--including telco and transactional information--to predict their clients' repayment abilities. While Home Credit is currently using various statistical and machine learning methods to make these predictions, they're challenging Kagglers to help them unlock the full potential of their data. Doing so will ensure that clients capable of repayment are not rejected and that loans are given with a principal, maturity, and repayment calendar that will empower their clients to be successful.
 
 ## 데이터 파일 구조
 - 데이터 파일 구조는 크게 2가지로 나뉠 수 있다. 
 
-![](img/map.png)
+![](/img/r/kaggle/day_1_home_credit_visusalization/figure-html/map.png)
 
 - Credit Bureau 파일 구조와 Home Credit 파일 구조로 분리할 수 있음. 
 - Bureau (External File)
 - Home Credit (Internal File)
   + 현재 Home Credit File (Application train/test)
   + 이전 Home Credit File (Other's)
+
+## 데이터 설명 
+- [본 캐글 대회 영문 참조](https://www.kaggle.com/c/home-credit-default-risk/data)
+- application_{train|test}.csv
+  + This is the main table, broken into two files for Train (with TARGET) and Test (without TARGET).
+  + Static data for all applications. One row represents one loan in our data sample.
+
+- bureau.csv
+  + All client's previous credits provided by other financial institutions that were reported to Credit Bureau (for clients who have a loan in our sample). 
+  + For every loan in our sample, there are as many rows as number of credits the client had in Credit Bureau before the application date.
+
+- bureau_balance.csv
+  + Monthly balances of previous credits in Credit Bureau.
+  + This table has one row for each month of history of every previous credit reported to Credit Bureau – i.e the table has (#loans in sample * # of relative previous credits * # of months where we have some history observable for the previous credits) rows.
+
+- POS_CASH_balance.csv
+  + Monthly balance snapshots of previous POS (point of sales) and cash loans that the applicant had with Home Credit.
+  + This table has one row for each month of history of every previous credit in Home Credit (consumer credit and cash loans) related to loans in our sample – i.e. the table has (#loans in sample * # of relative previous credits * # of months in which we have some history observable for the previous credits) rows.
+  
+- credit_card_balance.csv
+  + Monthly balance snapshots of previous credit cards that the applicant has with Home Credit.
+  + This table has one row for each month of history of every previous credit in Home Credit (consumer credit and cash loans) related to loans in our sample – i.e. the table has (#loans in sample * # of relative previous credit cards * # of months where we have some history observable for the previous credit card) rows.
+  
+- previous_application.csv
+  + All previous applications for Home Credit loans of clients who have loans in our sample.
+  + There is one row for each previous application related to loans in our data sample.
+  
+- installments_payments.csv
+  + Repayment history for the previously disbursed credits in Home Credit related to the loans in our sample. 
+  + There is a) one row for every payment that was made plus b) one row each for missed payment.
+  + One row is equivalent to one payment of one installment OR one installment corresponding to one payment of one previous Home Credit credit related to loans in our sample.
+  
+- HomeCredit_columns_description.csv
+  + This file contains descriptions for the columns in the various data files.
   
 ## 평가 지표
 - 제출한 파일은 예측 확률과 기존 관측 대상 사이의 [ROC Curve](http://en.wikipedia.org/wiki/Receiver_operating_characteristic)로 평가 한다. 
@@ -77,19 +132,8 @@ bureau = fread('data/home-credit-default-risk/bureau.csv',
               data.table = FALSE, na.strings = na_strings)
 
 dim(bureau)
-bureau %>% skim()
+# bureau %>% skim()
 ```
-
-### previous application
-```{r}
-prev = fread('data/home-credit-default-risk/previous_application.csv', 
-              stringsAsFactors = FALSE, 
-              data.table = FALSE, na.strings = na_strings)
-
-dim(prev)
-prev %>% skim()
-```
-
 
 ### bureau balance
 
@@ -99,43 +143,8 @@ bur_balance = fread('data/home-credit-default-risk/bureau_balance.csv',
               data.table = FALSE, na.strings = na_strings)
 
 dim(bur_balance)
-bur_balance %>% skim()
+# bur_balance %>% skim()
 ```
-
-### credit card balance
-
-```{r}
-credit_card_balance = fread('data/home-credit-default-risk/credit_card_balance.csv', 
-              stringsAsFactors = FALSE, 
-              data.table = FALSE, na.strings = na_strings)
-
-dim(credit_card_balance)
-credit_card_balance %>% skim()
-```
-
-
-### installments payments
-
-```{r}
-payments = fread('data/home-credit-default-risk/installments_payments.csv', 
-              stringsAsFactors = FALSE, 
-              data.table = FALSE, na.strings = na_strings)
-
-dim(payments)
-payments %>% skim()
-```
-
-### POS Cash Balance
-```{r}
-p_cash_balance = fread('data/home-credit-default-risk/POS_CASH_balance.csv', 
-              stringsAsFactors = FALSE, 
-              data.table = FALSE, na.strings = na_strings)
-
-dim(p_cash_balance)
-p_cash_balance %>% skim()
-```
-
-
 
 
 # 데이터 전처리
@@ -146,6 +155,7 @@ p_cash_balance %>% skim()
 ```{r}
 table(train$SK_ID_CURR) %>% head(10)
 ```
+
 - 그런데, 다른 데이터셋의 경우, ID마다 서로 다른 행(row) 개수가 나타나는 것을 볼 수 있다. 
 - 이 때에는 우선 ID마다 Group by를 통해서 행의 결과를 단일하게 맞출 필요가 있다. 
 
@@ -154,8 +164,11 @@ table(bur_balance$SK_ID_BUREAU) %>% head(10)
 ```
 
 ## sum_bureau_balance
-
-
+- 우선 bur_balance 데이터는 매월마다 대출 잔액을 체크하고 있다. - 이와 같은 데이터에 대한 설명을 이해하는 것은 쉬운 건 아니다. 
+  + 이럴 때는 각 데이터에 대한 부가적인 설명이 필요하다. 
+  + [Discussion: Interpreting the BUREAU_BALANCE table](https://www.kaggle.com/c/home-credit-default-risk/discussion/58445)
+- 우선, STATUS는 데이터 중에서도 서열측도에 해당한다고 볼 수 있다. 
+  + 따라서 문자열 데이터를 숫자로 바꾸는 코드를 진행한다. 
 ```{r}
 cat("Processing...\n")
 glimpse(bur_balance)
@@ -180,7 +193,11 @@ sum_bureau = bureau %>%
 
 rm(bureau, sum_bur_balance); gc()
 ```
+
 # Data Merge
+- 이제 데이터를 합치도록 한다. 
+- 각 ID가 숫자로 되어 있기 때문에 문자로 변경한다. 
+- 각각의 데이터를 분리 하도록 한다. 
 
 ```{r}
 train$SK_ID_CURR = as.character(train$SK_ID_CURR)
@@ -191,7 +208,9 @@ tri = 1:nrow(train)
 y = train$TARGET
 length(y); length(tri)
 ```
-
+- 우선 `test 데이터`와 합쳐야 하기 때문에 test 데이터에는 없는 TARGET은 먼저 삭제 한다. 
+- 365243 days는 1000년 이상을 의미한다. 즉, 일종의 극단 값이기 때문에, NA로 취급했다. 
+- 각 데이터 상의 비율 또는 Percent를 측정하는 코드를 작성했다. 
 
 ```{r}
 train_test = train %>% 
@@ -220,17 +239,37 @@ train_test = train %>%
 train_test %>% glimpse()
 ```
 
-## FLAG_DOC
+## FLAG_DOC 
+- FLAG_DOC은 고객의 문서 제공 횟수를 의미한다. 
+- 이 데이터에서 `ORGANIZATION_TYPE`에 따른 `AMT_INCOME_TOTAL` 중간값을 구하도록 했다. 
 
 ```{r}
 docs = str_subset(names(train), "FLAG_DOC")
 live = str_subset(names(train), "(?!NFLAG_)(?!FLAG_DOC)(?!_FLAG_)FLAG_")
+
 
 inc_by_org <- train_test %>% 
   group_by(ORGANIZATION_TYPE) %>% 
   summarise(m = median(AMT_INCOME_TOTAL)) %$% 
   setNames(as.list(m), ORGANIZATION_TYPE)
 
+inc_by_org[1:5]
+```
+### 데이터 병합 및 Matrix 변환
+- 몇가지 문법적인 내용을 소개한다. 
+
+```{r}
+library(forcats)
+
+level_key <- c(a = "apple", b = "banana", c = "carrot")
+char_vec <- sample(c("a", "b", "c"), 10, replace = TRUE)
+recode(char_vec, !!!level_key)
+```
+- named vector를 적용할 때는 !!!를 추가로 입력한다. 
+  + 관련 내용: https://adv-r.hadley.nz/quasiquotation.html
+
+
+```{r}
 # install.packages("moments")
 final_df <- train_test %>% 
   mutate(DOC_IND_KURT = apply(train_test[, docs], 1, moments::kurtosis),
@@ -244,6 +283,7 @@ final_df <- train_test %>%
 
 length(final_df)
 ```
+
 
 # Modeling
 
