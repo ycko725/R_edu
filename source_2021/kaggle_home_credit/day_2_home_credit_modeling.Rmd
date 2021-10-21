@@ -268,6 +268,9 @@ recode(char_vec, !!!level_key)
 - named vector를 적용할 때는 !!!를 추가로 입력한다. 
   + 관련 내용: https://adv-r.hadley.nz/quasiquotation.html
 
+- moments 패키지 내, 첨도(kurtosis)는 평균을 중심으로 얼마나 뾰족하게 분포되어 있는지를 나타냄. 양의 값일 경우 분포가 뾰족하고 음의 값일 경우 분포가 평평함.
+
+
 
 ```{r}
 # install.packages("moments")
