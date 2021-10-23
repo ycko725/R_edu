@@ -1,0 +1,212 @@
+---
+title: An R Markdown document converted from "./in-r-gbm-vs-xgboost-vs-lightgbm.ipynb"
+output: html_document
+---
+
+## 이번 수업의 목적
+- 각 모형간의 속도와 정확성을 비교하는 코드를 작성한다. 
+
+## 데이터 셋 특징
+- 데이터셋은 2013년 9월 카드 이체 이력임 (유럽). 
+- PCA 변환의 결과물임. 정확한 정보는 개인정보로 인해 확인할 길이 없음. 
+- 각 데이터는 V1, V2, ..., V28은 PCA의 결과
+- Time은 각 결제 이력과 첫번째 결제 이력 사이의 경과된 초를 의미함. 
+- Amount는 결제 금액을 의미함. 
+- Class는 종속변수를 의미하고, 1은 이상거래, 0은 정상거래를 의미함. 
+- 데이터셋 생성 싸이트
+    + [Transaction data simulator](https://fraud-detection-handbook.github.io/fraud-detection-handbook/Chapter_3_GettingStarted/SimulatedDataset.html)
+
+```{r}
+library(pROC)
+library(microbenchmark)
+library(readr)
+library(caret)
+library(tidyverse)
+
+# 실험 재현성
+set.seed(42)
+
+# 데이터 수집
+credit_card = read_csv("../input/creditcardfraud/creditcard.csv")
+credit_card$Class = as.factor(credit_card$Class)
+
+class_0 = credit_card %>% filter(Class == "0") %>% sample_n(80)
+class_1 = credit_card %>% filter(Class == "1") %>% sample_n(20)
+full_data = bind_rows(class_0, class_1)
+```
+
+## 데이터 분리
+- 층화추출을 기법으로 데이터를 Train과 Test 기법으로 분리한다. 
+
+```{r}
+# 데이터 분리 (Stratified Random Split)
+train.index = createDataPartition(credit_card$Class, p = .7, list = FALSE)
+train = credit_card[ train.index,]
+test  = credit_card[-train.index,]
+head(train)
+```
+
+## 모델링
+- 각각의 개별적인 모델링을 구축하고, 시간을 측정하도록 한다. 
+
+```{r}
+library(doParallel)
+detectCores()
+cl <- makeCluster(4)
+registerDoParallel(cl) 
+```
+
+- 모형 결과를 확인하도록 한다. 
+
+```{r}
+library(gbm)
+
+system.time(
+    gbm <- train(Class ~ ., 
+                 data=train, 
+                 distribution="bernoulli", 
+                 method="gbm")    
+)
+
+plot(gbm)
+```
+
+## 특성 중요도
+- 가장 널리 사용되는 속성은 트리를 만드는 결정에 각 특성이 얼마나 중요한지를 평가하는 특성 중요도feature importance 이다. 
+- 이 값은 0과 1 사이의 숫자로, 각 특성에 대해 0은 전혀 사용되지 않았다는 뜻이고 1은 완벽하게 타깃 클래스를 예측했다는 뜻입니다. 
+- 특성 중요도의 전체 합은 1입니다.
+- 이 특성 중요도를 통해서, 불필요한 변수를 제거하면, 속도 향상을 기대할 수 있다. 
+
+```{r}
+gbmImp = varImp(gbm, scale = FALSE)
+plot(gbmImp, top = 20)
+```
+
+## 예측 및 ROC Curve
+
+```{r}
+gbm_test = as.numeric(predict(gbm, newdata = test))
+auc_gbm = roc(as.numeric(test$Class), gbm_test, plot = TRUE, col = "red")
+print(auc_gbm)
+```
+
+## XGBoost
+
+```{r}
+glimpse(train)
+```
+
+```{r}
+train_label = as.numeric(train$Class) - 1
+test_label = as.numeric(test$Class) - 1
+```
+
+```{r}
+library(xgboost, quietly=TRUE)
+# glimpse(train)
+
+xgb.data.train <- xgb.DMatrix(as.matrix(train[, names(train) != "Class"]), label = train_label)
+xgb.data.test <- xgb.DMatrix(as.matrix(test[, names(test) != "Class"]), label = test_label)
+
+xgb.bench.speed = microbenchmark(
+	xgb.model <- xgb.train(data = xgb.data.train
+		, params = list(objective = "binary:logistic"
+			, eta = 0.1
+			, max.depth = 3
+# 			, min_child_weight = 100
+# 			, subsample = 1
+# 			, colsample_bytree = 1
+# 			, nthread = 3
+            , tree_method = "hist"
+            , grow_policy = "lossguide"
+			, eval_metric = "auc"
+			)
+		, watchlist = list(test = xgb.data.test)
+		, nrounds = 500
+		, early_stopping_rounds = 40
+		, print_every_n = 20
+		)
+    , times = 1L
+)
+
+xgb.bench.speed
+```
+
+```{r}
+print(xgb.model)
+```
+
+```{r}
+str(xgb.model$best_score)
+```
+
+```{r}
+importance_matrix = xgb.importance(colnames(xgb.data.train), model = xgb.model)
+importance_matrix
+
+xgb.plot.importance(importance_matrix[1:10, ])
+```
+
+```{r}
+# Make predictions on test set for ROC curve
+xgb.test.hist = predict(xgb.model 
+                   , newdata = as.matrix(test[, colnames(test) != "Class"])
+                   , ntreelimit = xgb.model$bestInd)
+auc.xgb.hist = roc(test$Class, xgb.test.hist, plot = TRUE, col = "blue")
+print(auc.xgb.hist)
+```
+
+## LightGBM
+- 참고자료: https://lightgbm.readthedocs.io/en/latest/R/reference/
+
+```{r}
+library(lightgbm, quietly=TRUE)
+
+lgb.train <- lgb.Dataset(as.matrix(train[, names(train) != "Class"]), label = train_label)
+lgb.test <- lgb.Dataset(as.matrix(test[, names(test) != "Class"]), label = test_label)
+```
+
+```{r}
+params.lgb = list(
+	objective = "binary"
+	, metric = "auc"
+	, min_data_in_leaf = 1
+#	, min_sum_hessian_in_leaf = 100
+	, feature_fraction = 1
+	, bagging_fraction = 1
+	, bagging_freq = 0
+	)
+
+# Get the time to train the lightGBM model
+lgb.bench = microbenchmark(
+	lgb.model <- lgb.train(
+		params = params.lgb
+		, data = lgb.train
+		, valids = list(test = lgb.test)
+		, learning_rate = 0.1
+		, num_leaves = 7
+		, num_threads = 2
+		, nrounds = 500
+		, early_stopping_rounds = 40
+		, eval_freq = 20
+		)
+		, times = 5L
+)
+
+print(lgb.bench)
+print(max(unlist(lgb.model$record_evals[["test"]][["auc"]][["eval"]])))
+```
+
+```{r}
+# get feature importance
+lgb.feature.imp = lgb.importance(lgb.model, percentage = TRUE)
+lgb.plot.importance(lgb.feature.imp, top_n = 10L)
+```
+
+```{r}
+# make test predictions
+lgb.test = predict(lgb.model, data = as.matrix(test[, colnames(test) != "Class"]), n = lgb.model$best_iter)
+auc.lgb = roc(test$Class, lgb.test, plot = TRUE, col = "green")
+print(auc.lgb)
+```
+
