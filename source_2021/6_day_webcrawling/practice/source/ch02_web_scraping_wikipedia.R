@@ -5,14 +5,13 @@ library(ggplot2) # 데이터 시각화
 
 # 사이트 확인
 res = GET('https://en.wikipedia.org/wiki/Anscombe%27s_quartet')
-
-
+  
+  
 # HTTP 응답 결과 확인
 print(x = res)
 
 # 상태 코드 확인
 status_code(res)
-
 
 # 테이블 데이터 가져오기
 #mw-content-text > div.mw-parser-output > table:nth-child(11)

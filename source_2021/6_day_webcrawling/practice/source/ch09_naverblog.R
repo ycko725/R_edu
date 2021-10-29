@@ -6,6 +6,7 @@
 # 크롬 개발자도구 네트워크 탭의 XHR에서 관련 파일을 찾습니다. 
 # General 항목에서 찾은 Request URL을 분해하면 아래와 같습니다. 
 
+
 # 'https://section.blog.naver.com/ajax/SearchList.nhn'
 # '?countPerPage=7' <- 고정
 # '&currentPage=1'
@@ -83,7 +84,7 @@ getBlogCnt <- function(searchWord, bgnDate, endDate) {
 }
 
 # 오늘 날짜로 테스트합니다. 
-getBlogCnt(searchWord = '강남역맛집', 
+getBlogCnt(searchWord = '암호화폐', 
            bgnDate = today, 
            endDate = today)
 
@@ -131,7 +132,7 @@ getBlogDf <- function(searchWord, bgnDate, endDate, page = 1) {
 }
 
 # 오늘 날짜로 테스트합니다. 
-df <- getBlogDf(searchWord = '강남역맛집', 
+df <- getBlogDf(searchWord = '암호화폐', 
                 bgnDate = today, 
                 endDate = today, 
                 page = 1)
@@ -189,7 +190,7 @@ getAllBlogDf <- function(searchWord, bgnDate, endDate) {
 }
 
 # 오늘 날짜로 테스트합니다. 
-blogData <- getAllBlogDf(searchWord = '강남역맛집', 
+blogData <- getAllBlogDf(searchWord = '암호화폐', 
                          bgnDate = today, 
                          endDate = today)
 
@@ -203,7 +204,7 @@ print(x = blogData)
 # 날짜를 바꿔가며 조건에 해당하는 모든 블로그를 한 번에 수집하는 반복문을 실행합니다. 
 
 # 검색어를 설정합니다. 
-keyword <- '강남역맛집'
+keyword <- '암호화폐'
 
 # 조회시작일과 조회종료일로부터 벡터를 생성합니다. 
 dates <- seq(from = ymd('2021-01-01'), to = ymd('2021-10-03'), by = '1 day')

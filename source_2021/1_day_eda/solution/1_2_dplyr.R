@@ -63,7 +63,8 @@ library(dplyr)
 
 #### Step 3. 데이터 처리와 관련된 주요 함수 소개 ####
 # 데이터 가져오기
-counties <- readxl::read_xlsx("data/counties.xslx", sheet = 1) 
+getwd()
+counties <- readxl::read_xlsx("counties.xslx", sheet = 1) 
 
 # 실무 할 때, 우리는 데이터를 모른다는 전제하에 출발합니다. 
 # 생각보다 데이터셋이 매우 큽니다. 
@@ -83,9 +84,9 @@ glimpse(counties)
 # 주요 변수들을 추출합니다. 
 ## 데이터 분석가의 입장에서, 데이터 엔지니어 입장에서, 데이터 서비스 기획자 입장에서, 경영자 입장에서 생각해보기
 # 코드 작성
-# state, county, population, employed 변수를 추출하세요. 
+# state, county, population, employed 변수를 추출하세요.
 counties %>% 
-  select(state, county, population, employed)
+  select(state, county, population, employed, public_work)
 
 # 코드 연습
 # 수강생이 원하는 변수를 추출하세요. 
@@ -105,7 +106,6 @@ counties_selected %>%
 # counties_selected %>% 
 # 
 
-
 # ----- (4) filter() -----
 # 조건에 따라 불필요한 관측치는 제거합니다. 
 ## 데이터 분석가의 입장에서, 데이터 엔지니어 입장에서, 데이터 서비스 기획자 입장에서, 경영자 입장에서 생각해보기
@@ -115,7 +115,7 @@ counties_selected <- counties %>%
 # 조건이 한가지 일 때 
 # 인구가 1000000명이 넘는 state & county를 추출하세요. 
 counties_selected %>% 
-  filter(population > 1000000)
+  filter(population > 100000)
 
 # 인구가 1000명이 아래인 state & county를 추출하세요. 
 # (주석을 풉니다. )
@@ -238,11 +238,17 @@ counties_selected %>%
 # ----- (3) group_by -----
 # 각 주별로 요약을 한다면 어떻게 될까요? 
 # summarise() 앞에 group_by만 추가하면 됩니다. 
-counties_selected %>% 
+counties %>% 
+  select(state, private_work, public_work, self_employed) %>% 
   group_by(state) %>% 
   summarise(min_private_work = min(private_work), 
             max_public_work = max(public_work), 
-            average_self_employed = mean(self_employed))
+            average_self_employed = mean(self_employed)) %>% 
+  filter(min_private_work > 50)
+  
+  
+## DB 연동 코드 작성
+
 
 # ----- (4) multiple summarise() -----
 # state와 region별로 평균과 중간값을 구하는 방법입니다. 

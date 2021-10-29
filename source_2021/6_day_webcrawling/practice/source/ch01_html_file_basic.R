@@ -1,3 +1,6 @@
+# install.packages("rvest")
+# install.packages("xml2")
+
 library(rvest) # 중요
 library(xml2) 
 
@@ -16,9 +19,11 @@ html_df
 xml_structure(html_df)
 
 ## html_node 함수 사용
+# 구 버전
 html_df %>% 
   html_node('body')
 
+# 신 버전
 html_df %>%
   html_element('body')
 
@@ -40,5 +45,4 @@ html_df %>%
 ## table 태그 확인하기
 html_df = read_html("data/intro3.html", encoding = "utf-8")
 html_df %>% 
-  html_table() -> result
-
+  html_table() 

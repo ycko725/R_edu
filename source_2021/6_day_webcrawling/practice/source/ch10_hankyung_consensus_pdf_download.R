@@ -8,12 +8,12 @@ library(rvest)
 url = "http://consensus.hankyung.com/apps.analysis/analysis.list"
 
 res <- GET(url = url, 
-           query = list(sdate="2021-10-21", 
-                        edate="2021-10-21", 
+           query = list(sdate="2021-10-28", 
+                        edate="2021-10-28", 
                         order_type="", 
                         now_page=1))
 
-# 테이블
+# 테이블 
 res %>% 
   read_html(encoding = "EUC-KR") %>%
   html_node(css = "div.table_style01") %>% 
@@ -36,6 +36,9 @@ data01$첨부파일 = paste0("http://consensus.hankyung.com/", pdf_links)
 data01$파일제목 = pdf_titles
 
 # 다운로드
+# 파이썬 인덱스: 0번째부터 시작
+# R 인덱스: 1번째부터 시작
+
 for (i in 1:nrow(data01)) {
   download.file(url = data01$첨부파일[i], 
                 destfile = paste0("pdf/", data01$파일제목[i]), 

@@ -7,7 +7,7 @@ library(stringr)
 library(rvest)
 
 url <- "https://search.kyobobook.co.kr/web/search"
-keyword = "데이터과학"
+keyword = "금융"
 
 res <- GET(url = url, 
            query = list(vPstrKeyWord = keyword, 
