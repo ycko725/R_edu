@@ -42,7 +42,7 @@ colnames(sample) = c("date", "Open", "High", "Low",
                      "Close", "Volume", "Adjusted", "growth")
 
 # 데이터 확인
-sample
+glimpse(sample)
 summary(sample)
 
 # Step 03 ---- 데이터 시각화 ---- 
