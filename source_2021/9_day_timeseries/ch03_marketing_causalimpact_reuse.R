@@ -14,12 +14,22 @@
 
 
 # Step 01 ---- KOSPI 데이터 불러오기 ---- 
+library(quantmod)
+library(dplyr)
+# install.packages("CausalImpact")
+library(CausalImpact)
+library(zoo)
+
+options(scipen = 100)
 
 
 # KOSPI 지수의 ticker Symbol ^KS11
 # 애플: AAPL
 # 삼성전자: 005930.KS
-
+KOSPI = getSymbols("^KS11", 
+                   from = "2020-01-01", 
+                   to = "2020-05-31", 
+                   auto.assign = FALSE)
 
 # 데이터 확인
 # 날짜, 시가(Open), 고가(High), 저가(Low), 종가(Close), 거래량(Volume), 수정가(Adjusted)
@@ -31,23 +41,36 @@
 
 
 # 시가보다 종가가 높을 경우 "up", 시가가 종가보다 낮을 경우 "down"
+data = data.frame(date = time(KOSPI), 
+                  KOSPI, 
+                  isgrowth = ifelse(Cl(KOSPI) > Op(KOSPI), "up", "down"))
 
+glimpse(data)
+colnames(data) = c("date", "Open", "High", "Low", "Close", "Volume", "Adjusted", "isgrowth")
 
-# 컬럼명 변경
-
-
+head(data)
 # 데이터 확인
+glimpse(data)
 
+data2 = data %>% 
+  dplyr::select(date, Close, Volume)
+
+data3 = na.omit(data2)
+start = "2020-01-01" # 사전확률기간 시작일
+end = "2020-03-31" # 사후확률기간 마지막일
 
 # 1차 코로나 확산 이전 데이터 확률
-
+pre.period = as.Date(c(start, "2020-02-20"))
 
 # 대구 락다운 발표 조치 이후 (이벤트!)
-
+post.period = as.Date(c("2020-02-28", end))
 
 # 모형 학습
+impact = CausalImpact(data3, pre.period, post.period)
+plot(impact)
+summary(impact)
 
-
+str(impact)
 # 결론: 코로나 대확산이 없었다면 주가의 대폭락은 없었을 것 
 # 마케팅에의 적용
 

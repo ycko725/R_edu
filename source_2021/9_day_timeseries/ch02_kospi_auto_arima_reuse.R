@@ -1,10 +1,18 @@
 # Step 01 ---- KOSPI 데이터 불러오기 ---- 
-
+library(quantmod)
+library(dplyr)
+library(ggplot2)
+library(forecast)
 
 # KOSPI 지수의 ticker Symbol ^KS11
 # 애플: AAPL
 # 삼성전자: 005930.KS
+KOSPI = getSymbols("^KS11", 
+                   from = "2020-01-01", 
+                   to = "2021-11-01", 
+                   auto.assign = FALSE)
 
+ts_kospi = ts(as.numeric(KOSPI$KS11.Close), frequency = 20)
 
 # Step 02 ---- 정상성과 차분 ---- 
 # ARIMA 정상성(Stationary)과 차분(Differencing)
@@ -23,29 +31,54 @@
 # -- 참고자료: https://otexts.com/fppkr/stationarity.html#%EB%8B%A8%EC%9C%84%EA%B7%BC%EA%B2%80%EC%A0%95
 
 # Step 03 ---- 정상성과 차분 ---- 
+# install.packages("urca")
+library(urca)
+kpss_test = ur.kpss(ts_kospi)
+summary(kpss_test)
+
+dif_01 = diff(ts_kospi, differences = 1)
+kpss_test2 = ur.kpss(dif_01)
+summary(kpss_test2)
+
+dif_02 = diff(dif_01, differences = 2)
+kpss_test3 = ur.kpss(dif_02)
+summary(kpss_test3)
+
 
 # Step 04 ---- Auto Arima 활용하기 ---- 
 # 주요 참고자료: https://otexts.com/fppkr/arima-r.html
 # 그래프 재 확인하기
-
+ggplot(KOSPI, aes(x = time(KOSPI))) + 
+  geom_line(aes(y = KS11.Close)) + 
+  theme_minimal()
 
 # 모형 적합
-
+arima_fit = auto.arima(ts_kospi)
+arima_fit
 
 # 결과값 해석
-
+# ARIMA(0, 1, 0) with 
+# -- ARIMA(p, d, q)
+# -- p: AR(자기회귀 모형: Autogressive Model)
+# -- d: 차분의 횟수
+# -- q: MA(이동 평균 모형: Moving Average Model)
 
 ## ---- (1) 잔차 확인 ---- 
 # 참고자료: https://otexts.com/fppkr/residuals.html
 # 잔차의 평균은 0이어야 하며, 0이 아닌 경우 예측값이 한쪽으로 편향됨. 
 # 잔차를 확인했을 때, 자기상관이 없어야 함, 자기상관인 경우 추가 정보가 남아있는 것. 
-
+checkresiduals(arima_fit)
 
 # p-value > 0.05 자기상관성이 없음
 # p-value < 0.05 자기상관성이 존재 
 
 ## ---- (2) 예측 ----
+predict = data.frame(forecast(arima_fit, h = 5))
 
+ggplot(predict, aes(x = index(predict), y = Point.Forecast)) + 
+  geom_line() + 
+  geom_ribbon(aes(ymin=Lo.95, ymax = Hi.95), alpha = 0.25) + 
+  geom_ribbon(aes(ymin=Lo.80, ymax = Hi.80), alpha = 0.5)
 
 
 ## 최종모형 선정

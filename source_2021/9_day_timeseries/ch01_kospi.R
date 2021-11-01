@@ -1,6 +1,7 @@
 # Step 01 ---- KOSPI 데이터 불러오기 ---- 
 library(quantmod)
 library(dplyr)
+library(ggplot2)
 
 # KOSPI 지수의 ticker Symbol ^KS11
 # 애플: AAPL
@@ -68,7 +69,7 @@ ggplot(sample[sample$date >= "2001-01-01",], aes(x = date)) +
                 ymax = pmax(Open, Close),
                 fill = growth))
 
-ggplot(sample[sample$date >= "2001-01-02",], aes(x = date)) +
+ggplot(sample[sample$date >= "2021-10-01",], aes(x = date)) +
   geom_linerange(aes(ymin = Low, ymax = High)) +
   geom_rect(aes(xmin = date - 0.3,
                 xmax = date + 0.3,
