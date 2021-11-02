@@ -17,24 +17,38 @@
 #### I. 이항분류 기존 방식 #### 
 #### 단계 1. 데이터 가져오기 ####
 # setwd("~/Documents/R_edu") 사용하지 않습니다. 
-
+loan_data = read.csv("data/cleaned_loan_data.csv", stringsAsFactors = FALSE)
 # 데이터 변환의 이유, 1, 0은 숫자가 아니다. 범주형이다. 
+head(loan_data)
+str(loan_data)
+loan_data$loan_status = as.factor(loan_data$loan_status)
 
 
 
 #### 단계 2. 데이터 분리 ####
+library(caret)
 
+?createDataPartition
+inTrain <- createDataPartition(y = loan_data$loan_status, p = 0.6, list = FALSE)
+train_loan = loan_data[inTrain, ]
+test_loan = loan_data[-inTrain, ]
+dim(train_loan)
 
 #### 단계 3. 모형 개발 #### 
+options(scipen = 100)
+null_model <- glm(loan_status ~ 1, family = "binomial", data = loan_data)
+log_model <- glm(loan_status ~ loan_amnt + grade , family = "binomial", data = loan_data)
 
-
+summary(log_model)
 # 카이제곱 통계량 및 유의확률 구하기
-
+anova(null_model, log_model, test = "Chisq")
 
 # 승산비 구하는 법
+t(exp(log_model$coefficients))
 
 
 # 신뢰구간 구하기
+exp(confint(log_model))
 
 
 # glm은 F 검정 통계량과 모델의 설명력은 제공되지 않는다. 
@@ -46,23 +60,32 @@
 # 만약 자세히 공부하기 원한다면 유쾌한 The R Book에서 관련 내용을 공부하시기를 권면한다. 
 
 #### 단계 4. 모형 예측 ####
-
+pred = predict(log_model, newdata = test_loan, type = "response")
 # type = "response" 속성은 예측 결과를 0~1사이의 확률값으로 반환한다. 
 #### 단계 5. 예측치를 이항형으로 변환 ####
 # 예측치가 0.15 이상이면 1, 0.15 미만이면 0
 # 일단, 0.15인지는 메뉴얼 참조
-
+result_pred = ifelse(pred > 0.3, 1, 0)
 
 #### 단계 6. 분류 정확도 계산 ####
-
+table(test_loan$loan_status, result_pred)
 
 #### 단계 7. 분류 정확도 계산 ####
 # 혼동 매트릭스에 대한 설명은 교재 참조
 # 정확도 계산
+(8091 + 486) / (8091 + 2254 + 804 + 486)
 
 
 #### 단계 8. ROC Curve를 이용한 모델 평가 & AUC ####
 
 ## -- 
 # AUC = Area Under Curve의 뜻으로
+library(ROCR)
+pr <- prediction(pred, test_loan$loan_status)
+prf <- performance(pr, measure = "tpr", x.measure = "fpr")
+plot(prf)
+abline(0, 1, col = "red")
 
+auc <- performance(pr, measure = "auc")
+auc <- auc@y.values[[1]]
+auc

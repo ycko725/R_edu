@@ -1,6 +1,7 @@
 # ------------------
 # caret과 유사한 interface를 가진 h2o 패키지를 소개합니다. 
 # ------------------
+# https://docs.h2o.ai/h2o/latest-stable/h2o-docs/faq/java.html
 
 #### 1. 환경설정 ####
 # 우선 교재를 보시고 자바 설치를 완료 해주시기를 바랍니다. 

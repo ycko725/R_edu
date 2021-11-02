@@ -247,7 +247,6 @@ train_test %>% glimpse()
 docs = str_subset(names(train), "FLAG_DOC")
 live = str_subset(names(train), "(?!NFLAG_)(?!FLAG_DOC)(?!_FLAG_)FLAG_")
 
-
 inc_by_org <- train_test %>% 
   group_by(ORGANIZATION_TYPE) %>% 
   summarise(m = median(AMT_INCOME_TOTAL)) %$% 

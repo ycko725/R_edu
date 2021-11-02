@@ -22,7 +22,7 @@ cl <- parallel::makeCluster(2, setup_timeout = 0.5)
 registerDoParallel(cl)
 
 #### 단계 2. 데이터 가져오기  ####
-setwd("~/Documents/R_edu")
+# setwd("~/Documents/R_edu")
 loan_data <- read.csv("data/cleaned_loan_data.csv", stringsAsFactors = FALSE) # 29091 8
 
 #### 단계 3. 데이터 전처리 ####
@@ -138,7 +138,7 @@ system.time(
 )
 
 #     user   system  elapsed 
-#    29.168    5.071 1465.453 (초) # 24분 소요 (2 core 사용시)
+#    18.594   1.850 788.366  (초) # 약 10여분 소요 (8 core 사용시)
 
 rft
 ggplot(rft)
@@ -172,7 +172,7 @@ system.time(
 )
 
 #   user   system  elapsed 
-# 83.955    9.091 4949.041 > core 2개 82분 소요 
+# 57.700    2.271 1813.627 > core 2개 30분 소요 
 
 gbm
 ggplot(gbm)
@@ -230,11 +230,11 @@ save(snn, file = "model/snn_model.RData")
 # snn <- readRDS("../model/snn_model.rds")
 
 # R 4.0.0 이후 버전
-load("R_NCS_2020/3_day/model/logis_model.RData")
-load("R_NCS_2020/3_day/model/rpt_model.RData")
-load("R_NCS_2020/3_day/model/rft_model.RData")
-load("R_NCS_2020/3_day/model/gbm_model.RData")
-load("R_NCS_2020/3_day/model/snn_model.RData")
+load("model/logis_model.RData")
+load("model/rpt_model.RData")
+load("model/rft_model.RData")
+load("model/gbm_model.RData")
+load("model/snn_model.RData")
 
 ## compare models
 resamps <- resamples(

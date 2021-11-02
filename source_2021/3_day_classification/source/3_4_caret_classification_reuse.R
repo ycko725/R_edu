@@ -4,6 +4,9 @@
 
 #### I. caret 패키지 활용 머신러닝 모형 개발 ####
 #### 단계 1. 병렬처리를 위한 패키지 불러오기  ####
+library(caret) 
+library(tidymodels)
+library(doParallel)
 
 ## 병렬처리
 # 주 목적: 속도 때문에 씀
@@ -11,67 +14,119 @@
 # https://freshrimpsushi.tistory.com/1266
 
 # 현재 자기 컴퓨터의 코어 개수를 반환한다
+detectCores()
 
 # 병렬처리에 쓸 코어를 등록한다. 
 # 보통 50% 쓰는 것을 추천한다. (이유: 모형이 개발되는 동안 다른 간단한 작업도 해야 함)
-
-
+cl = parallel::makeCluster(6, setup_timeout = 0.5)
+registerDoParallel(cl)
 
 #### 단계 2. 데이터 가져오기  ####
-
-# 29091 8
+loan_data <- read.csv("data/cleaned_loan_data.csv", stringsAsFactors = FALSE) # 29091 8
 
 #### 단계 3. 데이터 전처리 ####
 # 결측치 확인
-
+sapply(loan_data, function(x) sum(is.na(x)))
 
 # 중복값 확인
-
+loan_data %>% duplicated() %>% sum() # 374개 확인
+loan_data2 <- loan_data %>% distinct()
 
 # 데이터 타입 확인
-
+glimpse(loan_data)
 
 # 사실 여기부터 모형 개발에 목적에 맞게 기저 범주를 하나씩 설정하며 봐야 하지만. 이 부분은 수강생 분들에게 맡기겠다. 
-
+loan_data2$loan_status <- factor(loan_data2$loan_status, levels = c(0, 1), labels = c("non_default", "default"))
+loan_data2$grade <- as.factor(loan_data2$grade)
+loan_data2$home_ownership <- as.factor(loan_data2$home_ownership)
 # 한꺼번에 하고 싶습니다. 
+loan_data2 <- loan_data2 %>% 
+  mutate_if(is.character, as.factor)
 
+glimpse(loan_data2)
 
 #### 단계 4. 데이터 분리 ####
-
+set.seed(2018)
+inx   <- createDataPartition(loan_data2$loan_status, p = 0.6, list = F)
+train <- loan_data2[ inx, ]
+test  <- loan_data2[-inx, ]
 
 #### 단계 5. 모형 controler 개발 ####
 # caret 패키지의 특징
-
+control <- trainControl(
+  method  = "repeatedcv",
+  number  = 10, # 10겹
+  repeats = 3, # 3번
+  search  = "grid",
+  classProbs = TRUE)
+#summaryFunction = twoClassSummary)
 
 #### 단계 6. 데이터의 통계적인 전처리 ####
 # feature engineering
 # 각각에 대한 설명은 4일차에 진행함
-
+preProc <- c("BoxCox", 
+             "center",
+             "scale",
+             "spatialSign",
+             "corr",
+             "zv")
 
 ## define x, y
 ## logistic regression
+set.seed(2018)
+glimpse(train)
 
+frml <- loan_status ~ loan_amnt + grade + home_ownership + annual_inc + age + emp_cat + ir_cat
 
 #### 단계 7.1. 모형 개발 - 로지스틱회귀 분석 ####
+logis <- train(
+  frml, 
+  data = train, 
+  method     = "glm",
+  metric     = "Accuracy",
+  trControl  = control,
+  preProcess = preProc)
 
 # 이전버전 
-# saveRDS(logis, "R_NCS_2020/3_day/model/logis_model.rds") Version 3.6.3 까지 적용
-
+# saveRDS(logis, "model/logis_model.rds") # Version 3.6.3 까지 적용
+save(logis, file = "model/logis_model.RData")
 
 #### 단계 7.2. 모형 개발 - 의사결정나무 ####
-
+modelLookup("rpart")
 
 # Model Tunning Parameter
 # 4일차에 설명 예정
+rpartGrid <- expand.grid(cp = c(0.001, 0.01, 0.1))
+rpt <- train(
+  frml, 
+  data       = train, 
+  method     = "rpart",
+  metric     = "Accuracy",
+  trControl  = control,
+  preProcess = preProc, 
+  tuneGrid   = rpartGrid)
 
-
-# saveRDS(rpt, "../model/rpt_model.rds")
+rpt
+ggplot(rpt)
+# saveRDS(rpt, "../model/rpt_model.rds") # 3.6.3
+save(rpt, file = "model/rpt_model.RData")
 
 #### 단계 7.3. 모형 개발 - 랜덤포레스트 ####
-
+modelLookup("rf")
+rftGrid <- expand.grid(mtry = c(3, 5, 7))
 
 # system.time은 시간을 재기 위한 것
-
+system.time(
+  rft <- train(
+    frml, 
+    data       = train, 
+    method     = "rf",
+    metric     = "Accuracy",
+    trControl  = control,
+    preProcess = preProc, 
+    tuneGrid   = rftGrid, 
+    ntree      = 500)
+)
 
 #     user   system  elapsed 
 #    29.168    5.071 1465.453 (초) # 24분 소요 (2 core 사용시)
@@ -118,6 +173,7 @@
 # snn <- readRDS("../model/snn_model.rds")
 
 # R 4.0.0 이후 버전
+load("model/logis_model.RData")
 
 
 ## compare models
