@@ -23,7 +23,7 @@ registerDoParallel(cl)
 
 #### 단계 2. 데이터 가져오기  ####
 setwd("~/Documents/R_edu")
-loan_data <- read.csv("R_NCS_2020/3_day/data/cleaned_loan_data.csv", stringsAsFactors = FALSE) # 29091 8
+loan_data <- read.csv("data/cleaned_loan_data.csv", stringsAsFactors = FALSE) # 29091 8
 
 #### 단계 3. 데이터 전처리 ####
 # 결측치 확인
@@ -54,7 +54,6 @@ test  <- loan_data2[-inx, ]
 
 #### 단계 5. 모형 controler 개발 ####
 # caret 패키지의 특징
-
 control <- trainControl(
   method  = "repeatedcv",
   number  = 10, # 10겹
@@ -92,7 +91,7 @@ logis <- train(
 logis
 # 이전버전 
 # saveRDS(logis, "R_NCS_2020/3_day/model/logis_model.rds") Version 3.6.3 까지 적용
-save(logis, file = "R_NCS_2020/3_day/model/logis_model.RData")
+save(logis, file = "model/logis_model.RData")
 
 
 #### 단계 7.2. 모형 개발 - 의사결정나무 ####
@@ -115,7 +114,7 @@ rpt <- train(
 rpt
 ggplot(rpt)
 
-save(rpt, file = "R_NCS_2020/3_day/model/rpt_model.RData")
+save(rpt, file = "model/rpt_model.RData")
 # saveRDS(rpt, "../model/rpt_model.rds")
 
 #### 단계 7.3. 모형 개발 - 랜덤포레스트 ####
@@ -147,7 +146,7 @@ ggplot(rft)
 # 랜덤포레스트의 경우 연산이 많아 시간이 오래걸리므로
 # 모형을 저장하는 것이 중요함
 # saveRDS(rft, "../model/rft_model.rds")
-save(rft, file = "R_NCS_2020/3_day/model/rft_model.RData")
+save(rft, file = "model/rft_model.RData")
 
 #### 단계 7.4. 모형 개발 - GBM(Stochastic Gradient Boosting Model) ####
 modelLookup("gbm")
@@ -181,7 +180,7 @@ ggplot(gbm)
 # 부스팅의 경우 연산이 많아 시간이 오래걸리므로
 # 모형을 저장하는 것이 중요함
 # saveRDS(gbm, "../model/gbm_model.rds")
-save(gbm, file = "R_NCS_2020/3_day/model/gbm_model.RData")
+save(gbm, file = "model/gbm_model.RData")
 
 #### 단계 7.5. 모형 개발 - avNNet(인공신경망) ####
 modelLookup("avNNet")
@@ -219,7 +218,7 @@ ggplot(snn)
 # 인공신경망의 경우 연산이 많아 시간이 오래걸리므로
 # 모형을 저장하는 것이 중요함
 # saveRDS(snn, "../model/snn_model.rds")
-save(snn, file = "R_NCS_2020/3_day/model/snn_model.RData")
+save(snn, file = "model/snn_model.RData")
 
 #### 단계 8. 모형 정확도 기준비교 ####
 

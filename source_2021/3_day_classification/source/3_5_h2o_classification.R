@@ -12,11 +12,11 @@ Sys.getenv("JAVA_HOME")
 # [1] ""
 
 # MacOS
-# Sys.setenv(JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-13.0.2.jdk/Contents/Home")
+Sys.setenv(JAVA_HOME="/Library/Java/JavaVirtualMachines/jdk-11.0.1.jdk/Contents/Home")
 
 # Windows
 # Copy: C:\Program Files\Java\jdk1.8.0_251
-Sys.setenv(JAVA_HOME="C:/Program Files/Java/jdk1.8.0_251")
+# Sys.setenv(JAVA_HOME="C:/Program Files/Java/jdk1.8.0_251")
 
 Sys.getenv("JAVA_HOME")
 # [1] "/Library/Java/JavaVirtualMachines/jdk-13.0.2.jdk/Contents/Home"
@@ -49,12 +49,13 @@ for (pkg in pkgs) {
 }
 
 # 이제 본격적으로 h2o 패키지를 설치합니다. 
-install.packages("h2o", type="source", repos=(c("http://h2o-release.s3.amazonaws.com/h2o/latest_stable_R")))
+install.packages("h2o", type="source", repos="http://h2o-release.s3.amazonaws.com/h2o/rel-zizler/3/R")
 # 시간 소요 꽤 됩니다. (쉬는 시간 가지세요.)
 
 # cran에서 직접 받는 경우 최신버전이 아닐수도 있으니, 가급적 h2o에서 직접 받는 것을 추천합니다. 
 
 #### 3. 설치 데모 확인 ####
+# install.packages("h2o")
 library(h2o)
 localH2O = h2o.init()
 demo(h2o.kmeans)
@@ -80,6 +81,7 @@ spam_h2o <- as.h2o(spam, destination_frame = "spam_h2o")
 class(spam_h2o)
 
 # http://localhost:54321/flow/index.html Check
+# find getFrames 메뉴
 
 #### (2) 결측치 및 중복값 처리 ####
 sapply(spam, function(x) sum(is.na(x)))
@@ -146,7 +148,7 @@ drf <- h2o.randomForest(
   nfolds            = 10,
   ntrees            = 500,
   max_depth         = 30,
-  seed              = 2018)
+  seed              = 2020)
 
 ## 딥러닝 모형
 hdl <- h2o.deeplearning(

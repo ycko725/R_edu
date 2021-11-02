@@ -17,7 +17,7 @@
 #### I. 이항분류 기존 방식 #### 
 #### 단계 1. 데이터 가져오기 ####
 # setwd("~/Documents/R_edu") 사용하지 않습니다. 
-loan_data <- read.csv("R_NCS_2020/3_day/data/cleaned_loan_data.csv", stringsAsFactors = FALSE)
+loan_data <- read.csv("data/cleaned_loan_data.csv", stringsAsFactors = FALSE)
 
 head(loan_data)
 str(loan_data)

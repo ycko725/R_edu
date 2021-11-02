@@ -10,8 +10,8 @@
 
 #### 데이터 전처리 시 기본적원 방법 정리 ####
 #### (2) 데이터 불러오기 ####
-setwd("~/Documents/R_edu")
-loan_data <- read.csv("R_NCS_2020/3_day/data/raw_loan_data.csv", stringsAsFactors = FALSE)
+# setwd("~/Documents/R_edu")
+loan_data <- read.csv("data/raw_loan_data.csv", stringsAsFactors = FALSE)
 str(loan_data)
 
 #### (3) 데이터 탐색하기 ####
