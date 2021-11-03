@@ -265,8 +265,6 @@ table(train$CNT_FAM_MEMBERS)
 table(train$NAME_FAMILY_STATUS)
 ```
 
-
-
 ```{r}
 train %>% 
   filter(!is.na(TARGET), CODE_GENDER != "XNA", CNT_FAM_MEMBERS <= 4) %>% # nrow() ~ 303498

@@ -381,6 +381,7 @@ all_workflows <- model_set %>% workflow_map(resamples = train_resamples, verbose
 ```{r}
 collect_metrics(all_workflows)
 ```
+
 - 현재 결과물에서 `accuracy`에서 추출하고, 그 외 필요한 데이터 가공을 진행하도록 한다. 
 
 ```{r}
