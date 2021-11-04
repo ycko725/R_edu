@@ -61,10 +61,36 @@ eig_val
 # variance.percent : 2.91849782 / 4
 # 만약에 eigenvalue > 1, 각 PC는 표준화된 데이터의 원래 변수 중 하나에서 설명하는 것보다 더 많은 분산을 차지한다는 것을 나타냄. 이는 일반적으로 PC가 유지되는 컷오프 포인트로 사용됩니다. 이는 데이터가 표준화되었을 때만 유효함. 
 # PCA (Kaiser 1961)
+
+# 모형적합 시각화
 fviz_eig(iris_pca_m, addlabels = TRUE, ylim = c(0, 80))
 # 약 2 dimension이면 충분히 많은 정보를 담고 있다고 생각할 수 있음. 
 
 var <- get_pca_var(iris_pca_m)
-var$contrib
-var$cos2
+
+# 산점도 생성을 위한 변수 좌표
+var$contrib 
+
+# 요인 맵의 변수에 대한 표현 품질을 나타냅니다. 이 값은 var.cos2 = var.coord * var.coord 의 제곱 좌표로 계산됩니다.
+var$cos2 
+
+# 주성분에 대한 변수의 기여(백분율)가 포함됩니다. 주어진 주성분에 대한 변수(var)의 기여도는 (백분율) : (var.cos2 * 100) / (성분의 총 cos2)입니다.
 var$coord
+
+# ---- 상관관계 시각화 ---- 
+library(corrplot)
+corrplot(var$cos2, is.corr = FALSE)
+
+# Total cos2 of variables on Dim.1 and Dim.2 
+fviz_cos2(iris_pca_m, choice = 'var', axes = 1:2)
+
+fviz_pca_var(iris_pca_m, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE # Avoid text overlapping
+)
+
+# Contributions of variables to PC1
+fviz_contrib(iris_pca_m, choice = "var", axes = 1, top = 10)
+
+# Contributions of variables to PC2
+fviz_contrib(iris_pca_m, choice = "var", axes = 2, top = 10)
