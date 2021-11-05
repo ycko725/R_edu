@@ -1,70 +1,38 @@
-vb_matches <- readr::read_csv('https://raw.githubusercontent.com/rfordatascience/tidytuesday/master/data/2020/2020-05-19/vb_matches.csv', guess_max = 76000)
+# 참고문헌
+# https://juliasilge.com/blog/xgboost-tune-volleyball/
 
-vb_matches
-
-vb_parsed <- vb_matches %>%
-  transmute(
-    circuit,
-    gender,
-    year,
-    w_attacks = w_p1_tot_attacks + w_p2_tot_attacks,
-    w_kills = w_p1_tot_kills + w_p2_tot_kills,
-    w_errors = w_p1_tot_errors + w_p2_tot_errors,
-    w_aces = w_p1_tot_aces + w_p2_tot_aces,
-    w_serve_errors = w_p1_tot_serve_errors + w_p2_tot_serve_errors,
-    w_blocks = w_p1_tot_blocks + w_p2_tot_blocks,
-    w_digs = w_p1_tot_digs + w_p2_tot_digs,
-    l_attacks = l_p1_tot_attacks + l_p2_tot_attacks,
-    l_kills = l_p1_tot_kills + l_p2_tot_kills,
-    l_errors = l_p1_tot_errors + l_p2_tot_errors,
-    l_aces = l_p1_tot_aces + l_p2_tot_aces,
-    l_serve_errors = l_p1_tot_serve_errors + l_p2_tot_serve_errors,
-    l_blocks = l_p1_tot_blocks + l_p2_tot_blocks,
-    l_digs = l_p1_tot_digs + l_p2_tot_digs
-  ) %>%
-  na.omit()
-
-winners <- vb_parsed %>%
-  select(circuit, gender, year,
-         w_attacks:w_digs) %>%
-  rename_with(~ str_remove_all(., "w_"), w_attacks:w_digs) %>%
-  mutate(win = "win")
-
-losers <- vb_parsed %>%
-  select(circuit, gender, year,
-         l_attacks:l_digs) %>%
-  rename_with(~ str_remove_all(., "l_"), l_attacks:l_digs) %>%
-  mutate(win = "lose")
-
-vb_df <- bind_rows(winners, losers) %>%
-  mutate_if(is.character, factor)
-
-vb_df %>%
-  pivot_longer(attacks:digs, names_to = "stat", values_to = "value") %>%
-  ggplot(aes(gender, value, fill = win, color = win)) +
-  geom_boxplot(alpha = 0.4) +
-  facet_wrap(~stat, scales = "free_y", nrow = 2) +
-  labs(y = NULL, color = NULL, fill = NULL)
-
+# 라이브러리 불러오기
 library(tidymodels)
 
+# 데이터 불러오기
+data("penguins")
+
+# 결측치 제거하기
+penguins = na.omit(penguins)
+
+# 데이터 분리
 set.seed(123)
-vb_split <- initial_split(vb_df, strata = win)
+vb_split <- initial_split(penguins, strata = sex)
 vb_train <- training(vb_split)
 vb_test <- testing(vb_split)
 
+# 모델 개발 - XGBoost 
 xgb_spec <- boost_tree(
   trees = 1000, 
-  tree_depth = tune(), min_n = tune(), 
-  loss_reduction = tune(),                     ## first three: model complexity
-  sample_size = tune(), mtry = tune(),         ## randomness
-  learn_rate = tune(),                         ## step size
+  tree_depth = tune(), 
+  min_n = tune(), 
+  loss_reduction = tune(),  ## first three: model complexity
+  sample_size = tune(), mtry = tune(),  ## randomness
+  learn_rate = tune(),                  ## step size
 ) %>% 
   set_engine("xgboost") %>% 
   set_mode("classification")
 
+# 모델 설정
 xgb_spec
 
+# 하이퍼 파라미터 튜닝 그리드 서치
+?grid_latin_hypercube
 xgb_grid <- grid_latin_hypercube(
   tree_depth(),
   min_n(),
@@ -77,17 +45,18 @@ xgb_grid <- grid_latin_hypercube(
 
 xgb_grid
 
-glimpse(vb_train)
-
+# 머신러닝 워크플로우 설정
 xgb_wf <- workflow() %>%
-  add_formula(win ~ .) %>%
+  add_formula(sex ~ .) %>%
   add_model(xgb_spec)
 
 xgb_wf
 set.seed(123)
-vb_folds <- vfold_cv(vb_train, strata = win, v = 5)
 
-vb_folds
+# 교차검증 셋
+vb_folds <- vfold_cv(vb_train, strata = sex, v = 5)
+
+# 모형 학습을 위한 클러스터 설정 
 cl <- parallel::makeCluster(8, setup_timeout = 0.5)
 doParallel::registerDoParallel(cl)
 
@@ -99,10 +68,11 @@ xgb_res <- tune_grid(
   control = control_grid(save_pred = TRUE)
 )
 
+# 모형학습 결과 
 xgb_res
-
 collect_metrics(xgb_res)
 
+# 최적의 파라미터 산출을 위한 시각화 
 xgb_res %>%
   collect_metrics() %>%
   filter(.metric == "roc_auc") %>%
@@ -116,11 +86,12 @@ xgb_res %>%
   facet_wrap(~parameter, scales = "free_x") +
   labs(x = NULL, y = "AUC")
 
+# 가장 좋은 파라미터 추출 
 show_best(xgb_res, "roc_auc")
-
 best_auc <- select_best(xgb_res, "roc_auc")
 best_auc
 
+# 도출된 최적의 파라미터 적용 
 final_xgb <- finalize_workflow(
   xgb_wf,
   best_auc
@@ -128,24 +99,28 @@ final_xgb <- finalize_workflow(
 
 final_xgb
 
+# Feature Importance 
 library(vip)
 
 final_xgb %>%
   fit(data = vb_train) %>%
   pull_workflow_fit() %>%
-  vip(geom = "point")
+  vip(geom = "point") + 
+  theme_minimal()
 
+# 최종 테스트 셋 적용을 위한 마지막 설정 
 final_res <- last_fit(final_xgb, vb_split)
-
 collect_metrics(final_res)
 
+# 최종 테스트 혼동행렬 분류표 
 final_res %>%
   collect_predictions() %>%
-  roc_curve(win, .pred_lose) %>%
+  roc_curve(sex, .pred_female) %>%
   ggplot(aes(x = 1 - specificity, y = sensitivity)) +
   geom_line(size = 1.5, color = "midnightblue") +
   geom_abline(
     lty = 2, alpha = 0.5,
     color = "gray50",
     size = 1.2
-  )
+  ) + 
+  theme_minimal()
