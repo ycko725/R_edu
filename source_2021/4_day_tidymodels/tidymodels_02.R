@@ -1,6 +1,3 @@
-# 참고문헌
-# https://juliasilge.com/blog/xgboost-tune-volleyball/
-
 # 라이브러리 불러오기
 library(tidymodels)
 
@@ -12,9 +9,9 @@ penguins = na.omit(penguins)
 
 # 데이터 분리
 set.seed(123)
-vb_split <- initial_split(penguins, strata = sex)
-vb_train <- training(vb_split)
-vb_test <- testing(vb_split)
+split <- initial_split(penguins, strata = sex)
+train <- training(split)
+test <- testing(split)
 
 # 모델 개발 - XGBoost 
 xgb_spec <- boost_tree(
@@ -38,7 +35,7 @@ xgb_grid <- grid_latin_hypercube(
   min_n(),
   loss_reduction(),
   sample_size = sample_prop(),
-  finalize(mtry(), vb_train),
+  finalize(mtry(), train),
   learn_rate(),
   size = 30
 )
@@ -54,7 +51,7 @@ xgb_wf
 set.seed(123)
 
 # 교차검증 셋
-vb_folds <- vfold_cv(vb_train, strata = sex, v = 5)
+vb_folds <- vfold_cv(train, strata = sex, v = 5)
 
 # 모형 학습을 위한 클러스터 설정 
 cl <- parallel::makeCluster(8, setup_timeout = 0.5)
@@ -103,24 +100,21 @@ final_xgb
 library(vip)
 
 final_xgb %>%
-  fit(data = vb_train) %>%
-  pull_workflow_fit() %>%
+  fit(data = train) %>%
+  extract_fit_parsnip() %>%
   vip(geom = "point") + 
   theme_minimal()
 
 # 최종 테스트 셋 적용을 위한 마지막 설정 
-final_res <- last_fit(final_xgb, vb_split)
+final_res <- last_fit(final_xgb, split)
 collect_metrics(final_res)
 
 # 최종 테스트 혼동행렬 분류표 
 final_res %>%
   collect_predictions() %>%
   roc_curve(sex, .pred_female) %>%
-  ggplot(aes(x = 1 - specificity, y = sensitivity)) +
-  geom_line(size = 1.5, color = "midnightblue") +
-  geom_abline(
-    lty = 2, alpha = 0.5,
-    color = "gray50",
-    size = 1.2
-  ) + 
-  theme_minimal()
+  autoplot() + 
+  theme_minimal() 
+
+# 참고문헌
+# https://statkclee.github.io/model/tidyverse-parsnip-penguin-xgboost.html#1_tidymodels%EC%99%80_XGBoost12
