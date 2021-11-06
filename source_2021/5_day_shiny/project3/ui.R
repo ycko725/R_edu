@@ -1,31 +1,31 @@
-# install.packages(c('ggplot2', 'shiny'))
 library(shiny)
-library(ggplot2)
+library(shinydashboard)
+library(tidyverse)
 
-dataset <- diamonds
 
-fluidPage(
+dashboardPage(
+  dashboardHeader(title = "Loan Applicant App"),
   
-  titlePanel("Diamonds Explorer"),
-  
-  sidebarPanel(
-    
-    sliderInput('sampleSize', 'Sample Size', min=1, max=nrow(dataset),
-                value=min(1000, nrow(dataset)), step=500, round=0),
-    
-    selectInput('x', 'X', names(dataset)),
-    selectInput('y', 'Y', names(dataset), names(dataset)[[2]]),
-    selectInput('color', 'Color', c('None', names(dataset))),
-    
-    checkboxInput('jitter', 'Jitter'),
-    checkboxInput('smooth', 'Smooth'),
-    
-    selectInput('facet_row', 'Facet Row', c(None='.', names(dataset))),
-    selectInput('facet_col', 'Facet Column', c(None='.', names(dataset)))
+  dashboardSidebar(
+    menuItem(
+      "Loan Applicant Result",
+      tabName = "Loan Satus Tab",
+      icon = icon("snowflake")
+    )
   ),
-  
-  mainPanel(
-    plotOutput('plot')
+  dashboardBody(
+    tabItem(
+      tabName = "temp",
+      box(valueBoxOutput("loan_status_prediction")),
+      box(selectInput("v_sex", label = "Gender",
+                      choices = c("Female", "Male"))),
+      box(selectInput("v_married", label = "Married",
+                      choices = c("No", "Yes"))),
+      box(selectInput("v_credit", label = "Credit History",
+                      choices = c("0", "1"))),
+      box(sliderInput("v_applicant_income", label = "Applicant Income ($)",
+                      min = 150, max = 81000, value = 3000))
+    )
   )
 )
 

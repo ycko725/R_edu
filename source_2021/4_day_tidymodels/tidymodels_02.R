@@ -110,12 +110,17 @@ final_xgb %>%
 final_res <- last_fit(final_xgb, split)
 collect_metrics(final_res)
 
+
+
 # 최종 테스트 혼동행렬 분류표 
 final_res %>%
   collect_predictions() %>%
   roc_curve(sex, .pred_female) %>%
   autoplot() + 
   theme_minimal() 
+
+final_boosted_model <- fit(final_res, penguins)
+save(final_boosted_model, file = "penguin_model.RData")
 
 # 참고문헌
 # https://statkclee.github.io/model/tidyverse-parsnip-penguin-xgboost.html#1_tidymodels%EC%99%80_XGBoost12

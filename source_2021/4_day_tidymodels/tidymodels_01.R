@@ -102,3 +102,4 @@ random_final %>%
   bind_cols(test) %>% 
   multimetric(Species, estimate = .pred_class)
 
+save(random_final, file = "model/model.RData")

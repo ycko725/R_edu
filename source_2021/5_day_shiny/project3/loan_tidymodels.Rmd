@@ -1,0 +1,154 @@
+---
+title: "TidyTuesdayPenguinModel"
+author: "Evan Jung"
+date: "2021-11-06"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## 라이브러리 불러오기
+
+```{r, warning=FALSE, message=FALSE}
+# 데이터 수집
+library(readr)
+
+# 데이터 가공
+library(dplyr) # 데이터 가공
+library(tidyr) # 컬럼 변경
+library(stringr) # 문자열 데이터 다루기 
+library(forcats) # 범주형 데이터 다루기
+library(magrittr) # 파이프라인 작성
+
+# 데이터 모델링
+library(tidymodels) # ML Packages 
+library(themis) # class imbalance 처리
+library(doParallel) # CPU cores 확인
+library(treesnip) # https://github.com/curso-r/treesnip
+```
+
+## 병렬처리 세팅
+```{r}
+detectCores()
+cl <- parallel::makeCluster(8, setup_timeout = 0.5)
+doParallel::registerDoParallel(cl)
+```
+
+
+## 데이터 수집 
+```{r}
+train = read_csv("data/train_ctrUa4K.csv")
+train %<>% rename(Applicant_Income = ApplicantIncome,
+                  CoApplicant_Income = CoapplicantIncome,
+                  Loan_Amount = LoanAmount) 
+
+loan_id = train$Loan_ID
+train %<>% select(-Loan_ID) %>% mutate(Credit_History = as.character(Credit_History))
+
+train %>% 
+  count(Loan_Status)
+
+# 데이터 축소
+train %<>% select(Gender, Married, Applicant_Income, Credit_History, Loan_Status)
+
+glimpse(train)
+```
+
+## 데이터 분리
+```{r}
+set.seed(101)
+
+loan_split <- initial_split(train, prop = 0.8, strata = Loan_Status)
+```
+
+## 레시피
+- For Preprocessing, Feature Engineering, Feature Selection
+
+```{r}
+tidy_recipe <- recipe(Loan_Status ~ ., data = training(loan_split)) %>% 
+  step_mutate(Credit_History = if_else(Credit_History == 1, 1, -1, 0)) %>% 
+  step_scale(all_numeric_predictors(), -Credit_History) %>%  
+  step_impute_mean(all_numeric_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>% 
+  step_dummy(all_nominal_predictors()) %>% 
+  step_zv(all_predictors())
+```
+
+
+## 모델 개발
+
+```{r}
+rf_ml <- rand_forest(trees = tune(), 
+                     min_n = tune()) %>% 
+  set_engine("randomForest") %>% 
+  set_mode("classification")
+
+xgb_ml <- boost_tree(tree = tune(), min_n = tune(), tree_depth = tune()) %>% 
+  set_engine("xgboost") %>% 
+  set_mode("classification")
+```
+
+## 파라미터 튜닝
+
+```{r}
+# Dials pacakge 
+tidy_kfolds <- vfold_cv(train)
+rand_grid <- grid_regular(parameters(rf_ml), levels = 5)
+xgb_grid <- grid_regular(parameters(xgb_ml), levels = 5)
+```
+
+## 모형 학습
+```{r}
+rand_tune = tune_grid(rf_ml
+                      , tidy_recipe
+                      , resamples = tidy_kfolds
+                      , grid = rand_grid)
+
+xgb_tune = tune_grid(xgb_ml
+                     , tidy_recipe
+                     , resamples = tidy_kfolds
+                     , grid = xgb_grid)
+```
+
+## Best Parameters Extraction
+```{r}
+rand_best_param = rand_tune %>% select_best("roc_auc")
+xgb_best_param = xgb_tune %>% select_best("roc_auc")
+```
+
+## finalize Models 
+```{r}
+tidy_rf_model <- finalize_model(rf_ml, rand_best_param)
+tidy_xgb_model <- finalize_model(xgb_ml, xgb_best_param)
+```
+
+## Workflow
+```{r}
+rf_wf <- workflow() %>% 
+  add_model(tidy_rf_model) %>% 
+  add_recipe(tidy_recipe)
+
+xgb_wf <- workflow() %>% 
+  add_model(tidy_xgb_model) %>% 
+  add_recipe(tidy_recipe)
+```
+
+```{r}
+rf_res <- last_fit(rf_wf, loan_split)
+xgb_res <- last_fit(xgb_wf, loan_split)
+bind_rows(
+  rf_res %>% mutate(model = "randomForest"), 
+  xgb_res %>% mutate(model = "xgb")
+) %>% 
+  unnest(.metrics)
+```
+
+```{r}
+# Fit the entire data set using the final wf 
+final_boosted_model <- fit(rf_wf, train)
+save(final_boosted_model, file = "model/loan_model.RData")
+```
+

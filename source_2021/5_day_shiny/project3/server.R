@@ -1,29 +1,45 @@
 library(shiny)
-library(ggplot2)
+library(shinydashboard)
+library(tidymodels)
+library(tidyverse)
+
+load("model/loan_model.RData")
 
 function(input, output) {
   
-  dataset <- reactive({
-    diamonds[sample(nrow(diamonds), input$sampleSize),]
-  })
+  output$loan_status_prediction <- renderValueBox({
+
+    prediction <- predict(
+      final_boosted_model,
+      tibble("Gender" = input$v_sex,
+             "Married" = input$v_married,
+             "Credit_History" = input$v_credit,
+             "Applicant_Income" = input$v_applicant_income)
+      )
+    
+    prediction_prob <- predict(
+      final_boosted_model,
+      tibble("Gender" = input$v_sex,
+             "Married" = input$v_married,
+             "Credit_History" = input$v_credit,
+             "Applicant_Income" = input$v_applicant_income),
+      type = "prob"
+    ) %>% 
+      gather() %>% 
+      arrange(desc(value)) %>% 
+      dplyr::slice(1) %>% 
+      select(value)
+    
+    prediction_color <- if_else(prediction$.pred_class == "N", "red", "blue")
+    
+    valueBox(
+      value = paste0(round(100*prediction_prob$value, 0), "%"),
+      subtitle = paste0("Result: ", prediction$.pred_class),
+      color = prediction_color,
+      icon = icon("snowflake")
+    )
+    
+    })
   
-  output$plot <- renderPlot({
-    
-    p <- ggplot(dataset(), aes_string(x=input$x, y=input$y)) + geom_point()
-    
-    if (input$color != 'None')
-      p <- p + aes_string(color=input$color)
-    
-    facets <- paste(input$facet_row, '~', input$facet_col)
-    if (facets != '. ~ .')
-      p <- p + facet_grid(facets)
-    
-    if (input$jitter)
-      p <- p + geom_jitter()
-    if (input$smooth)
-      p <- p + geom_smooth()
-    
-    print(p)
-    
-  }, height=700)
+  
 }
