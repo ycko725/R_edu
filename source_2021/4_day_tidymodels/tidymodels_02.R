@@ -8,6 +8,7 @@ data("penguins")
 penguins = na.omit(penguins)
 
 # 데이터 분리
+# 과제: loan 데이터로 바꿔서 진행해본다. 
 set.seed(123)
 split <- initial_split(penguins, strata = sex)
 train <- training(split)

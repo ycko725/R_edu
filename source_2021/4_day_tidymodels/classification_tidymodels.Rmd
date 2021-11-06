@@ -76,6 +76,7 @@ library(themis) # class imbalance 처리
 library(discrim) # 베이지안 모델링
 library(tidyposterior) # 베이지안 모델링 성능 비교
 library(doParallel) # CPU cores 확인
+library(treesnip) # https://github.com/curso-r/treesnip
 ```
 
 -   이번에는 데이터를 불러오도록 한다.
@@ -277,6 +278,10 @@ rf_ml <- rand_forest(mtry = tune(), trees = tune(), min_n = tune()) %>%
 xgboost_ml <- boost_tree(mtry = tune(), tree = tune(), min_n = tune(), tree_depth = tune(), learn_rate = tune(), loss_reduction = tune(), sample_size = tune()) %>% 
   set_engine("xgboost") %>% 
   set_mode("classification")
+
+lgb_ml <- boost_tree(mtry = tune(), tree = tune(), min_n = tune(), tree_depth = tune(), learn_rate = tune(), loss_reduction = tune(), sample_size = tune()) %>% 
+  set_engine("lightgbm") %>% 
+  set_mode("classification")
 ```
 
 ## Feature Engineering
@@ -353,7 +358,7 @@ static_correlations %>%
 
 ```{r}
 recipe_list <- list(Recipe1 = recipe_1, Recipe2 = recipe_2)
-model_list <- list(Random_Forest = rf_ml, Decision_Tree = dt_ml, Logistic_Regression = logistic_ml, XGBoost = xgboost_ml)
+model_list <- list(Random_Forest = rf_ml, Decision_Tree = dt_ml, Logistic_Regression = logistic_ml, XGBoost = xgboost_ml, LightGBM = lgb_ml)
 ```
 
 -   workflow_sets()를 활용하여 최종적인 model_set를 완료한다.
