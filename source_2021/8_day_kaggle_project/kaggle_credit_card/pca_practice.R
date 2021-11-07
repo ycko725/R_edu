@@ -89,8 +89,8 @@ fviz_pca_var(iris_pca_m, col.var = "cos2",
              repel = TRUE # Avoid text overlapping
 )
 
-# Contributions of variables to PC1
+# Contributions of variables to PC1 (주성분)
 fviz_contrib(iris_pca_m, choice = "var", axes = 1, top = 10)
 
-# Contributions of variables to PC2
+# Contributions of variables to PC2 (주성분)
 fviz_contrib(iris_pca_m, choice = "var", axes = 2, top = 10)
