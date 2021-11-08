@@ -20,14 +20,20 @@ library(tidyverse)
 # - scale: 데이터 스케일링 여부
 
 # ---- 데이터 수집 ---- 
-
+data("decathlon2")
+glimpse(decathlon2)
+decathlon2
 
 # 마지막 3개의 데이터는 수치 데이터와 거리가 멀다. 
+new_data = decathlon2[1:23, 1:10]
+glimpse(new_data)
 
 # Data Standardization
 # -- Scaling: 각 수치형의 범위가 다 다름
 # 예): g vs kg, m vs km 동일하게 사용가능한가? 
 # 각각의 데이터의 수치를 그대로 비교가 가능한가? 
+# --- linear 모델을 쓸 때는 효과 0
+# --- tree-based 모델을 쓸 때는 효과 x
 # 식 (x1 - mean(x)) / sd(x))
 # --> x1은 임의의 한개의 데이터
 # --> mean(x)은 전체 데이터의 평균
@@ -39,13 +45,16 @@ library(tidyverse)
 # - scale.unit = TRUE, TRUE값을 지정하면 스케일링을 함
 # - ncp: 최종 결괏값의 차원의 개수를 지정할 수 있다. 
 # - graph: A logical value. 
-
+new_data
+iris_pca_m = PCA(iris[, -5], graph = FALSE)
+iris_pca_m
 
 # PCA의 수학적 이해
 # get_eigenvalue(res.pca): eigenvalues(고유값)/Variance(분산)
 # -- 분산이 가장 큰 방향(또는)이 데이터에서 가장 많은 정도를 담고 있는 방향이다. 
 # -- 데이터의 분산이 클수록 데이터를 의미있게 분석할 수 있다. 
-
+eig_val = get_eigenvalue(iris_pca_m)
+eig_val
 
 # 해석
 # - eigenvalue 모든 합을 구하면 
@@ -55,25 +64,33 @@ library(tidyverse)
 # PCA (Kaiser 1961)
 
 # 모형적합 시각화
+fviz_eig(iris_pca_m, addlabels = TRUE, ylim = c(0, 80))
 
 # 약 2 dimension이면 충분히 많은 정보를 담고 있다고 생각할 수 있음. 
-
+var <- get_pca_var(iris_pca_m)
 
 # 산점도 생성을 위한 변수 좌표
-
+var$contrib
 
 # 요인 맵의 변수에 대한 표현 품질을 나타냅니다. 이 값은 var.cos2 = var.coord * var.coord 의 제곱 좌표로 계산됩니다.
+var$cor
 
 
 # 주성분에 대한 변수의 기여(백분율)가 포함됩니다. 주어진 주성분에 대한 변수(var)의 기여도는 (백분율) : (var.cos2 * 100) / (성분의 총 cos2)입니다.
-
+var$coord
 
 # ---- 상관관계 시각화 ---- 
-
+library(corrplot)
+corrplot(var$cos2, is.corr = FALSE)
 
 # Total cos2 of variables on Dim.1 and Dim.2 
+fviz_cos2(iris_pca_m, choice = "var", axes= 1:2)
 
 # Contributions of variables to PC1 (주성분)
+fviz_contrib(iris_pca_m, choice = "var", axes = 1, top = 10)
 
 # Contributions of variables to PC2 (주성분)
 
+fviz_pca_var(iris_pca_m, col.var = "cos2", 
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE)

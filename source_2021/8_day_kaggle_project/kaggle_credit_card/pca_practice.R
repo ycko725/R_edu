@@ -1,5 +1,8 @@
 # PCA(Principal Component Analysis) 분석
 # - 차원축소(Dimensionality Reduction)와 변수추출(Feature Extraction)기법으로 널리 쓰임. 
+# -- 변수 선택 (Feature Selection)
+# -- 도메인 기반
+# 매출액, 판매량,
 # - 이론 참고자료: https://ratsgo.github.io/machine%20learning/2017/04/24/PCA/
 # - 본 장에서는 주로 코드 설명 위주로 작성함. 
 # 변수 간의 공분산/상관을 조사하는 스펙트럼 분해(Spectral Decomposition)
@@ -9,6 +12,7 @@
 # - prcomp(): Singular Value Decomposition
 # - R 문서에 따르면 prcomp()의 정확도가 매우 약간 좋다고 함. 
 # - 그러나 여기에서는 PCA() 함수를 주로 사용하도록 함. 
+# https://www.kaggle.com/mlg-ulb/creditcardfraud
 
 # install.packages("factoextra")
 library(factoextra)
