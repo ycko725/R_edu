@@ -1,5 +1,6 @@
 # ---- 참고문헌 ----
 # Illustrated Guide to ROC and AUC: https://www.r-bloggers.com/2015/06/illustrated-guide-to-roc-and-auc/#google_vignette
+
 # ---- 패키지 ----
 library(randomForest)
 library(caret)
@@ -13,9 +14,6 @@ library(dplyr)
 library(readr)
 
 # ---- 데이터 불러오기 ----
-raw.data <- read_csv("data/creditcard.csv")
-idx <- createDataPartition(raw.data$Class, p = 0.2, list = F)
-raw.data <- raw.data[idx,]
 
 # ---- Utils Function ----
 calculate_roc <- function(verset, cost_of_fp, cost_of_fn, n=100) {
@@ -96,43 +94,22 @@ plot_confusion_matrix <- function(verset, sSubtitle) {
 # ---- 상관관계 그래프 ----
 # - 상관관계가 약한 이유는 사전에 이미 PCA로 적합이 이뤄졌기 때문임.
 # - 이 때, 중요한 것은 Target 변수와 상관관계가 높은 것에 유의해서 본다. 
-correlations <- cor(raw.data,method="pearson")
-corrplot(correlations, number.cex = .9, method = "circle", type = "full", tl.cex=0.8,tl.col = "black")
+
 
 # ---- 데이터 분리 
-set.seed(314)
-nrows <- nrow(raw.data)
-indexT <- sample(1:nrow(raw.data), 0.7 * nrows)
-trainset = raw.data[indexT,]
-verset =   raw.data[-indexT,]
-table(verset$Class)
 
 
 # ---- 모델링 ----
-n <- names(trainset)
-rf.form <- as.formula(paste("Class ~", paste(n[!n %in% "Class"], collapse = " + ")))
-trainset.rf <- randomForest(rf.form,trainset, ntree=100, importance=T)
+
 
 # ---- Feature Importance
 # 연속 변수 시, MSE & Node Purity
 # 명목 변수 시, mean descrease in accuracy & mean decrease in Gini index
 # Node Purity가 높다는 뜻은 분류가 가장 잘 되는 뜻
-varimp = data.frame(trainset.rf$importance)
-trainset.rf
 
-ggplot(varimp, aes(x=reorder(rownames(varimp),IncNodePurity), y=IncNodePurity)) +
-  geom_bar(stat="identity", fill="lightblue") +
-  coord_flip() + 
-  labs(x = "Variable", y = "Variable Importance (IncNodePurity)")
-  theme_minimal()
 
 # ---- 예측 ----
-verset$predicted <- predict(trainset.rf ,verset)
-plot_confusion_matrix(verset, "Random Forest with 100 trees")
+
 
 # ---- roc_auc 그래프 ----
-roc <- calculate_roc(verset, 1, 10, n = 100)
-roc
 
-threshold = 0.15
-plot_roc(roc, threshold, 1, 10)
