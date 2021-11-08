@@ -17,20 +17,27 @@ select_vals = select_vals[!select_vals %in% c("Loan_ID")]
 sidebar_content = sidebarPanel(
   selectInput(
     "y_var", 
-    label   = "Y Variable", 
+    label   = "Y-Variable", 
     choices = select_vals, 
-    selected = "Speed"
+    selected = "Gender"
+  ), 
+  selectInput(
+    "x_var", 
+    label   = "X-Variable", 
+    choices = select_vals, 
+    selected = "Gender"
   )
 )
 
 main_content <- mainPanel(
+  # server와 연결
   plotOutput("plot")
 )
 
 second_panel <- tabPanel(
-  "Visualization", 
-  titlePanel("What"), 
-  p("Use the selector input"), 
+  "데이터 시각화", 
+  titlePanel("Title"), 
+  p("시각화를 위한 변수 선택"), 
   sidebarLayout(
     sidebar_content, main_content
   )
@@ -38,7 +45,7 @@ second_panel <- tabPanel(
 
 # user interface
 ui <- navbarPage(
-  "Data", 
+  "App", 
   intro_panel, 
   second_panel
 )
