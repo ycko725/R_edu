@@ -1,5 +1,4 @@
 # 02-1 --------------------------------------------------------------------
-
 install.packages("multilinguer")
 library(multilinguer)
 install_jdk()
@@ -13,14 +12,14 @@ remotes::install_github("haven-jeon/KoNLP",
                         INSTALL_opts = c("--no-multiarch"))
 
 library(KoNLP)
-
 useNIADic()
 
 
 # -------------------------------------------------------------------------
 library(dplyr)
 text <- tibble(
-  value = c("금융이 미래다"))
+  value = c("금융이 미래다", "위드코로나 최대 실적"))
+
 text
 
 extractNoun(text$value)
@@ -34,19 +33,19 @@ text %>%
 
 
 # -------------------------------------------------------------------------
-# 문재인 대통령 연설문 불러오기
-raw_moon <- readLines("data/speech_moon.txt", encoding = "UTF-8")
+# 뉴스기사 불러오기
+raw_news <- readLines("data/economy_news.txt", encoding = "UTF-8")
 
 # 기본적인 전처리
 library(stringr)
 
-moon <- raw_moon %>%
+news <- raw_news %>%
   str_replace_all("[^가-힣]", " ") %>%  # 한글만 남기기
   str_squish() %>%                      # 중복 공백 제거
   as_tibble()                           # tibble로 변환
 
 # 명사 기준 토큰화
-word_noun <- moon %>%
+word_noun <- news %>%
   unnest_tokens(input = value,
                 output = word,
                 token = extractNoun)
@@ -94,15 +93,14 @@ ggplot(word_noun, aes(label = word, size = n, col = n)) +
 
 
 # 02-3 --------------------------------------------------------------------
-
-sentences_moon <- raw_moon %>%
+sentences_news <- raw_news %>%
   str_squish() %>%
   as_tibble() %>%
   unnest_tokens(input = value,
                 output = sentence,
                 token = "sentences")
 
-sentences_moon
+sentences_news
 
 
 # -------------------------------------------------------------------------
@@ -111,11 +109,11 @@ str_detect("치킨은 맛있다", "피자")
 
 
 # -------------------------------------------------------------------------
-sentences_moon %>%
-  filter(str_detect(sentence, "국민"))
+sentences_news %>%
+  filter(str_detect(sentence, "회복"))
 
 
 # -------------------------------------------------------------------------
-sentences_moon %>%
-  filter(str_detect(sentence, "일자리"))
+sentences_news %>%
+  filter(str_detect(sentence, "에어비앤비"))
 
