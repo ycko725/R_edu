@@ -43,3 +43,44 @@ ggplot(data.frame(prop.table(table(raw_reviews$Dept))), aes(x=Var1, y = Freq*100
   ylab('Percentage of Reviews/Ratings (%)') + 
   geom_text(aes(label=round(Freq*100,2)), vjust=-0.25) + 
   theme_minimal()
+
+# ---- 감성 사전 데이터 셋 변환 ---- 
+glimpse(raw_reviews)
+raw_reviews %>% 
+  mutate(pos_binary = ifelse(Liked > 0, 1, 0)) %>% # 이산형 변수로 변환
+  select(Liked, pos_binary) -> pos_binary_df
+
+idx = sample(1:nrow(raw_reviews), nrow(raw_reviews) * 0.1, replace = FALSE)
+pos_df = pos_binary_df[idx, ]
+
+# 0과 1 비교
+summary(as.factor(pos_df$pos_binary))
+
+# ---- 키워드 점수 계산 위한 데이터셋 생성
+# 텍스트 데이터 추출
+REVIEW_TEXT = as.character(reviews$Review)
+
+TEXT_Token = c()
+for(i in 1:length(REVIEW_TEXT)) {
+  token_words = unlist(tokenize_word_stems(REVIEW_TEXT[i]))
+  
+  Sentence = ""
+  
+  for (tw in token_words) {
+    Sentence = paste(Sentence, tw)
+  }
+  
+  TEXT_Token[i] = Sentence
+}
+
+# ---- Text 
+Corpus_token = Corpus(VectorSource(TEXT_Token))
+Corpus_tm_token = tm_map(Corpus_token, removePunctuation)
+Corpus_tm_token = tm_map(Corpus_token, removeNumbers)
+Corpus_tm_token = tm_map(Corpus_token, removeWords, c(stopwords("english")))
+
+TDM_Token = TermDocumentMatrix(Corpus_tm_token)
+TDM_Matrix_Token = as.matrix(TDM_Token)
+
+# 상위 키워드 추출
+# - quantile() 함수를 
