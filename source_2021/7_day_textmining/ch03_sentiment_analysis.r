@@ -2,7 +2,7 @@
 
 # 감정 사전 불러오기
 library(readr)
-dic <- read_csv("knu_sentiment_lexicon.csv")
+dic <- read_csv("data/knu_sentiment_lexicon.csv")
 
 
 # -------------------------------------------------------------------------
@@ -79,7 +79,7 @@ score_df
 # 04-2 --------------------------------------------------------------------
 
 # 데이터 불러오기
-raw_news_comment <- read_csv("news_comment_parasite.csv")
+raw_news_comment <- read_csv("data/news_comment_parasite.csv")
 
 
 # -------------------------------------------------------------------------

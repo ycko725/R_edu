@@ -98,6 +98,9 @@ nrow(cmt_3)
 # write_csv(cmt_3, "data/youtube_comments.csv")
 
 
+library(readr)
+
+cmt_3 = read_csv("data/youtube_comments.csv")
 
 # 9.3  RcppMeCab 패키지를 이용하여 한글 자연어 처리하기
 # 9.3.1  RcppMeCab 패키지 설치하기
