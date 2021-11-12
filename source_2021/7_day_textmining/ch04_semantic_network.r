@@ -2,7 +2,7 @@
 
 # 기생충 기사 댓글 불러오기
 library(readr)
-raw_news_comment <- read_csv("news_comment_parasite.csv")
+raw_news_comment <- read_csv("data/news_comment_parasite.csv")
 
 # 전처리
 library(dplyr)

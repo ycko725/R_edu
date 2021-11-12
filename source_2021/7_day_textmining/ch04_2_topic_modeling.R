@@ -1,5 +1,3 @@
-# https://bookdown.org/ahn_media/bookdown-demo/anal3topic.html#%EA%B0%9C%EA%B4%80-1
-
 # 빅카인즈 신문기사 추출
 # https://www.bigkinds.or.kr/
 # 검색어: 인공지능
@@ -137,6 +135,7 @@ out <-
                 processed$vocab,
                 processed$meta)
 
+?textProcessor
 plotRemoved(processed$documents, lower.thresh = seq(0, 100, by = 5))
 
 out <-
@@ -260,13 +259,14 @@ gamma_terms %>%
   geom_text(aes(label = round(gamma, 2)), # 소수점 2자리 
             hjust = 1.4) +                # 라벨을 막대도표 안쪽으로 이동
   geom_text(aes(label = terms), 
-            hjust = -0.05) +              # 단어를 막대도표 바깥으로 이동
+            hjust = -0.05, family = "AppleGothic") +              # 단어를 막대도표 바깥으로 이동
   scale_x_continuous(expand = c(0, 0),    # x축 막대 위치를 Y축쪽으로 조정
                      limit = c(0, 1)) +   # x축 범위 설정
   labs(x = expression("문서 확률분포"~(gamma)), y = NULL,
        title = "AI 관련보도 상위 주제어",
        subtitle = "주제별로 기여도가 높은 단어 중심", 
        caption = "조선일보, 중앙일보, 동아일보, 한국경제, 매일경제 기사 추출 (2021-08 ~ 2021-11) created by McBert") +
-  theme(plot.title = element_text(size = 20)) + 
-  theme_minimal()
+  theme(plot.title = element_text(size = 20), 
+        ) + 
+  theme_minimal(base_family = "AppleGothic")
   
