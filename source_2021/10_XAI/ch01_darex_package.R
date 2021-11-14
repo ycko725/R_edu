@@ -1,35 +1,90 @@
-# ---- step 01 데이터 불러오기 ----
-
-data(titanic_imputed, package = "DALEX")
-head(titanic_imputed)
-
-# ---- step 02 패키지 불러오기 ----
+# Classification use case
+library(dplyr)
 library(DALEX)
+library(DALEXtra)
+library(titanic)
+library(fastDummies)
+library(h2o)
+set.seed(123)
 
-# ---- step 03 모델 생성하기 ---- 
-ranger_model <- ranger::ranger(survived~., data = titanic_imputed, classification = TRUE, probability = TRUE)
+# 데이터 불러오기 및 전처리
+titanic_small <- titanic_train %>%
+  select(Survived, Pclass, Sex, Age, SibSp, Parch, Fare, Embarked) %>%
+  mutate_at(c("Survived", "Sex", "Embarked"), as.factor) %>%
+  mutate(Family_members = SibSp + Parch) %>% # Calculate family members
+  na.omit() %>%
+  dummy_cols() %>%
+  select(-Sex, -Embarked, -Survived_0, -Survived_1, -Parch, -SibSp)
 
-gbm_model <- gbm::gbm(survived~., data = titanic_imputed, distribution = "bernoulli")
+print(head(titanic_small))
 
-# ---- step 04 Model Parts Variable Importance ---- 
-?explain
-explainer_ranger <- explain(ranger_model, data = titanic_imputed, y = titanic_imputed$survived, label = "Ranger Model")
+# 데이터 분리
+titanic_small_y <- titanic_small %>% 
+  select(Survived) %>%
+  mutate(Survived = as.numeric(as.character(Survived))) %>%
+  as.matrix()
 
-?model_parts
-# Ref. https://ema.drwhy.ai/featureImportance.html
-# 가장 중요한 변수는 Gender 임을 강조. 
-fi_ranger <- model_parts(explainer_ranger)
-plot(fi_ranger)
+titanic_small_x <- titanic_small %>%
+  select(-Survived) %>%
+  as.matrix()
 
-# ----- step 05 Model Profile ----
-# ALE Plot
-explainer_ranger <- explain(ranger_model, data = titanic_imputed, y = titanic_imputed$survived, label = "Ranger Model", verbose = FALSE)
-explainer_gbm <- explain(gbm_model, data = titanic_imputed, y = titanic_imputed$survived, label = "GBM Model", verbose = FALSE)
+# h2o 모델 만들기
+h2o.init()
+h2o.no_progress()
 
-ale_ranger <- model_profile(explainer_ranger, variables = "fare", type = "accumulated")
-ale_gbm <- model_profile(explainer_gbm, variables = "fare", type = "accumulated")
-plot(ale_ranger$agr_profiles, ale_gbm$agr_profiles)
+titanic_h2o <- as.h2o(titanic_small, destination_frame = "titanic_small")
 
-# 주요 참고자료
-# https://christophm.github.io/interpretable-ml-book/ale.html#theory-2
-# https://tootouch.github.io/IML/accumulated_local_effects/
+model_h2o <- h2o.deeplearning(x = 2:11,
+                              y = 1,
+                              training_frame = "titanic_small",
+                              activation = "Rectifier", # ReLU as activation functions
+                              hidden = c(16, 8), # Two hidden layers with 16 and 8 neurons
+                              epochs = 100,
+                              rate = 0.01, # Learning rate
+                              adaptive_rate = FALSE, # Simple SGD
+                              loss = "CrossEntropy")
+
+# 테스트 데이터 셋
+henry <- data.frame(
+  Pclass = 1,
+  Age = 8,
+  Fare = 72,
+  Family_members = 0,
+  Sex_male = 1,
+  Sex_female = 0,
+  Embarked_S = 0,
+  Embarked_C = 1,
+  Embarked_Q = 0,
+  Embarked_ = 0
+)
+
+henry_h2o <- as.h2o(henry, destination_frame = "henry")
+predict(model_h2o, henry_h2o) %>% print()
+
+# Explain Function()
+explainer_titanic_h2o   <- DALEXtra::explain_h2o(model = model_h2o,
+                                                 data = titanic_small[ , -1],
+                                                 y = as.numeric(as.character(titanic_small$Survived)),
+                                                 label = "MLP_h2o",
+                                                 colorize = FALSE)
+
+# Model Performance
+mp_titinic_h2o   <- model_performance(explainer_titanic_h2o)
+mp_titinic_h2o
+
+plot(mp_titinic_h2o)
+plot(mp_titinic_h2o, geom = "boxplot")
+
+vi_titinic_h2o   <- model_parts(explainer_titanic_h2o)
+plot(vi_titinic_h2o)
+vi_titinic_h2o   <- model_parts(explainer_titanic_h2o, type="difference")
+plot(vi_titinic_h2o)
+
+# Variable Reponse
+mp_age_h2o    <- model_profile(explainer_titanic_h2o, variable =  "Pclass")
+plot(mp_age_h2o)
+
+# Prediction Understanding
+pp_h2o   <- predict_parts(explainer_titanic_h2o, henry, type = "break_down")
+
+plot(pp_h2o)
