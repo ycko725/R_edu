@@ -1,12 +1,15 @@
+# https://github.com/apple/tensorflow_macos
 library(tensorflow)
-library(reticulate)
+library(reticulate) # R에서 파이썬 코드를 쓸 수 있도록 도와주는 패키지
+
+# 아나콘다로 가상환경 설정 (tf_env)
+# tf_env 환경안에서 텐서플로우 설치 진행
 
 use_python("~/miniforge3/envs/tf_env/bin/python", require = T)
 use_condaenv(condaenv = "tf_env", conda = "~/miniforge3/condabin/conda")
 
-py_config()
+py_config() # crash 일어날 가능성이 큼
 tf$constant("Hellow Tensorflow")
-
 
 library(keras)
 library(tfdatasets)
