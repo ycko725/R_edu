@@ -1,3 +1,5 @@
+sessionInfo()
+
 # https://github.com/apple/tensorflow_macos
 library(tensorflow)
 library(reticulate) # R에서 파이썬 코드를 쓸 수 있도록 도와주는 패키지

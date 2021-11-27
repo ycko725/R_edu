@@ -1,25 +1,13 @@
 ---
 title: "Kaggle with R"
-date: 2020-08-08T21:00:00+09:00
+date: 2021-08-08T21:00:00+09:00
 output: 
   html_document: 
     keep_md: true
     toc: true
-tags:
-  - "Kaggle"
-  - "R"
-  - "pins"
-categories:
-  - "Kaggle"
-  - "R"
-menu: 
-  r:
-    name: Kaggle with R
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
-```
+
 
 
 ## XGBoost 개요
@@ -52,59 +40,32 @@ each individual tree and leaves space for future trees to improve the model.
 
 ## 실습 코드
 - 우선 패키지부터 설치한다. 
-```{r}
+
+```r
 library(tidyverse)
 library(xgboost)
 ```
 
-
-### (1) Kaggle API with R
-- 먼저 `[Kaggle]`에 회원 가입을 한다. 
-- 회원 가입 진행 후, `Kaggle`에서 `kaggle.json` 파일을 다운로드 받는다. 
-
-![](https://chloevan.github.io/img/kaggle/kaggle_with_colab/kaggle_01_api.png)
-
-- 그리고 아래와 같이 `kaggle.json`을 `RStudio`에 등록한다. 
-
-```{r}
-# install.packages("pins")
-library(pins)
-board_register_kaggle(name = "kaggle", token = "kaggle.json")
-```
-- [pins](http://pins.rstudio.com/)는 일종의 `cache`를 이용한 자원 관리 패키지이다. 
-  + 원어: Pin remote resources into a local cache to work offline, improve speed and avoid recomputing; discover and share resources in local folders, 'GitHub', 'Kaggle' or 'RStudio Connect'. Resources can be anything from 'CSV', 'JSON', or image files to arbitrary R objects.
-  
-- 이 패키지를 이용하면 보다 쉽게 `kaggle` 데이터를 불러올 수 있다. 
-
-### (2) 데이터 불러오기 
+### (1) 데이터 불러오기 
 - 이제 `titanic` 데이터를 불러오자
   + 처음 `kaggle` 대회에 참여하는 사람들은 우선 `Join Competiton` 버튼을 클릭한다. 
     * 참고: [Google Colab with Kaggle - Beginner](https://chloevan.github.io/settings/kaggle_with_colab_beginner/)
 - 소스코드로 확인해본다. 
-```{r}
-board_kaggle_competitions(username = "j2hoon85", key = "95178d155e4d848edde6e1ea8978e7fd")
 
-board_kaggle_competitions(username = "j2hoon85", key = "95178d155e4d848edde6e1ea8978e7fd", cache = NULL)
-```
-
-- 캐글에서 검색된 `titanic`과 관련된 내용이 이렇게 있다. 
-  + 여기에서 `competition`과 관련된 것은 `c/name_of_competition`이기 때문에 `c/titanic`을 입력하도록 한다. 
-  + (`pins` 패키지를 활용해서 함수를 만들어 볼까 잠깐 생각)
-- 이번에는 `pin_get()` 함수를 활용하여 데이터를 불러온다. 
-```{r}
-pin_get("c/titanic")
-```
-- 출력된 경로에 이미 데이터가 다운받아진 것이다. 
-- 이제 데이터를 불러온다. 
-  + 이 때, `pin_get`을 값을 임의의 변수 `dataset`으로 할당한 후 하나씩 불러오도록 한다. 
-  
-```{r}
+```r
 library(readr)
-dataset <- pin_get("c/titanic")
-train <- read_csv(dataset[3])
-test <- read_csv(dataset[2])
+train <- read_csv("data/train.csv")
+test <- read_csv("data/test.csv")
 
 dim(train); dim(test)
+```
+
+```
+## [1] 891  12
+```
+
+```
+## [1] 418  11
 ```
 
 - 데이터가 정상적으로 불러와진 것을 확인할 수 있다. 
@@ -126,33 +87,74 @@ dim(train); dim(test)
 - 데이터를 불러온 뒤에는 항상 중복값 및 결측치를 확인한다. 
 - 먼저 중복값을 확인하자. 
   + sample code
-```{r}
+
+```r
 temp <- data.frame(a = c(1, 1, 2, 3), 
                    b = c("a", "a", "b", "c"))
 
 sum(duplicated(temp))
 ```
+
+```
+## [1] 1
+```
 - 이와 같은 방식으로 계산할 수 있다. 
 - 중복값을 제거할 때는 `dplyr` 패키지 내에 있는 `distinct()` 사용한다. 
 
-```{r}
+
+```r
 dplyr::distinct(temp)
+```
+
+```
+##   a b
+## 1 1 a
+## 2 2 b
+## 3 3 c
 ```
 
 - 이제 본 데이터에 적용한다. 
 
-```{r}
+
+```r
 train <- dplyr::distinct(train); dim(train)
+```
+
+```
+## [1] 891  12
+```
+
+```r
 test <- dplyr::distinct(test); dim(test)
 ```
+
+```
+## [1] 418  11
+```
 - train 데이터의 결측치의 개수를 확인해본다. 
-```{r}
+
+```r
 colSums(is.na(train))
+```
+
+```
+## PassengerId    Survived      Pclass        Name         Sex         Age 
+##           0           0           0           0           0         177 
+##       SibSp       Parch      Ticket        Fare       Cabin    Embarked 
+##           0           0           0           0         687           2
 ```
 - 훈련데이터에서 결측치가 있는 변수는 `Cabin`, `Age`, `Embarked`로 확인되었다. 
 - test 데이터의 결측치의 개수를 확인해본다. 
-```{r}
+
+```r
 colSums(is.na(test))
+```
+
+```
+## PassengerId      Pclass        Name         Sex         Age       SibSp 
+##           0           0           0           0          86           0 
+##       Parch      Ticket        Fare       Cabin    Embarked 
+##           0           0           1         327           0
 ```
 - 테스트 데이터에서 결측치가 있는 변수는 `Cabin`, `Age`, `Fare`로 확인되었다. 
 
@@ -165,16 +167,24 @@ colSums(is.na(test))
 - Note: 결측치 처리는 하나의 예시이기 때문에 모든 경우에 적용할 수 있는 것은 아니다. 위 처리 또한 필자의 주관적인 판단이므로, 그저 참고만 해주기를 바란다. 
 - 우선 `Age`부터 처리하자. 
 
-```{r}
+
+```r
 class(train$Age)
+```
+
+```
+## [1] "numeric"
 ```
 - 우선 히스토그램으로 데이터의 분포를 확인해보자.
 
-```{r}
+
+```r
 library(ggplot2)
 ggplot(train, aes(x = Age)) + 
   geom_histogram()
 ```
+
+![](titanic_xgboost_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 - 숫자를 재 범주화 할 필요가 있다. 
 
 ### (5) 도메인 지식의 필요성
@@ -189,7 +199,8 @@ ggplot(train, aes(x = Age)) +
   + over 65: senior
 - 이제 코딩을 진행한다. 
   + `cut()` 함수를 활용한다. 
-```{r}
+
+```r
 age_cut <- function(x) {
   
   data <- x["Age"]
@@ -219,7 +230,20 @@ age_cut <- function(x) {
 
 # 이제 변환을 시도한다. 
 train$Age <- age_cut(train)
+```
+
+```
+## [1] "결측치가 존재합니다."
+## The levels are: children teenagers adults senior NA
+```
+
+```r
 test$Age <- age_cut(test)
+```
+
+```
+## [1] "결측치가 존재합니다."
+## The levels are: children teenagers adults senior NA
 ```
 
 - 동일 작업을 해야했기 때문에 함수를 만들었다. 
@@ -230,8 +254,33 @@ test$Age <- age_cut(test)
   + 주어진 변수들을 활용하여 `single`, `small family`, `large family`으로 구분하는 도출 변수를 만들어 보자. 
     * 참고: [Exploring the Titanic Dataset](https://rstudio-pubs-static.s3.amazonaws.com/202517_d1c1e3e9101d49b1a0135a422a9b3748.html#do-families-sink-or-swim-together)
 
-```{r}
+
+```r
 summary(train)
+```
+
+```
+##   PassengerId       Survived          Pclass          Name          
+##  Min.   :  1.0   Min.   :0.0000   Min.   :1.000   Length:891        
+##  1st Qu.:223.5   1st Qu.:0.0000   1st Qu.:2.000   Class :character  
+##  Median :446.0   Median :0.0000   Median :3.000   Mode  :character  
+##  Mean   :446.0   Mean   :0.3838   Mean   :2.309                     
+##  3rd Qu.:668.5   3rd Qu.:1.0000   3rd Qu.:3.000                     
+##  Max.   :891.0   Max.   :1.0000   Max.   :3.000                     
+##      Sex                   Age          SibSp           Parch       
+##  Length:891         children : 64   Min.   :0.000   Min.   :0.0000  
+##  Class :character   teenagers: 68   1st Qu.:0.000   1st Qu.:0.0000  
+##  Mode  :character   adults   :564   Median :0.000   Median :0.0000  
+##                     senior   : 11   Mean   :0.523   Mean   :0.3816  
+##                     NA       :184   3rd Qu.:1.000   3rd Qu.:0.0000  
+##                                     Max.   :8.000   Max.   :6.0000  
+##     Ticket               Fare           Cabin             Embarked        
+##  Length:891         Min.   :  0.00   Length:891         Length:891        
+##  Class :character   1st Qu.:  7.91   Class :character   Class :character  
+##  Mode  :character   Median : 14.45   Mode  :character   Mode  :character  
+##                     Mean   : 32.20                                        
+##                     3rd Qu.: 31.00                                        
+##                     Max.   :512.33
 ```
 - 이 때의 `NA`는 재 가공된 `NA`이다.  
 
@@ -241,13 +290,22 @@ summary(train)
 - 시각화 및 기초 통계량 검증을 통해 의미 있는 데이터를 파악하도록 한다. 
   + 그 외, 다양한 예제는 독자들에게 맡기겠다. 
 - 간단하게 예시만 확인해본다. 
-```{r}
+
+```r
 prop.table(table(train$Sex,train$Survived),1)
+```
+
+```
+##         
+##                  0         1
+##   female 0.2579618 0.7420382
+##   male   0.8110919 0.1889081
 ```
 - 교차분석을 통해서 확인할 수 있는 것은 여성들이 살 확률이 더 높았다는 것이다. 
   + `Lady First` 
 
-```{r}
+
+```r
 library(gridExtra)
 library(ggplot2)
 library(dplyr)
@@ -275,6 +333,8 @@ p2 <- train%>%
 grid.arrange(p1, p2, ncol=2)
 ```
 
+![](titanic_xgboost_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+
 - 교차분석을 통해 확인된 사항을 시각적으로 한번 더 증명하면 된다. 
 - Note: `summarize` 함수가 `dplyr version 1.0.0`과 함께 업데이트 되었다. 
   + 현재 `.groups`를 실험하고 있으며, 만약 기존과 같이 사용하고 싶다면, 아래와 같이 설정한다. [참조: dplyr 1.0.0: last minute additions](https://www.tidyverse.org/blog/2020/05/dplyr-1-0-0-last-minute-additions/)
@@ -288,15 +348,34 @@ options(dplyr.summarise.inform = FALSE)
 ### (7) 변수 선택 및 변환
 - 변수 선택 시, 기본은 ID와 이름은 제거 한다. 
 - 또한, 모든 변수가 수치형 또는 `factor`로 변환 한다. 
-```{r}
+
+```r
 dplyr::glimpse(train)
+```
+
+```
+## Rows: 891
+## Columns: 12
+## $ PassengerId <dbl> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17,…
+## $ Survived    <dbl> 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 1, 0, 1…
+## $ Pclass      <dbl> 3, 1, 3, 1, 3, 3, 1, 3, 3, 2, 3, 1, 3, 3, 3, 2, 3, 2, 3, 3…
+## $ Name        <chr> "Braund, Mr. Owen Harris", "Cumings, Mrs. John Bradley (Fl…
+## $ Sex         <chr> "male", "female", "female", "female", "male", "male", "mal…
+## $ Age         <fct> adults, adults, adults, adults, adults, NA, adults, childr…
+## $ SibSp       <dbl> 1, 1, 0, 1, 0, 0, 0, 3, 0, 1, 1, 0, 0, 1, 0, 0, 4, 0, 1, 0…
+## $ Parch       <dbl> 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 1, 0, 0, 5, 0, 0, 1, 0, 0, 0…
+## $ Ticket      <chr> "A/5 21171", "PC 17599", "STON/O2. 3101282", "113803", "37…
+## $ Fare        <dbl> 7.2500, 71.2833, 7.9250, 53.1000, 8.0500, 8.4583, 51.8625,…
+## $ Cabin       <chr> NA, "C85", NA, "C123", NA, NA, "E46", NA, NA, NA, "G6", "C…
+## $ Embarked    <chr> "S", "C", "S", "S", "S", "Q", "S", "S", "S", "C", "S", "S"…
 ```
 - 변수 선택을 하도록 하는데, 여기에서는 `PassengerId`, `Name`, `Ticket`은 제거한다. 
   + 값을 출력해보면 알겠지만, `level`의 수가 많다. 
 - 또한 `Cabin`의 결측치가 많기 때문에 또한 제거한다. 
   + `train` & `test` 데이터 모두에 적용한다. 
 - 이제 티겟값을 의미하는 `Fare`를 제외하고 모든 변수를 범주화를 진행한다.
-```{r}
+
+```r
 feature_df <- function(train, test) {
   
   # 데이터셋 합치기
@@ -321,9 +400,29 @@ master <- feature_df(train, test)
 summary(master)
 ```
 
+```
+##  Survived   Pclass      Sex             Age      SibSp       Parch     
+##  0   :549   1:323   female:466   children : 87   0:891   0      :1002  
+##  1   :342   2:277   male  :843   teenagers: 97   1:319   1      : 170  
+##  NA's:418   3:709                adults   :837   2: 42   2      : 113  
+##                                  senior   : 13   3: 20   3      :   8  
+##                                  NA       :275   4: 22   4      :   6  
+##                                                  5:  6   5      :   6  
+##                                                  8:  9   (Other):   4  
+##       Fare         Embarked
+##  Min.   :  0.000   C :270  
+##  1st Qu.:  7.896   Q :123  
+##  Median : 14.454   S :914  
+##  Mean   : 33.281   NA:  2  
+##  3rd Qu.: 31.275           
+##  Max.   :512.329           
+## 
+```
+
 ### (8) 데이터셋 준비
 - 머신러닝 수행 전, xgboost에 맞도록 `matrix`로 변환해줘야 한다. - 우선 `Survived` 값 기준으로 분리 한다. 
-```{r}
+
+```r
 train <- master %>% filter(is.na(Survived)==FALSE)
 test <- master %>% filter(is.na(Survived)==TRUE)
 ```
@@ -334,7 +433,8 @@ test <- master %>% filter(is.na(Survived)==TRUE)
 - 자세한 설명은 공식 메뉴얼을 참고한다. 
   + [Understand your dataset with XGBoost](https://xgboost.readthedocs.io/en/latest/R-package/discoverYourData.html)
 
-```{r}
+
+```r
 train_label <- as.numeric(train$Survived)-1
 test_label <- test$Survived
 
@@ -352,7 +452,8 @@ dtest <- xgb.DMatrix(data = as.matrix(x_test))
   + [XGBoost Parameters](https://xgboost.readthedocs.io/en/latest/parameter.html)
   
 
-```{r}
+
+```r
 set.seed(2020)
 param <- list(objective   = "binary:logistic",
               eval_metric = "error",
@@ -372,24 +473,19 @@ xgb <- xgb.train(params  = param,
 ### (10) 모형 예측
 - 이제 모형을 예측하자. 
 
-```{r}
+
+```r
 XGB_pred <- predict(xgb, dtest)
 XGB_pred <- ifelse(XGB_pred >= 0.5, 1, 0)
 ```
 - 해당 모형에 대한 중요 변수도를 확인해보자. 
-```{r}
+
+```r
 xgb.importance(colnames(dtrain), model = xgb) %>% 
   xgb.plot.importance(top_n = 30)
 ```
 
-### (11) 모형 결과 제출
-- 최종적인 모형 결과를 제출한다. 
-```{r}
-submission_titanic <- read_csv(dataset[1])
-submission_titanic$Survived <- XGB_pred
-write.csv(submission_titanic, file='~/Desktop/submission_titanic.csv', row.names = F)
-```
-
+![](titanic_xgboost_files/figure-html/unnamed-chunk-20-1.png)<!-- -->
 
 
 

@@ -250,7 +250,7 @@ bwplot(resamps, layout = c(2, 1))
 # Final Model is SNN
 
 # 단계 9. 모형 예측 및 AUC
-pred_snn <- predict(snn, test, type = "prob")
+pred_snn <- predict(logis, test, type = "prob")
 pred_snn$loan_status <- ifelse(pred_snn$non_default > 0.85, 0, 1) # cut-off를 조정하며 맞춰보자
 pred_snn$loan_status <- factor(pred_snn$loan_status, levels = c(0, 1), labels = c("non_default", "default"))
 confusionMatrix(pred_snn$loan_status, test$loan_status, positive = "non_default")
@@ -269,5 +269,26 @@ auc <- auc@y.values[[1]]; auc
 # preProcessing과 모형 튜닝을 과하게 사용하면 오히려 성능이 더 안좋을 수 있다. 
 # 무조건 쓰는 것보다 중요한 것, 왜 써야 하는지에 통계적인 지식이 있지 않으면 오히려 시간대비 성능이 더 떨어질 수 있음을 명심하자! 
 
-
+## ggplot2 버전
+roc = function(actual, pred, n=2) {
+  library(ROCR)
+  library(ggplot2)
+  p = prediction(pred,actual)
+  #Area Under the Curve.
+  auc = as.numeric(performance (p, "auc")@y.values)
+  result = paste("Area Under The Curve = ", round(auc,n))
+  cat(result)
+  
+  perf = performance(p,'tpr','fpr')
+  pf = data.frame(FPR=perf@x.values[[1]],TPR=perf@y.values[[1]])
+  
+  g = ggplot() +
+    geom_line(data=pf,aes(x=FPR,y=TPR),color="blue", size = 0.8) +
+    geom_line(aes(x=c(0,1),y=c(0,1)), color="red") +
+    geom_vline(xintercept = 1) +
+    geom_hline(yintercept = 0) +
+    annotate("text", label = result, x = 0.875, y = 0.05, size = 5, colour = "red")+
+    xlab("False Positive Rate (1-Specificity)")+ylab("True Positive Rate (Sensitivity)")+ggtitle("ROC Curve")
+  print(g)
+}
 
