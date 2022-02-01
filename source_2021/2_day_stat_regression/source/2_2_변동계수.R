@@ -16,7 +16,7 @@ tickers = c("AAPL", "TSLA")
 
 getSymbols(tickers,
            from = "2022-01-02",
-           to = "2022-01-31")
+           to = "2022-01-30")
 
 stock <- map(tickers, function(x) Ad(get(x)))
 stock <- reduce(stock, merge)
