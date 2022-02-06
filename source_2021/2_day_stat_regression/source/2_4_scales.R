@@ -9,7 +9,6 @@ str(albums)
 #--------------------------------#
 z_scores_sales = scale(albums$sales)
 
-
 #--------------------------------#
 #### 3. 기본함수 시각화 ####
 #--------------------------------#
@@ -19,3 +18,5 @@ hist(albums$sales, main = "Original Data", xlab = "Sales")
 
 # Plot the histogram for the Z-scores
 hist(z_scores_sales, main = "Scaled Sales", xlab = "Z-score")
+
+

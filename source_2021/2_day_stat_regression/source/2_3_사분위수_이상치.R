@@ -17,8 +17,8 @@ quantile(albums$sales)
 qs_df <- quantile(albums$sales)
 qs_df
 
-qs_df[4] - qs_df[2] # 제3사분위에서 제1사분위를 뺀 값 출력
-IQR(albums$sales) # 제3사분위에서 제1사분위를 뺀 값 출력
+qs_df[4] - qs_df[2] # 3사분위에서 제1사분위를 뺀 값 출력
+IQR(albums$sales)
 
 # 시각화
 boxplot(albums$sales)
@@ -28,23 +28,28 @@ boxplot(albums$sales)
 #--------------------------------#
 
 # 상한 극단값 추가
-sales2 = c(albums$sales, 10000, 20000, -100, -1000)
+sales2 = c(albums$sales, 450, 460, -100, -1000)
+
+# q1 - 1.5*(q3 - q1) # 하한 극한값 경계 
+# q3 + 1.5*(q3 - q1) # 상한 극한값 경계
 
 q = quantile(sales2)
 q
-# q1 - 1.5*(q3 - q1)
-# q3 + 1.5*(q3 - q1)
 
+
+# 하한 극단 경계값 찾기
 bottom_outlier = q[2] - 1.5 * (q[4] - q[2])
+
+# 상한 극단 경계값 찾기
 top_outlier    = q[4] + 1.5 * (q[4] - q[2])
-
-# 하한 극단값 찾기
-sales2[sales2 < bottom_outlier] # 0
-
-# 상한 극단값 찾기
-sales2[sales2 > top_outlier] # 2개 존재 
+top_outlier
 
 # 실제 극단값 존재하는지 출력
-boxplot(sales2)
+sales2[sales2 < bottom_outlier] # 
+# [1]  -100 -1000
 
+sales2[sales2 > top_outlier]
+
+# 시각화
+boxplot(sales2)
 
