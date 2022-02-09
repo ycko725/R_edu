@@ -34,6 +34,8 @@ p_value # [1] 0.1051389 x 2
 
 # t.test 활용
 t.test(new_df$Sepal.Length, mu = all_mean, alternative = "two.sided")
+# 왼쪽 검정 (less)
+# 오른쪽 검정 (greater)
 
 
 #--------------------------------#
@@ -67,3 +69,26 @@ p_value # [1] 0.1051389 x 2
 # t.test 활용
 t.test(new_df$Sepal.Length, mu = all_mean, alternative = "two.sided")
 
+#--------------------------------#
+#### 2. 문제 3 ####
+#--------------------------------#
+# 단일 모집단의 비율에 대한 가설 검정
+# 가설 설정
+# 귀무가설: 핸드폰 액정의 불량률은 10% 미만이다
+# 대립가설: 핸드폰 액정의 불량률은 10%를 넘는다
+# 데이터 현황
+# 표본의 수는 200개, 총 22개가 불량으로 확인됨
+
+N               = 200
+defec_prod      = 22 
+pop_def_rate    = 0.1
+sample_def_rate = 22 / 200
+
+z = (sample_def_rate - pop_def_rate) / sqrt(pop_def_rate*(1 - pop_def_rate) / N)
+
+alpha <- 0.05
+(c.u <- qnorm(1-alpha) )
+(p.value <- 1 - pnorm(z) )
+
+# prop.test
+prop.test(defec_prod, N, p = 0.1, alternative = "greater", correct = FALSE)
