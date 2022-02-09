@@ -1,4 +1,4 @@
-tmp <- read.table("./data/restitution.txt", header=T)
+tmp <- read.table("../data/restitution.txt", header=T)
 rel <- ifelse(tmp$rst < 0.4134 | tmp$rst > 0.4374, 1, 0)
 
 n <- length(rel)
@@ -11,7 +11,7 @@ alpha <- 0.05
 ( c.u <- qnorm(1-alpha) )
 ( p.value <- 1 - pnorm(z) )
 
-prop.test(nos, n, p=0.1, alternative="greater", correct=FALAE)
+prop.test(nos, n, p=0.1, alternative="greater", correct=FALSE)
 
 # 도표 출력 : 그림 6-9
 par(mar=c(0,1,1,1))
