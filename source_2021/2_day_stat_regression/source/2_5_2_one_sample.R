@@ -12,6 +12,9 @@ sample_mean = 145
 sd          = 7.5
 N           = 10
 
+set.seed(1234)
+data = rnorm(N, mean = 145, sd = 7.5)
+
 
 t_val = (sample_mean-pop_mean) / (sd / sqrt(N))
 t_val
