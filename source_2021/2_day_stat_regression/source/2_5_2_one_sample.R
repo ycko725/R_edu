@@ -12,11 +12,14 @@ sample_mean = 145
 sd          = 7.5
 N           = 10
 
+
 t_val = (sample_mean-pop_mean) / (sd / sqrt(N))
 t_val
 
 p.value <- pt(t_val, df=N-1) * 2
 p.value
+
+t.test(data, mu = 150)
 
 
 
