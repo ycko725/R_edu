@@ -53,7 +53,6 @@ shapiro.test(data3$differences)
 #--------------------------------#
 # 귀무가설: 00치료법은 쥐 몸무게 변화에 영향이 없다
 # 대립가설: 00치료법은 쥐 몸무게 변화에 영향을 준다
-
 t.test(data$Prior, data$Post, paired = TRUE, alternative = "two.sided")
 
 # 검정 통계량 (-4.1849)
@@ -64,3 +63,15 @@ t.test(data$Prior, data$Post, paired = TRUE, alternative = "two.sided")
 # 치료법 전 몸무게 < 치료법 후 몸무게: less 
 # 치료법 전 몸무게 > 치료법 후 몸무게: greater
 
+#--------------------------------#
+#### 4. Manual 검정 ####
+#--------------------------------#
+
+N <- length(data$Prior - data$Post)
+df_mean <- mean(data$Prior - data$Post) # 평균
+df_sd   <- sd(data$Prior - data$Post) # 표준편차
+t_statistic <- df_mean / (df_sd / sqrt(N))
+# t = -4.1849
+
+pt(t_statistic, df=N-1) * 2
+# [1] 0.0007002531
