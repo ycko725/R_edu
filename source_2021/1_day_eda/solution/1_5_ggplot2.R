@@ -12,6 +12,16 @@
 # 더 많은 변수들을 보여주기 전, 항상 보는 사람의 관점에서 그래프를 작성해야 합니다. 
 # 자세한 설명은 여기를 참조하시기를 바랍니다. 
 # Review
+
+# -- example
+library(ggplot2)
+ggplot(iris, aes(x = Sepal.Length, y = Sepal.Width, color = Species)) + 
+  geom_point() + 
+  scale_color_manual(
+    labels = c("setosa", "versicolor", "virginica"), 
+    values = c("red", "blue", "yellow"))
+
+# ---
 library(ggplot2)
 ggplot(iris, 
        aes(x = Sepal.Length, 
