@@ -1,0 +1,189 @@
+---
+title: "빅데이터 분석 II 및 시각화 평가"
+output:
+  html_document:
+    toc: true
+    df_print: paged
+date: "2023-04-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+## 평가 개요
+- 훈련과정명 : (산대특)_공공데이터 활용 빅데이터 분석 및 시각화 전문가 과정 육성
+- 교과목 : 빅데이터 분석 Ⅱ 및 시각화
+- 평가일시 : 2023년 4월 7일
+- 평가자 : 정지훈 강사
+- 학생명 : 홍길동
+
+## 데이터 입출력 (10점)
+- 문제 1. read.csv()를 활용하여 `mpg1.csv` 파일을 불러온다. (5점)
+```{r}
+mpg1 <- read.csv("data/mpg1.csv")
+mpg1
+```
+
+- 문제 2. write.csv()를 활용하여 `mpg1` 데이터를 내보낸다. (5점)
+```{r}
+write.csv(mpg1, "data/test230407.csv")
+```
+
+## 데이터 구조 (25점)
+- 문제 3. 데이터세트에서 행의 앞부분만 6개행만 출력한다. (5점)
+```{r}
+head(mpg1)
+```
+
+- 문제 4. 데이터세트에서 행의 뒷부분부터 6개행만 출력한다. (5점)
+```{r}
+tail(mpg1)
+```
+
+- 문제 5. 데이터세트의 구조와 유형 출력을 한다. (5점)
+```{r}
+str(mpg1)
+```
+
+- 문제 6. 데이터세트의 행과 열의 갯수 출력한다. (5점)
+```{r}
+dim(mpg1)
+```
+
+
+-- 문제 7. 데이터세트의 유형을 출력한다. (5점)
+```{r}
+class(mpg1)
+```
+## 데이터 기본 통계 함수 (25점)
+- 문제 8. mpg1 데이터의 cty 칼럼의 평균을 구한다. (5점)
+```{r}
+mean(mpg1$cty)
+```
+
+- 문제 9. mpg1 데이터의 cty 칼럼의 분산을 구한다. (5점)
+```{r}
+var(mpg1$cty)
+```
+
+- 문제 10. mpg1 데이터의 cty 칼럼의 표준편차를 구한다. (5점)
+```{r}
+sd(mpg1$cty)
+```
+
+- 문제 11. mpg1 데이터의 cty 칼럼의 범위를 구한다. (5점)
+```{r}
+range(mpg1$cty)
+```
+- 문제 12. mpg1 데이터의 cty 칼럼의 사분위수를 구한다. (5점)
+```{r}
+quantile(mpg1$cty)
+```
+
+## 데이터 가공 (20점)
+- dplyr 패키지를 활용하여 데이터 가공을 진행한다. 
+
+- 문제 13. 기존 mpg1 데이터의 변수명을 아래와 같이 변경하고 mpg1_newname1 객체로 저장한다. (5점) 
+  + trans -> transmission
+  + drv -> drive_method
+  + cty -> city
+  + hwy -> highway
+```{r}
+library(dplyr)
+
+mpg1_newname1 = mpg1 %>% 
+  rename(
+    transmission = trans, 
+    drive_method = drv, 
+    city = cty, 
+    highway = hwy
+  )
+
+mpg1_newname1
+```
+
+- 문제 14. mpg1 데이터의 trans의 빈도를 출력한다. (5점)
+```{r}
+mpg1 %>% count(trans)
+```
+
+- 문제 15. mpg1 데이터세트에서 
+manufacturer, cty 컬럼만 선택하고, cty가 25이상의 데이터만 추출한다. (5점)
+```{r}
+mpg1 %>% 
+  select(manufacturer, cty) %>% 
+  filter(cty >= 25)
+```
+
+- 문제 16. group_by()와 summarise()를 활용하여 trans별 평균 cty를 구할 수 있다. (5점)
+```{r}
+mpg1 %>% 
+  group_by(trans) %>% 
+  summarise(m = mean(cty))
+```
+
+## 데이터 통계 분석 (10점)
+- 문제 17. 두 집단의 평균 차이를 검정한다. 
+  + 귀무가설(H0) : auto와 manual의 cty 평균은 차이가 없다. 
+  + 대립가설(H1) : auto와 manual의 cty 평균은 차이가 있다. 
+- t.test 코드를 작성하고, 귀무가설을 채택해야 하는지, 대립가설을 채택해야 하는지 확인한다. 
+```{r}
+t.test(data = mpg1, cty ~ trans)
+```
+- 기본 답안
+  + p-value 값이 1.263e-05, e-n은 10의 n승분의 1(1/10n) / e+n은 10의 n승(10^n)을 의미함. 
+  + 따라서, 1.263e-05는 1263/100000이다. 
+  + 유의 수준 허용 조건 (p < .05)를 충족시키기 때문에 대립가설 : 평균 차이가 있다고 볼 수 있다. 
+  
+  
+## 데이터 시각화 (10점)
+- ggplot2 패키지에 있는 diamonds 데이터를 불러온다. 
+```{r}
+diamonds = ggplot2::diamonds
+diamonds
+```
+
+- (1) 컬럼 carat과 price를 활용하여 산점도를 작성한다. (2점)
+```{r}
+library(ggplot2)
+ggplot(data = diamonds, aes(x = carat, y = price)) + 
+  geom_point()
+```
+
+- (2) 위 코드에서 cut 컬럼을 color로 지정해서 다시 산점도를 작성한다. (2점)
+```{r}
+ggplot(data = diamonds, aes(x = carat, y = price, colour = cut)) + 
+  geom_point()
+```
+
+- (3) cut 범주별 평균 가격을 구한 결과의 막대 그래프를 작성한다. (2점)
+```{r}
+diamonds %>% 
+  group_by(cut) %>% 
+  summarise(mean_price = mean(price)) %>% 
+  ggplot(aes(x = cut, y = mean_price)) + 
+    geom_col()
+```
+
+- (4) cut과 price 컬럼을 활용하여 박스플롯을 작성한다. (2점)
+
+```{r}
+ggplot(data = diamonds, aes(x = cut, y = price)) + 
+  geom_boxplot()
+```
+
+- (5) economics 데이터에서 실업자수 그래프를 작성한다. (2점)
+  + economics 데이터를 가져온다. 
+```{r}
+economics <- ggplot2::economics
+economics
+```
+
+- 선 그래프를 작성한 후, 테마 theme_bw() 적용한다. 
+```{r}
+ggplot(data=economics, aes(x = date, y = unemploy)) + 
+  geom_line() +
+  theme_bw()
+```
+
